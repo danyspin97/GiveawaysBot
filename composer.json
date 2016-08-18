@@ -1,0 +1,28 @@
+{
+  "name": "wisedragonstd/giveaway-bot",
+    "version": "0.0.1",
+    "type": "project",
+    "license": "AGPL-3.0+",
+    "keywords": ["telegram", "bot", "telegram-bot", "giveaway"],
+    "homepage": "https://gitlab.com/WiseDragonStd/GiveawayBot",
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Dany Spin",
+            "homepage": "https://gitlab.com/u/danyspin97",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "ext-redis": "*",
+        "ext-curl": "*",
+        "wisedragonstd/hades-wrapper": ">=0.3.0"
+    },
+    "suggest": {
+        "ext-mysql": "*",
+        "ext-pgsql": "*"
+    }
+}
+
+

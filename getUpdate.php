@@ -18,7 +18,7 @@ error_reporting(E_ALL & ~E_NOTICE);
 
 $bot = new GiveawayBot($token);
 $bot->setLocalization($localization);
-$bot->setDatabase(new Database($driver, $dbname, $user, $password, $bot));
+$bot->setDatabase(new \WiseDragonStd\HadesWrapper\Database($driver, $dbname, $user, $password, $bot));
 $bot->connectToRedis();
 $bot->inline_keyboard = new InlineKeyboard($bot);
 while(true) {

@@ -19,13 +19,14 @@ define('SHOW_ALL', 13);
 define('OPTIONS', 15);
 
 
-class GiveAwayBot extends WiseDragonStd\HadesWrapper\HadesBot {
+class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
 
     public function processMessage() {
         $message = &$this->$update['message'];
         if (isset($message['text'])) {
             // Text sent by the user
             $text = &$message['text'];
+            $message_id = &$message['message_id'];
             $this->getLanguage();
             if (strpos($text, '/start') === 0) {
                 if(!$this->database->checkUserExist()) {
@@ -48,12 +49,42 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\HadesBot {
             } else {
                 switch($this->getStatus()) {
                     case 'ENTERING_TITLE':
-                        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back']);
-                        $this->sendMessageKeyboard($this->localization[$this->language]['EnterHashtag_Msg'], $this->inline_keyboard->getKeyboard());
-                        $this->redis->set($this->chat_id . ':status', ENTERING_HASHTAG);
+                        if (strlen($text) > 5) {
+                            $this->editMessageText($this->localization[$this->language]['Title_Msg'] . $text, $this->redis->get($this->chat_id . 'message_id'));
+                            $new_message = &$this->sendReplyMessageKeyboard($this->localization[$this->language]['EnterHashtag_Msg'], $this->inline_keyboard->getBackSkipButton(), $message_id);
+                            $this->redis->set($this->chat_id . ':message_id', $new_message['message_id']);
+                            $this->redis->set($this->chat_id . ':status', ENTERING_HASHTAG);
+                            $this->redis->hset($this->chat_id . ':create', 'title', $text);
+                        } else {
+                            $new_message = &$this->sendMessageKeyboard($this->localization[$this->language]['TitleLenght_Msg'], $this->inline_keyboard->getBackButton());
+                            $this->redis->set($this->chat_id . 'message_id', $new_message['message_id']);
+                        }
                         break;
                     case 'ENTERING_HASHTAG':
+                        $hashtag = &$this->getHashtag($text);
+                        $hashtag = $hashtag[0];
+                        if (isset($hashtag)) {
+                            // If hashtag doesn't exists already in db
+                            if($hashtag) {
+                                $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back'], ['text' => &$this->localization[$this->language]['Infinite_Button'], 'callback_data' => 'infinite']);
+                                $this->sendMessageKeyboard($this->localization[$this->language]['Entering_MaxPartecipant'], $this->inline_keyboard->getKeyboard());
+                                $this->redis->set($this->chat_id . ':status', ENTERING_MAX);
+                                $this->redis->set($this->chat_id . ':create', 'hashtag', $hashtag);
+                            }
+                        } else {
+                            $this->sendMessageKeyboard($this->localization[$this->language]['ValidHashtag_Msg'], $this->inline_keyboard->getBackSkipKeyboard());
+                        }
                         break;
+                    case 'ENTERING_MAX':
+                        if (is_integer($text) && $text < PHP_INT_MAX) {
+                            $this->sendMessageKeyboard($this->localization[$this->language]['Enter_Description'], $this->inline_keyboard->getBackSkipKeyboard());
+                            $this->redis->set($this->chat_id . ':status', ENTERING_DESCRIPTION);
+                        } else {
+                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back'], ['text' => &$this->localization[$this->language]['InfiniteButton'], 'callback_data' => 'infinite']);
+                            $this->sendMessageKeyboard($this->localization[$this->language]['MaxPartecipantNotValid'], $this->inline_keyboard->getKeyobard());
+                        }
+                        break;
+                    case 'ENTERING_DESC':
                 }
             }
         }
@@ -80,8 +111,19 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\HadesBot {
                     $this->redis->set($this->chat_id . ':status', ENTERING_TITLE);
                     $this->redis->hset($this->chat_id .':create', 'type', $data);
                     break;
-                case 'hashtag
+                case '':
+
              }
          }
+    }
+
+    public function &getHashtags(&$string) {  
+        $hashtags= FALSE;  
+        preg_match_all("/(#\w+)/u", $string, $matches);  
+        if ($matches) {
+            $hashtagsArray = array_count_values($matches[0]);
+            $hashtags = array_keys($hashtagsArray);
+        }
+        return $hashtags;
     }
 }

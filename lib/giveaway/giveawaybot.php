@@ -22,7 +22,7 @@ define('OPTIONS', 15);
 class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
 
     public function processMessage() {
-        $message = &$this->$update['message'];
+        $message = &$this->update['message'];
         if (isset($message['text'])) {
             // Text sent by the user
             $text = &$message['text'];
@@ -67,7 +67,7 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
                             // If hashtag doesn't exists already in db
                             if($hashtag) {
                                 $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back'], ['text' => &$this->localization[$this->language]['Infinite_Button'], 'callback_data' => 'infinite']);
-                                $this->sendMessageKeyboard($this->localization[$this->language]['Entering_MaxPartecipant'], $this->inline_keyboard->getKeyboard());
+                                $this->sendMessageKeyboard($this->localization[$this->language]['EnteringMaxPartecipant_Msg'], $this->inline_keyboard->getKeyboard());
                                 $this->redis->set($this->chat_id . ':status', ENTERING_MAX);
                                 $this->redis->set($this->chat_id . ':create', 'hashtag', $hashtag);
                             }
@@ -77,7 +77,7 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
                         break;
                     case 'ENTERING_MAX':
                         if (is_integer($text) && $text < PHP_INT_MAX) {
-                            $this->sendMessageKeyboard($this->localization[$this->language]['Enter_Description'], $this->inline_keyboard->getBackSkipKeyboard());
+                            $this->sendMessageKeyboard($this->localization[$this->language]['EnterDescription_Msg'], $this->inline_keyboard->getBackSkipKeyboard());
                             $this->redis->set($this->chat_id . ':status', ENTERING_DESCRIPTION);
                         } else {
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back'], ['text' => &$this->localization[$this->language]['InfiniteButton'], 'callback_data' => 'infinite']);
@@ -85,6 +85,10 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
                         }
                         break;
                     case 'ENTERING_DESC':
+                        $this->message_id = $this->redis->get($this->chat_id . ':message_id');
+                        $this->editMessageText($this->localization[$this->language]['Description_Msg'] . $texti, $message_id);
+                        $new_message = $this->sendMessageKeyboard($this->localization[$this->language]['EnterExpiration_Msg'], $this->inline_keyboard->getBackButton());
+                        break;
                 }
             }
         }

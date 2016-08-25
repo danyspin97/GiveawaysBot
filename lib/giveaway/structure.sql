@@ -1,13 +1,13 @@
 CREATE TYPE language AS ENUM('en', 'it', 'fr', 'de', 'ru', 'fa', 'hi', 'pt');
 
 CREATE TABLE "User" (
-    "user_id" unique int,
+    "chat_id" unique int,
     "language" language DEFAULT 'en',
 
     PRIMARY KEY ("user_id")
 );
 
-CREATE TABLE "Giveaaway" (
+CREATE TABLE "Giveaway" (
     "id" SERIAL,
     "name" VARCHAR(32),
     "hashtag" unique VARCHAR(32),

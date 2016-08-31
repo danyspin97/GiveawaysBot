@@ -28,6 +28,7 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
 
     public function processMessage() {
         $message = &$this->update['message'];
+        $this->chat_id = $this->update["message"]["chat"]["id"];
         if (isset($message['text'])) {
             // Text sent by the user
             $text = &$message['text'];
@@ -72,18 +73,18 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
                         $this->response = " ";
                     }
 
-                    $partial .= "*".$row['name']."*".NEWLINE.$row['hashtag'].NEWLINE.NEWLINE;
+                    $partial .= "<b>".$row['name']."</b>".NEWLINE.$row['hashtag'].NEWLINE.NEWLINE;
 
                     if ($row['owner_id'] == $this->update['message']['chat']['id'])
                     {
-                        $partial .= "O W N E D  |  ";
+                        $partial .= "Owned  |  ";
                     }
                     // Show giveaway's status
                     if (date("Y-m-d") > $row['end'])
                     {
-                        $partial .= "C L O S E D".NEWLINE;
+                        $partial .= "Closed".NEWLINE;
                     } else if (date("Y-m-d") == $row['end']) {
-                        $partial .= "L A S T  D A Y".NEWLINE;
+                        $partial .= "Last day".NEWLINE;
                     } else {
                         $left = (strtotime(date("Y-m-d")) - strtotime($row['end'])) / 3600 / 24;
                         $partial .= $left." days".NEWLINE;
@@ -94,7 +95,36 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
 
                   });
                 });
-                $this->sendMessage($this->response, $this->update["message"]["chat"]["id"]);
+
+                $this->sendMessage($this->response);
+            } elseif (preg_match('/^\/show \#(.*)/', $text, $matches)) {
+                $hashtag = $matches[1];
+                $this->response = ' ';
+
+                $this->database->from('Giveaway')->where("hashtag='#".$hashtag."'")->select(["*"], function($row){
+                  $this->response = '<b>'.$row['name'].'</b>'.NEWLINE.$row['hashtag'].NEWLINE.NEWLINE;
+                  $this->response .= $row['desc'].NEWLINE;
+
+                  // Show giveaway's status
+                  if (date("Y-m-d") > $row['end'])
+                  {
+                      $this->response .= "<i>Closed</i>".NEWLINE;
+                  } else if (date("Y-m-d") == $row['end']) {
+                      $this->response .= "<i>Last day</i>".NEWLINE;
+                  } else {
+                      $left = (strtotime(date("Y-m-d")) - strtotime($row['end'])) / 3600 / 24;
+                      $this->response .= '<i>'.$left." days</i>".NEWLINE;
+                  }
+                });
+
+                if ($this->response == ' ') {
+                    $this->sendMessage('<b>No giveaway found</b>');
+                } else {
+                    echo 'Responding to \''.$this->chat_id.'\'';
+                    $this->sendMessage($this->response);
+                }
+            } elseif (strpos($text, '/show') == 0) {
+                $this->sendMessage('You should specify an hashtag:'.NEWLINE.'<code>/show #giveaway</code>');
             } else {
                 switch($this->getStatus()) {
                     case 'ENTERING_TITLE':

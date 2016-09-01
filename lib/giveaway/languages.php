@@ -9,7 +9,9 @@ To start press one of the following buttons or click /help to get help.',
     'Show_Button' => 'Browse',
     'Options_Button' => 'Options',
     'Standard_Button' => 'JoinIn',
-    'Cumulative_Button' => 'ShareIt'
+    'Cumulative_Button' => 'ShareIt',
+    'Show_Hashtag_Missing' => 'You should specify the giveaway\'s hashtag:',
+    'Owned_Button' => 'Owned'
     ]
 ];
 
@@ -18,7 +20,9 @@ $localization = ['it' => [
 Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'Register_Button' => 'Crea',
     'Show_Button' => 'Sfoglia',
-    'Options_Button' => 'Opzioni'
+    'Options_Button' => 'Opzioni',
+    'Show_Hashtag_Missing' => 'Devi specificare l\'hashtag del giveaway:',
+    'Owned_Button' => 'Creato'
     ]
 ];
 

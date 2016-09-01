@@ -1,5 +1,4 @@
 <?php
-
 require './vendor/autoload.php';
 
 define('NEWLINE','
@@ -25,15 +24,16 @@ define('OBJECT_PER_LIST', 3);
 
 
 class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
-
     public function processMessage() {
         $message = &$this->update['message'];
         $this->chat_id = $this->update["message"]["chat"]["id"];
+
         if (isset($message['text'])) {
             // Text sent by the user
             $text = &$message['text'];
             $message_id = &$message['message_id'];
             $this->getLanguage();
+
             if (strpos($text, '/start') === 0) {
                 if(!$this->database->exist("User", ["chat_id" => $message["chat"]["id"]])) {
                     //$this->sendMessageKeyboard($this->localization[$this->langauge]['Welcome_Msg'], $this->inline_keyboard->getChooseLanguageKeyboard());
@@ -49,81 +49,11 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
                 $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Standard_Button'], 'callback_data' => 'standard'], ['text' => &$this->localization[$this->language]['Cumulative_Button'], 'callback_data' => 'cumulative']);
                 $this->sendMessageKeyboard($this->localization[$this->language]['Register_Msg'], $this->inline_keyboard->getKeyboard());
                 $this->redis->set($this->chat_id . ':status', REGISTER);
-            } elseif (strpos($text, '/join') === 0) {
-
-            } elseif (strpos($text, '/stats') === 0) {
-                /**
-                 * Returns giveaways.
-                 */
-
-                $this->response = " ";
-                $this->counter = 0;
-
-                $this->database->from("participants")->where("chat_id=".$this->update["message"]["from"]["id"])
-                     ->select(["*"], function($row){
-                  $this->counter++;
-
-                  $this->database->from("Giveaway")->where("id=".$row["giveaway_id"])->select(["*"], function($row){
-                    
-                    if ($this->counter == OBJECT_PER_LIST + 1)
-                    {
-                        $this->sendMessage($this->response, $this->update["message"]["chat"]["id"]);
-                        $partial = " ";
-                        $this->counter = 0;
-                        $this->response = " ";
-                    }
-
-                    $partial .= "<b>".$row['name']."</b>".NEWLINE.$row['hashtag'].NEWLINE.NEWLINE;
-
-                    if ($row['owner_id'] == $this->update['message']['chat']['id'])
-                    {
-                        $partial .= "Owned  |  ";
-                    }
-                    // Show giveaway's status
-                    if (date("Y-m-d") > $row['end'])
-                    {
-                        $partial .= "Closed".NEWLINE;
-                    } else if (date("Y-m-d") == $row['end']) {
-                        $partial .= "Last day".NEWLINE;
-                    } else {
-                        $left = (strtotime(date("Y-m-d")) - strtotime($row['end'])) / 3600 / 24;
-                        $partial .= $left." days".NEWLINE;
-                    }
-
-                    $partial .= "====================".NEWLINE;
-                    $this->response .= $partial;
-
-                  });
-                });
-
-                $this->sendMessage($this->response);
-            } elseif (preg_match('/^\/show \#(.*)/', $text, $matches)) {
-                $hashtag = $matches[1];
-                $this->response = ' ';
-
-                $this->database->from('Giveaway')->where("hashtag='#".$hashtag."'")->select(["*"], function($row){
-                  $this->response = '<b>'.$row['name'].'</b>'.NEWLINE.$row['hashtag'].NEWLINE.NEWLINE;
-                  $this->response .= $row['desc'].NEWLINE;
-
-                  // Show giveaway's status
-                  if (date("Y-m-d") > $row['end'])
-                  {
-                      $this->response .= "<i>Closed</i>".NEWLINE;
-                  } else if (date("Y-m-d") == $row['end']) {
-                      $this->response .= "<i>Last day</i>".NEWLINE;
-                  } else {
-                      $left = (strtotime(date("Y-m-d")) - strtotime($row['end'])) / 3600 / 24;
-                      $this->response .= '<i>'.$left." days</i>".NEWLINE;
-                  }
-                });
-
-                if ($this->response == ' ') {
-                    $this->sendMessage('<b>No giveaway found</b>');
-                } else {
-                    echo 'Responding to \''.$this->chat_id.'\'';
-                    $this->sendMessage($this->response);
-                }
-            } elseif (strpos($text, '/show') == 0) {
+            } elseif (preg_match('/^\/stats$/', $text, $matches)) {
+                $this->statsAction();
+            } elseif (preg_match('/^\/show \#(.*)$/', $text, $matches)) {
+                $this->showGiveaway($matches[1]);
+            } elseif (preg_match('/^\/show$/', $text, $matches)) {
                 $this->sendMessage('You should specify an hashtag:'.NEWLINE.'<code>/show #giveaway</code>');
             } else {
                 switch($this->getStatus()) {
@@ -188,54 +118,82 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
          $inline_message_id = $callback_query['inline_message_id'] ?? null;
          $data = $callback_query['data'];
          if (isset($data) && isset($this->chat_id)) {
-             switch($data) {
-                case 'register':
-                    $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Standard_Button'], 'callback_data' => 'standard'], ['text' => $this->localization[$this->language]['Cumulative_Button'], 'callback_data' => 'cumulative']);
-                    $this->editMessageTextKeyboard($this->localization[$this->language]['Register_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
-                    $this->redis->set($this->chat_id . ':status', SELECTING_TYPE);
-                    break;
-                case 'standard':
-                    // No break
-                case 'cumulative':
-                    $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back']);
-                    $this->editMessageTextKeyboard($this->localization[$this->language]['EnterTitle_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
-                    $this->redis->set($this->chat_id . ':status', ENTERING_TITLE);
-                    $this->redis->hset($this->chat_id .':create', 'type', $data);
-                    break;
-                case 'back':
-                    switch ($this->getStatus()) {
-                        case OPTIONS:
-                        case SELECTING_TYPE:
-                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Register_Button'], 'callback_data' => 'register']);
-                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Show_Button'], 'callback_data' => 'show']);
-                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Options_Button'], 'callback_data' => 'options']);
-                            $this->editMessageTextKeyboard($this->localization[$this->language]['Menu_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
-                            $this->redis->set($this->chat_id . 'status', MENU);
-                            break;
-                        case ENTERING_TITLE:
-                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Standard_Button'], 'callback_data' => 'standard'], ['text' => $this->localization[$this->language]['Cumulative_Button'], 'callback_data' => 'cumulative']);
-                            $this->editMessageTextKeyboard($this->localization[$this->language]['Register_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
-                            $this->redis->set($this->chat_id . ':status', SELECTING_TYPE);
-                            break;
-                        case ENTERING_HASHTAG:
-                            $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringTitle_Msg'], $this->inline_keyboard->getBackButton(), $message_id);
-                            $this->redis->set($this->chat_id . ':status', ENTERING_TITLE);
-                            break;
-                        case ENTERING_MAX:
-                            $this->editMessageTextKeyboard($this->localization[$this->language]['Entering_hashtag'], $this->inline_keyboard->getBackSkipButton(), $message_id);
-                            $this->redis->set($this->chat_id . ':status', ENTERING_HASHTAG);
-                            break;
-                        case ENTERING_DESC:
-                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back'], ['text' => &$this->localization[$this->language]['Infinite_Button'], 'callback_data' => 'infinite']);
-                            $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringMaxPartecipants_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
-                            $this->redis->set($this->chat_id);
-                            break;
-                        case ENTERING_DATE:
-                            $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringDesc_Msg'], $this->inline_keyboard->getBackSkipButton(), $message_id);
-                            break;
-                    }
-                    break;
-             }
+            if (strpos($data, 'join_') === 0) {
+                $this->editMessageReplyMarkup($message_id, []);
+                $giveaway_id = explode('_', $data)[1];
+
+                // Check for participants' number
+                $this->participants = 0;
+                $this->max_participants = 0;
+                $this->database->from("participants")->where('giveaway_id='.$giveaway_id)->select(["count(*)"], function($row){ $this->participants = $row['count']; });
+
+                $this->database->from("giveaway")->where('id='.$giveaway_id)->select(["max_partecipants"],
+                    function($row){ $this->max_participants = $row['max_partecipants']; });
+
+                if ($this->participants == $this->max_participants) {
+                  $this->editMessageText('<b>Sorry but the giveaway has reached the the maximum number of participants.</b>', $message_id);
+                } else {
+                  $this->database->into('participants')->insert([
+                      'chat_id' => $this->chat_id,
+                      'giveaway_id' => $giveaway_id
+                  ]);
+
+                  $this->editMessageText('<b>You joined this giveaway!</b>', $message_id);
+                }
+            } else {
+                switch($data) {
+                    case 'hide_join_button':
+                        $this->editMessageReplyMarkup($message_id, []);
+                        $this->editMessageText('<i>You refused the giveaway ¯\_(ツ)_/¯</i>', $message_id);
+                        break;
+                    case 'register':
+                        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Standard_Button'], 'callback_data' => 'standard'], ['text' => $this->localization[$this->language]['Cumulative_Button'], 'callback_data' => 'cumulative']);
+                        $this->editMessageTextKeyboard($this->localization[$this->language]['Register_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
+                        $this->redis->set($this->chat_id . ':status', SELECTING_TYPE);
+                        break;
+                    case 'standard':
+                        // No break
+                    case 'cumulative':
+                        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back']);
+                        $this->editMessageTextKeyboard($this->localization[$this->language]['EnterTitle_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
+                        $this->redis->set($this->chat_id . ':status', ENTERING_TITLE);
+                        $this->redis->hset($this->chat_id .':create', 'type', $data);
+                        break;
+                    case 'back':
+                        switch ($this->getStatus()) {
+                            case OPTIONS:
+                            case SELECTING_TYPE:
+                                $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Register_Button'], 'callback_data' => 'register']);
+                                $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Show_Button'], 'callback_data' => 'show']);
+                                $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Options_Button'], 'callback_data' => 'options']);
+                                $this->editMessageTextKeyboard($this->localization[$this->language]['Menu_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
+                                $this->redis->set($this->chat_id . 'status', MENU);
+                                break;
+                            case ENTERING_TITLE:
+                                $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Standard_Button'], 'callback_data' => 'standard'], ['text' => $this->localization[$this->language]['Cumulative_Button'], 'callback_data' => 'cumulative']);
+                                $this->editMessageTextKeyboard($this->localization[$this->language]['Register_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
+                                $this->redis->set($this->chat_id . ':status', SELECTING_TYPE);
+                                break;
+                            case ENTERING_HASHTAG:
+                                $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringTitle_Msg'], $this->inline_keyboard->getBackButton(), $message_id);
+                                $this->redis->set($this->chat_id . ':status', ENTERING_TITLE);
+                                break;
+                            case ENTERING_MAX:
+                                $this->editMessageTextKeyboard($this->localization[$this->language]['Entering_hashtag'], $this->inline_keyboard->getBackSkipButton(), $message_id);
+                                $this->redis->set($this->chat_id . ':status', ENTERING_HASHTAG);
+                                break;
+                            case ENTERING_DESC:
+                                $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back'], ['text' => &$this->localization[$this->language]['Infinite_Button'], 'callback_data' => 'infinite']);
+                                $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringMaxPartecipants_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
+                                $this->redis->set($this->chat_id);
+                                break;
+                            case ENTERING_DATE:
+                                $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringDesc_Msg'], $this->inline_keyboard->getBackSkipButton(), $message_id);
+                                break;
+                        }
+                        break;
+                }
+            }
          }
     }
 
@@ -247,5 +205,102 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
             $hashtags = array_keys($hashtagsArray);
         }
         return $hashtags;
+    }
+
+    // Respond to `/stats` command which returns information about
+    // user's giveaways (both - owned and joined).
+    private function statsAction() {
+        $this->response = " ";
+        $this->counter = 0;
+
+        $this->database->from("participants")->where("chat_id=".$this->update["message"]["from"]["id"])
+             ->select(["*"], function($row){
+          $this->counter++;
+
+          $this->database->from("Giveaway")->where("id=".$row["giveaway_id"])->select(["*"], function($row){
+            
+            if ($this->counter == OBJECT_PER_LIST + 1)
+            {
+                $this->sendMessage($this->response, $this->update["message"]["chat"]["id"]);
+                $partial = " ";
+                $this->counter = 0;
+                $this->response = " ";
+            }
+
+            $partial .= "<b>".$row['name']."</b>".NEWLINE.$row['hashtag'].NEWLINE.NEWLINE;
+
+            if ($row['owner_id'] == $this->update['message']['chat']['id'])
+            {
+                $partial .= "Owned  |  ";
+            } else {
+                $partial .= "Joined |  ";
+            }
+
+            // Show giveaway's status
+            if (date("Y-m-d") > $row['end'])
+            {
+                $partial .= "Closed".NEWLINE;
+            } else if (date("Y-m-d") == $row['end']) {
+                $partial .= "Last day".NEWLINE;
+            } else {
+                $left = (strtotime(date("Y-m-d")) - strtotime($row['end'])) / 3600 / 24;
+                $partial .= $left." days".NEWLINE;
+            }
+
+            $partial .= "====================".NEWLINE;
+            $this->response .= $partial;
+
+          });
+        });
+
+        $this->sendMessage($this->response);
+    }
+
+    // Respond to `/show <hashtag>` command which returns information about
+    // a specific giveaway and permits user to join it if possible.
+    private function showGiveaway($hashtag) {
+        $this->response = ' ';
+
+        $this->database->from('Giveaway')->where("hashtag='#".$hashtag."'")->select(["*"], function($row){
+          $this->response = '<b>'.$row['name'].'</b>'.NEWLINE.$row['hashtag'].NEWLINE.NEWLINE;
+          $this->response .= $row['desc'].NEWLINE.NEWLINE;
+          $this->already_joined = false;
+          $user_id = $this->update["message"]["from"]["id"];
+
+          // Check if the user is already a participant
+          $this->database->from("participants")->where("chat_id=".$user_id." and giveaway_id=".$row['id'])
+               ->select(["*"], function($row) { $this->already_joined = true; });
+
+          if ($this->already_joined == false) {
+              $this->inline_keyboard->addLevelButtons([
+                  'text' => 'Join',
+                  'callback_data' => 'join_'.$row['id']
+              ], [
+                  'text' => 'Cancel',
+                  'callback_data' => 'hide_join_button'
+              ]);
+          } else {
+            $this->response .= 'Joined  |  ';
+          }
+
+          // Show giveaway's status
+          if (date("Y-m-d") > $row['end'])
+          {
+              $this->response .= "Closed".NEWLINE;
+              $this->inline_keyboard->getKeyboard();
+              $this->response = '<b>The requested giveaway is closed.</b>';
+          } else if (date("Y-m-d") == $row['end']) {
+              $this->response .= "Last day".NEWLINE;
+          } else {
+              $left = (strtotime(date("Y-m-d")) - strtotime($row['end'])) / 3600 / 24;
+              $this->response .= $left." days".NEWLINE;
+          }
+        });
+
+        if ($this->response == ' ') {
+            $this->sendMessage('<b>No giveaway found</b>');
+        } else {
+            $this->sendMessage($this->response, $this->inline_keyboard->getKeyboard());
+        }
     }
 }

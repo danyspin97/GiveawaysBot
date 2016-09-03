@@ -20,8 +20,7 @@ $bot = new GiveawayBot($token);
 $bot->setLocalization($localization);
 $bot->setDatabase(new \WiseDragonStd\HadesWrapper\Database($driver, $dbname, $user, $password, $bot));
 $bot->connectToRedis();
+$bot->redis->setOption(Redis::OPT_PREFIX, 'Giveaway:');
 $bot->inline_keyboard = new \WiseDragonStd\HadesWrapper\InlineKeyboard($bot);
-while(true) {
-    $bot->getUpdatesRedis();
-}
+$bot->getUpdatesLocal();
 $bot = null;

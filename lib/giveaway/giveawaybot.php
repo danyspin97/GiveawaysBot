@@ -1,7 +1,5 @@
 <?php
 
-require './vendor/autoload.php';
-
 define('NEWLINE','
 ');
 
@@ -32,10 +30,10 @@ define('PRIZE_DETAIL_EDIT_TYPE', 23);
 define('PRIZE_DETAIL_EDIT_VALUE', 24);
 define('PRIZE_DETAIL_EDIT_CURRENCY', 25);
 define('OBJECT_PER_LIST', 3);
-define('CURRENCY', '€$')
+define('CURRENCY', '€$');
 
 
-class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
+class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
     public function processMessage() {
         $message = &$this->update['message'];
@@ -148,7 +146,7 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
                         }
                         break;
                     case ENTERING_DESC:
-                        $this->editMessageText($this->localization[$this->language]['Description_Msg'] . $text, $this->redis->get($this->chat_id . ':message_id');
+                        $this->editMessageText($this->localization[$this->language]['Description_Msg'] . $text, $this->redis->get($this->chat_id . ':message_id'));
                         $new_message = $this->sendReplyMessageKeyboard($this->localization[$this->language]['EnteringDate_Msg'], $this->inline_keyboard->getBackKeyboard(), $message_id);
                         $this->redis->set($this->chat_id . ':message_id', $new_message['message_id']);
                         $this->redis->hSet($this->chat_id . ':create', 'desc', substr($text, 0, 49));
@@ -157,7 +155,7 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
                     case ENTERING_DATE:
                         if (is_integer($text) && $text > 2 && $text < 41) {
                             $date = time() + strtotime($text . ' days');
-                            $this->editMessageText($this->localization[$this->language]['Date_Msg'] . date('Y-d-m', $date), $this->redis->get($this->chat_id . ':message_id');
+                            $this->editMessageText($this->localization[$this->language]['Date_Msg'] . date('Y-d-m', $date), $this->redis->get($this->chat_id . ':message_id'));
                             $new_message = $this->sendMessageKeyboard($this->localization[$this->language]['EnteringPrizeName_Msg'], $this->inline_keyboard->getBackKeyboard());
                             $this->redis->set($this->chat_id . ':message_id', $new_message['message_id']);
                             $this->redis->hSet($this->chat_id . ':create', 'date', $date);
@@ -175,7 +173,7 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
                     case ENTERING_PRIZE_NAME:
                         $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes');
                         $this->redis->hSet($chat_id . ':prize:' . $prizes_count, 'name', $text);
-                        $this->editMessageText($this->localization[$this->language]['PrizeName_Msg'] . $text), $this->redis->get($this->chat_id . ':message_id'));
+                        $this->editMessageText($this->localization[$this->language]['PrizeName_Msg'] . $text, $this->redis->get($this->chat_id . ':message_id'));
                         $new_message = $this->sendReplyMessageTextKeyboard($this->localization[$this->language]['EnteringPrizeValue_Msg'], $this->inline_keyboard->getBackKeyboard(), $message_id);
                         $this->redis->set($this->chat_id . ':message_id', $new_message['message_id']);
                         $this->redis->set($this->chat_id . ':status', ENTERING_PRIZE_VALUE);
@@ -216,7 +214,7 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
                     case PRIZE_DETAIL_EDIT_NAME:
                         $prize = $this->redis->hGet($this->chat_id . ':create', 'prizes_selected');
                         $this->redis->hSet($this->chat_id . ':prize:' . $prize, 'name', $text);
-                        $this->editMessageText($this->localization[$this->language]['NewPrizeName_Msg'] . $text, $this->redis->get($this->chat_id . ':message_id');
+                        $this->editMessageText($this->localization[$this->language]['NewPrizeName_Msg'] . $text, $this->redis->get($this->chat_id . ':message_id'));
                         $container = [];
                         $this->getPrizeInfo($container);
                         $this->sendReplyMessageKeyboard($container['string'], $this->getPrizeEditKeyboard(), $message_id);
@@ -333,12 +331,12 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
                     $sth->execute();
                     $sth = null;
                     $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes_count');
-                    $sth = $this->pdo->prepare('INSERT INTO "Prize" ("name", "value", "currency", "giveaway", "type") VALUES (:name, :value, :currency, :giveaway, :type)')
+                    $sth = $this->pdo->prepare('INSERT INTO "Prize" ("name", "value", "currency", "giveaway", "type") VALUES (:name, :value, :currency, :giveaway, :type)');
                     for ($i = 0; $i < $prizes_count; $i++) {
                         $prize = $this->redis->hGetAll($this->chat_id . ':prize:' . $i);
                         $sth->bindParam(':name', substr($prize['name'], 0, 31));
                         $sth->bindParam(':value', $prize['value']);
-                        $sth->bindParam(':currency', substr($prize['currency'], 0, 1);
+                        $sth->bindParam(':currency', substr($prize['currency'], 0, 1));
                         $sth->bindParam(':giveaway', $prize['giveaway']);
                         $sth->bindParam(':type', $prize['type']);
                         $sth->execute();
@@ -357,7 +355,7 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
                         $container = $this->getPrizesBrowse();
                         $this->editMessageTextKeyboard($container['string'], $this->inline_keyboard->getListKeyboard($container['index'], $container['list'], true, false, false, $container['extra_names'], $container['extra_callback'], ['text' => $this->localization[$this->language]['Confirm_Button'], 'callback_data' => 'confirm'], ['text' => $this->localization[$this->language]['Back_Button'], 'callback_data' => 'back']), $message_id);
                         $this->redis->set($this->chat_id . ':status', PRIZE_SUMMARY);
-                    } elseif (strpos('prize' $info[0])) {
+                    } elseif (strpos('prize', $info[0])) {
                         $this->redis->hSet($chat_id . ':create', 'prizes_selected', $info[1]);
                         $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL);
                         $container = [];
@@ -406,6 +404,7 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
                                 $this->editMessageTextKeyboard($container['string'], $this->getPrizeEditKeyboard(), $message_id);
                                 $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL);
                                 break;
+                         }
                     }
                     break;
              }
@@ -461,5 +460,6 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
             array_push($container['extra_names'], $prize['name']);
             array_push($container['extra_callback'], 'prize_' . $i);
         }
-        $container['string'] .= $this->localization[$this->language]['PrizeName_Msg'] . $prize['name'] . NEWLINE . $this->localization[$this->language]['PrizeType_Msg'] . $this->localization[$this->language]['Type' . $prize['type'] . '_Msg'] . NEWLINE . $this->localization[$this->language]['Value_Msg'] . $prize['currency'] . $prize['value'] . NEWLINE;
+        $container['string'] += $this->localization[$this->language]['PrizeName_Msg'] . $prize['name'] . NEWLINE . $this->localization[$this->language]['PrizeType_Msg'] . $this->localization[$this->language]['Type' . $prize['type'] . '_Msg'] . NEWLINE . $this->localization[$this->language]['Value_Msg'] . $prize['currency'] . $prize['value'] . NEWLINE;
+    }
 }

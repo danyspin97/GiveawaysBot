@@ -32,7 +32,7 @@ CREATE TABLE "Prize" (
     "id" SERIAL,
     "name" VARCHAR(32),
     "value" float,
-    "monetary" VARCHAR(1) DEFAULT '€',
+    "currency" VARCHAR(1) DEFAULT '€',
     "giveaway" int,
     "type" int,
 

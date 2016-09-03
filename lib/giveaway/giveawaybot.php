@@ -303,7 +303,7 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
                             $this->redis->set($this->chat_id . ':status', ENTERING_TITLE);
                             break;
                         case ENTERING_MAX:
-                            $this->editMessageTextKeyboard($this->localization[$this->language]['ing_hashtag'], $this->inline_keyboard->getBackSkipButton(), $message_id);
+                            $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringHashtag_Msg'], $this->inline_keyboard->getBackSkipButton(), $message_id);
                             $this->redis->set($this->chat_id . ':status', ENTERING_HASHTAG);
                             break;
                         case ENTERING_DESC:
@@ -434,7 +434,7 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
 
     public function &getPrizeEditKeyboard() {
         $this->inline_keyboard->addLevelButtons(['text' => $this->localization[$this->language]['EditPrizeName_Button'], 'callback_data' => 'edit_prize_name'], ['text' => $this->localization[$this->language]['EditPrizeType_Button'], 'callback_data' => 'edit_prize_type']);
-        $this->inline_keyboard->addLevelButtons(['text' => $this->localization[$this->language]['EditPrizeValue'], 'callback_data' => 'edit_prize_value'], ['text' => $this->localization[$this->language]['EditPrizeCurrenty_Button'], 'callback_data' => 'edit_prize_currency']);
+        $this->inline_keyboard->addLevelButtons(['text' => $this->localization[$this->language]['EditPrizeValue_Button'], 'callback_data' => 'edit_prize_value'], ['text' => $this->localization[$this->language]['EditPrizeCurrenty_Button'], 'callback_data' => 'edit_prize_currency']);
         $this->inline_keyboard->addLevelButtons(['text' => $this->localization[$this->langauge]['DeletePrize_Button'], 'callback_data' => 'delete_prize']);
         $this->inline_keyboard->addLevelButtons(['text' => $this->localization[$this->language]['Prizes_Button'], 'callback_data' => 'prizes']);
         return $this->inline_keyboard->getKeyboard();
@@ -462,4 +462,5 @@ class GiveAwayBot extends WiseDragonStd\HadesWrapper\Bot {
             array_push($container['extra_callback'], 'prize_' . $i);
         }
         $container['string'] .= $this->localization[$this->language]['PrizeName_Msg'] . $prize['name'] . NEWLINE . $this->localization[$this->language]['PrizeType_Msg'] . $this->localization[$this->language]['Type' . $prize['type'] . '_Msg'] . NEWLINE . $this->localization[$this->language]['Value_Msg'] . $prize['currency'] . $prize['value'] . NEWLINE;
+    }
 }

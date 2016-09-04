@@ -1,7 +1,7 @@
 CREATE TYPE language AS ENUM('en', 'it', 'fr', 'de', 'ru', 'fa', 'hi', 'pt');
 
 CREATE TABLE "User" (
-    "chat_id" int,
+    "user_id" int,
     "language" language DEFAULT 'en',
 
     PRIMARY KEY ("user_id")

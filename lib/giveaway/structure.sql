@@ -19,7 +19,7 @@ CREATE TABLE "Giveaway" (
 
     PRIMARY KEY ("id"),
     FOREIGN KEY ("owner_id") REFERENCES "User" ("user_id"),
-    CONSTRAINT hashtag_unique UNIQUE "hashtag"
+    CONSTRAINT hashtag_unique UNIQUE ("hashtag")
 );
 
 CREATE TABLE "Type" (
@@ -58,9 +58,9 @@ CREATE TABLE "Won" (
     "id_prize" int,
 
     PRIMARY KEY ("user_id", "giveaway_id", "id_prize"),
-    FOREIGN KEY "user_id" REFERENCES "User" ("user_id"),
-    FOREIGN KEY "giveaway_id" REFERENCES "Giveaway" ("id"),
-    FOREIGN KEY "id_prize" REFERENCES "Prize" ("id")
+    FOREIGN KEY ("user_id") REFERENCES "User" ("user_id"),
+    FOREIGN KEY ("giveaway_id") REFERENCES "Giveaway" ("id"),
+    FOREIGN KEY ("id_prize") REFERENCES "Prize" ("id")
 );
 
 INSERT INTO "Type" ("name") VALUES ('Videogames');

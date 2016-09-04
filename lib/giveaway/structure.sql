@@ -1,10 +1,10 @@
 CREATE TYPE language AS ENUM('en', 'it', 'fr', 'de', 'ru', 'fa', 'hi', 'pt');
 
 CREATE TABLE "User" (
-    "user_id" int,
+    "chat_id" int,
     "language" language DEFAULT 'en',
 
-    PRIMARY KEY ("user_id")
+    PRIMARY KEY ("chat_id")
 );
 
 CREATE TABLE "Giveaway" (
@@ -18,7 +18,7 @@ CREATE TABLE "Giveaway" (
     "end" date,
 
     PRIMARY KEY ("id"),
-    FOREIGN KEY ("owner_id") REFERENCES "User" ("user_id"),
+    FOREIGN KEY ("owner_id") REFERENCES "User" ("chat_id"),
     CONSTRAINT hashtag_unique UNIQUE ("hashtag")
 );
 
@@ -43,22 +43,22 @@ CREATE TABLE "Prize" (
 );
 
 CREATE TABLE "Joined" (
-    "user_id" int,
+    "chat_id" int,
     "giveaway_id" int,
     "references" smallint DEFAULT 0,
 
-    PRIMARY KEY ("user_id", "giveaway_id"),
-    FOREIGN KEY ("user_id") REFERENCES "User" ("user_id"),
+    PRIMARY KEY ("chat_id", "giveaway_id"),
+    FOREIGN KEY ("chat_id") REFERENCES "User" ("chat_id"),
     FOREIGN KEY ("giveaway_id") REFERENCES "Giveaway" ("id")
 );
 
 CREATE TABLE "Won" (
-    "user_id" int,
+    "chat_id" int,
     "giveaway_id" int,
     "id_prize" int,
 
-    PRIMARY KEY ("user_id", "giveaway_id", "id_prize"),
-    FOREIGN KEY ("user_id") REFERENCES "User" ("user_id"),
+    PRIMARY KEY ("chat_id", "giveaway_id", "id_prize"),
+    FOREIGN KEY ("chat_id") REFERENCES "User" ("chat_id"),
     FOREIGN KEY ("giveaway_id") REFERENCES "Giveaway" ("id"),
     FOREIGN KEY ("id_prize") REFERENCES "Prize" ("id")
 );

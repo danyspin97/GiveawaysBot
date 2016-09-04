@@ -65,7 +65,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             } elseif (preg_match('/^\/show \#(.*)$/', $text, $matches)) {
                 $this->showGiveaway($matches[1]);
             } elseif (preg_match('/^\/show$/', $text, $matches)) {
-                $this->sendMessage($this->localization[$this->language]['Missing_Hashtag_Warn'].NEWLINE.'<code>/show #giveaway</code>');
+                $this->sendMessage($this->localization[$this->language]['MissingHashtagWarn_Msg'].NEWLINE.'<code>/show #giveaway</code>');
             } else {
                 switch($this->getStatus()) {
                     case ENTERING_TITLE:
@@ -237,7 +237,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
          if (isset($data) && isset($this->chat_id)) {
              switch($data) {
                 case 'hide_join_button':
-                    $this->editMessageText($this->localization[$this->language]['Cancel_Success'], $message_id);
+                    $this->editMessageText($this->localization[$this->language]['CancelSuccess_Msg'], $message_id);
                     break;
                 case 'register':
                     $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Standard_Button'], 'callback_data' => 'standard'], ['text' => $this->localization[$this->language]['Cumulative_Button'], 'callback_data' => 'cumulative']);
@@ -389,14 +389,14 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                             function($row){ $this->max_participants = $row['max_partecipants']; });
 
                         if ($this->participants == $this->max_participants) {
-                             $this->editMessageText($this->localization[$this->language]['Max_Participants_Warn'], $message_id);
+                             $this->editMessageText($this->localization[$this->language]['MaxParticipantsWarn_Msg'], $message_id);
                         } else {
                              $this->database->into('participants')->insert([
                                  'chat_id' => $this->chat_id,
                                  'giveaway_id' => $giveaway_id
                              ]);
 
-                             $this->editMessageText($this->localization[$this->language]['Joined_Success'], $message_id);
+                             $this->editMessageText($this->localization[$this->language]['JoinedSuccess_Msg'], $message_id);
                         }
                     }
                     break;
@@ -480,20 +480,20 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
             if ($row['owner_id'] == $this->update['message']['chat']['id'])
             {
-                $partial .= $this->localization[$this->language]['Owned_Label']."  |  ";
+                $partial .= $this->localization[$this->language]['Owned_Msgs']."  |  ";
             } else {
-                $partial .= $this->localization[$this->language]['Joined_Label']."  |  ";
+                $partial .= $this->localization[$this->language]['Joined_Msg']."  |  ";
             }
 
             // Show giveaway's status
             if (date("Y-m-d") > $row['end'])
             {
-                $partial .= $this->localization[$this->language]['Closed_Label'].NEWLINE;
+                $partial .= $this->localization[$this->language]['Closed_Msg'].NEWLINE;
             } else if (date("Y-m-d") == $row['end']) {
-                $partial .= $this->localization[$this->language]['Last_Day_Label'].NEWLINE;
+                $partial .= $this->localization[$this->language]['LastDay_Msg'].NEWLINE;
             } else {
                 $left = (strtotime(date("Y-m-d")) - strtotime($row['end'])) / 3600 / 24;
-                $partial .= $left.' '.$this->localization[$this->language]['Days_Label'].NEWLINE;
+                $partial .= $left.' '.$this->localization[$this->language]['Days_Msg'].NEWLINE;
             }
 
             $partial .= "====================".NEWLINE;
@@ -522,32 +522,32 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
           if ($this->already_joined == false) {
               $this->inline_keyboard->addLevelButtons([
-                  'text' => $this->localization[$this->language]['Joined_Label'],
+                  'text' => $this->localization[$this->language]['Join_Button'],
                   'callback_data' => 'join_'.$row['id']
               ], [
-                  'text' => $this->localization[$this->language]['Cancel_Label'],
+                  'text' => $this->localization[$this->language]['Cancel_Button'],
                   'callback_data' => 'hide_join_button'
               ]);
           } else {
-            $this->response .= $this->localization[$this->language]['Joined_Label'].'  |  ';
+            $this->response .= $this->localization[$this->language]['Joined_Msg'].'  |  ';
           }
 
           // Show giveaway's status
           if (date("Y-m-d") > $row['end'])
           {
-              $this->response .= $this->localization[$this->language]['Closed_Label'].NEWLINE;
+              $this->response .= $this->localization[$this->language]['Closed_Msg'].NEWLINE;
               $this->inline_keyboard->getKeyboard();
-              $this->response = $this->localization[$this->language]['Closed_Giveaway_Warn'];
+              $this->response = $this->localization[$this->language]['ClosedGiveaway_Msg'];
           } else if (date("Y-m-d") == $row['end']) {
-              $this->response .= $this->localization[$this->language]['Last_Day_Label'].NEWLINE;
+              $this->response .= $this->localization[$this->language]['LastDay_Msg'].NEWLINE;
           } else {
               $left = (strtotime(date("Y-m-d")) - strtotime($row['end'])) / 3600 / 24;
-              $this->response .= $left.' '.$this->localization[$this->language]['Days_Label'].NEWLINE;
+              $this->response .= $left.' '.$this->localization[$this->language]['Days_Msg'].NEWLINE;
           }
         });
 
         if ($this->response == ' ') {
-            $this->sendMessage($this->localization[$this->language]['No_Giveaway_Warn']);
+            $this->sendMessage($this->localization[$this->language]['NoGiveawayWarn_Msg']);
         } else {
             $this->sendMessage($this->response, $this->inline_keyboard->getKeyboard());
         }

@@ -237,7 +237,8 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
          if (isset($data) && isset($this->chat_id)) {
              switch($data) {
                 case 'hide_join_button':
-                    $this->editMessageText($this->localization[$this->language]['CancelSuccess_Msg'], $message_id);
+                    $this->editMessageReplyMarkup($message_id, []);
+                    $this->answerCallbackQuery($this->localization[$this->language]['CancelSuccess_Msg']);
                     break;
                 case 'register':
                     $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Standard_Button'], 'callback_data' => 'standard'], ['text' => $this->localization[$this->language]['Cumulative_Button'], 'callback_data' => 'cumulative']);
@@ -332,7 +333,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $container = [];
                         $this->getPrizeInfo($container);
                         $this->editMessageTextKeyboard($container['string'], $this->getPrizeEditList(), $message_id);
-                    } elseif ($strpos('edit', $info[0])) {
+                    } elseif (strpos('edit', $info[0])) {
                         switch ($info[1]) {
                             case 'prize':
                                 switch ($info[3]) {
@@ -389,7 +390,8 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                             function($row){ $this->max_participants = $row['max_partecipants']; });
 
                         if ($this->participants == $this->max_participants) {
-                             $this->editMessageText($this->localization[$this->language]['MaxParticipantsWarn_Msg'], $message_id);
+                             $this->editMessageReplyMarkup($message_id, []);
+                             $this->answerCallbackQuery($this->localization[$this->language]['MaxParticipants_Msg'], true);
                         } else {
                              $this->database->into('participants')->insert([
                                  'chat_id' => $this->chat_id,

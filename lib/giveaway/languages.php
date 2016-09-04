@@ -9,7 +9,7 @@ To start press one of the following buttons or click /help to get help.',
     'Show_Button' => 'Browse',
     'Options_Button' => 'Options',
     'Standard_Button' => 'JoinIn',
-    'Cumulative_Button' => 'ShareIt'
+    'Cumulative_Button' => 'ShareIt',
     'EnteringTitle_Msg' => 'Enter the giveaway title.',
     'TitleLenght_Msg' => 'The title you inserted is too short. Please insert a new one longer than 5 characters.',
     'Hashatag_Msg' => '<b>Hashtag: </b>',
@@ -46,7 +46,21 @@ The hashtag has to be long between 5 and 32 characters.',
     'DeletePrize_Button' => 'Delete',
     'Prizes_Button' => 'All prizes',
     'Type0_Button' => 'Videogame key',
-    'Type1_Button' => 'Amazon coupon'
+    'Type1_Button' => 'Amazon coupon',
+    'ShowHashtagMissing_Msg' => 'You should specify the giveaway\'s hashtag:',
+    'Owned_Msg' => 'Owned',
+    'Joined_Msg' => 'Joined',
+    'Closed_Msg' => 'Closed',
+    'LastDay_Msg' => 'Last day',
+    'Days_Msg' => 'days',
+    'ClosedGiveawayWarn_Msg' => '<b>The requested giveaway is closed.</b>',
+    'NoGiveawayWarn_Msg' => '<b>Giveaway not found</b>',
+    'Join_Button' => 'Join',
+    'Cancel_Button' => 'Cancel',
+    'MaxParticipants_Msg' => '<b>Sorry but the giveaway has reached the the maximum number of participants.</b>',
+    'JoinedSuccess_Msg' => '<b>You joined this giveaway!</b>',
+    'CancelSuccess_Msg' => '<i>You refused the giveaway ¯\_(ツ)_/¯</i>',
+    'MissingHashtagWarn_Msg' => 'You should specify an hashtag:'
     ]
 ];
 
@@ -55,7 +69,21 @@ $localization = ['it' => [
 Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'Register_Button' => 'Crea',
     'Show_Button' => 'Sfoglia',
-    'Options_Button' => 'Opzioni'
+    'Options_Button' => 'Opzioni',
+    'ShowHashtagMissing_Msg' => 'Devi specificare l\'hashtag del giveaway:',
+    'Owned_Msg' => 'Creato',
+    'Joined_Msg' => 'Partecipo',
+    'Closed_Msg' => 'Chiuso',
+    'LastDay_Msg' => 'Ultimo giorno',
+    'Days_Msg' => 'giorni',
+    'ClosedGiveaway_Msg' => '<b>Il giveaway richiesto è chiuso.</b>',
+    'NoGiveawayWarn_Msg' => '<b>Giveaway non trovato</b>',
+    'Join_Button' => 'Partecipa',
+    'Cancel_Button' => 'Annulla',
+    'MaxParticipantsWarn_Msg' => '<b>Il giveaway ha raggiunto il numero massimo di partecipanti, impossible partecipare.</b>',
+    'JoinedSuccess_Msg' => '<b>Hai preso parte a questo giveaway!</b>',
+    'CancelSuccess_Msg' => '<i>Hai deciso di non partecipare ¯\_(ツ)_/¯</i>',
+    'MissingHashtagWarn_Msg' => 'Devi specificare un hashtag:'
     ]
 ];
 

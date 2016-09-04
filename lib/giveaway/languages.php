@@ -1,6 +1,12 @@
 <?php
 
-$localization = ['en' => [
+$localization = ['languages' => [
+    'en' => 'English',
+    'it' => 'Italian'
+    ]
+];
+
+$localization['en'] = [
     'Welcome_Msg' => 'Welcome to GiveawayBot.
 To start choose a language.',
     'Menu_Msg' => 'GiveawayBot let you create and join giveaway without leaving Telegram.
@@ -60,11 +66,12 @@ The hashtag has to be long between 5 and 32 characters.',
     'MaxParticipants_Msg' => 'Sorry but the giveaway has reached the the maximum number of participants.',
     'JoinedSuccess_Msg' => 'You joined this giveaway!',
     'CancelSuccess_Msg' => 'You refused the giveaway  ¯\_(ツ)_/¯',
-    'MissingHashtagWarn_Msg' => 'You should specify an hashtag:'
-    ]
+    'MissingHashtagWarn_Msg' => 'You should specify an hashtag:',
+    'UserRegistred_AnswerCallback' => 'Registred'
 ];
 
-$localization = ['it' => [
+
+$localization['it'] = [
     'Menu_Msg' => 'GiveawayBot ti permette di creare e parteciapre a giveaway senza uscire da Telegram.
 Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'Register_Button' => 'Crea',
@@ -84,6 +91,5 @@ Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'JoinedSuccess_Msg' => 'Hai preso parte a questo giveaway! ',
     'CancelSuccess_Msg' => 'Hai deciso di non partecipare ¯\_(ツ)_/¯',
     'MissingHashtagWarn_Msg' => 'Devi specificare un hashtag:'
-    ]
 ];
 

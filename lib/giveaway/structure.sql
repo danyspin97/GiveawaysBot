@@ -1,7 +1,7 @@
 CREATE TYPE language AS ENUM('en', 'it', 'fr', 'de', 'ru', 'fa', 'hi', 'pt');
 
 CREATE TABLE "User" (
-    "chat_id" UNIQUE int,
+    "chat_id" int,
     "language" language DEFAULT 'en',
 
     PRIMARY KEY ("user_id")
@@ -10,7 +10,7 @@ CREATE TABLE "User" (
 CREATE TABLE "Giveaway" (
     "id" SERIAL,
     "name" VARCHAR(32),
-    "hashtag" UNIQUE VARCHAR(32),
+    "hashtag" VARCHAR(32),
     "desc" VARCHAR(50),
     "max_partecipants" int DEFAULT 0, /* 0 for no limit */
     "owner_id" int,
@@ -18,12 +18,13 @@ CREATE TABLE "Giveaway" (
     "end" date,
 
     PRIMARY KEY ("id"),
-    FOREIGN KEY ("owner_id") REFERENCES "User" ("user_id")
+    FOREIGN KEY ("owner_id") REFERENCES "User" ("user_id"),
+    CONSTRAINT hashtag_unique UNIQUE "hashtag"
 );
 
 CREATE TABLE "Type" (
     "id" SERIAL,
-    "name" UNIQUE VARCHAR(32),
+    "name" VARCHAR(32),
 
     PRIMARY KEY ("id")
 );

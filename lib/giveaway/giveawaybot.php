@@ -123,12 +123,18 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $hashtag = $hashtag[0];
                         if (isset($hashtag)) {
                             // If hashtag doesn't exists already in db
-                            if ($hashtag) {
+                            $sth = $this->pdo->prepare('SELECT COUNT("hashtag") FROM "Giveaway" WHERE LOWER("hashtag") LOWER(:hashtag)');
+                            $sth->bindParam(':hashtag', $hashtag);
+                            $sth->execute();
+                            $duplicated_hashtag = $sth->fetchColumn();
+                            if ($duplicated_hashtag == false) {
                                 $this->editMessageText($this->localization[$this->language]['Hashatag_Msg'], $this->redis->get($this->chat_id . 'message_id'));
                                 $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back'], ['text' => &$this->localization[$this->language]['Infinite_Button'], 'callback_data' => 'infinite']);
                                 $this->sendReplyMessageKeyboard($this->localization[$this->language]['EnteringMaxPartecipant_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
                                 $this->redis->set($this->chat_id . ':status', ENTERING_MAX);
                                 $this->redis->set($this->chat_id . ':create', 'hashtag', $hashtag);
+                            } else {
+                                $this->sendReplyMessageKeyboard($this->localization[$this->language]['DuplicatedHashtag'], $this->inline_keyboard->getBackSkipKeyboard(), $message_id);
                             }
                         } else {
                             $this->sendReplyMessageKeyboard($this->localization[$this->language]['ValidHashtag_Msg'], $this->inline_keyboard->getBackSkipKeyboard(), $message_id);

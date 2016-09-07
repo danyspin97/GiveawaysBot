@@ -1,7 +1,19 @@
 <?php
 
+<<<<<<< HEAD
 $localization = ['en' => [
     'Welcome_Msg' => "Welcome to GiveawayBot.\nTo start choose a language.",
+=======
+$localization = ['languages' => [
+    'en' => 'English',
+    'it' => 'Italian'
+    ]
+];
+
+$localization['en'] = [
+    'Welcome_Msg' => 'Welcome to GiveawayBot.
+To start choose a language.',
+>>>>>>> 0b7eb75b723dd84396459d4590713bfbdacd83ab
     'Menu_Msg' => 'GiveawayBot let you create and join giveaway without leaving Telegram.
 To start press one of the following buttons or click /help to get help.',
     'Register_Button' => 'Create',
@@ -60,12 +72,20 @@ The hashtag has to be long between 5 and 32 characters.',
     'JoinedSuccess_Msg' => 'You joined this giveaway!',
     'CancelSuccess_Msg' => 'You refused the giveaway  ¯\_(ツ)_/¯',
     'MissingHashtagWarn_Msg' => 'You should specify an hashtag:',
+<<<<<<< HEAD
     'StatsEmpty_Msg' => 'Sorry, you didn\'t join giveaways'
     ]
 ];
 
 $localization = ['it' => [
     'Welcome_Msg' => 'Benvenuto! Per iniziare scegli la lingua.',
+=======
+    'UserRegistred_AnswerCallback' => 'Registred'
+];
+
+
+$localization['it'] = [
+>>>>>>> 0b7eb75b723dd84396459d4590713bfbdacd83ab
     'Menu_Msg' => 'GiveawayBot ti permette di creare e parteciapre a giveaway senza uscire da Telegram.
 Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'Register_Button' => 'Crea',
@@ -85,8 +105,12 @@ Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'MaxParticipants_Msg' => 'Il giveaway ha raggiunto il numero massimo di partecipanti, impossible partecipare.',
     'JoinedSuccess_Msg' => 'Hai preso parte a questo giveaway! ',
     'CancelSuccess_Msg' => 'Hai deciso di non partecipare ¯\_(ツ)_/¯',
+<<<<<<< HEAD
     'MissingHashtagWarn_Msg' => 'Devi specificare un hashtag:',
     'StatsEmpty_Msg' => 'Non stai partecipando a nessun giveaway'
     ]
+=======
+    'MissingHashtagWarn_Msg' => 'Devi specificare un hashtag:'
+>>>>>>> 0b7eb75b723dd84396459d4590713bfbdacd83ab
 ];
 

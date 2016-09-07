@@ -563,7 +563,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             $this->message = $this->update["callback_query"];
         }
 
-        $this->database->from("participants")->where("chat_id=".$this->message["from"]["id"])->select(["*"], function($row){
+        $this->database->from("joined")->where("chat_id='".$this->message["from"]["id"]."'")->select(["*"], function($row){
           $this->found = true;
 
           $this->database->from("Giveaway")->where("id=".$row["giveaway_id"])->select(["*"], function($row){
@@ -670,7 +670,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
           
           if ($this->callback_query_origin == false) {
               // Check if the user is already a participant
-              $this->database->from("participants")->where("chat_id=".$this->chat_id." and giveaway_id=".$row['id'])
+              $this->database->from("joined")->where("chat_id='".$this->chat_id."' and giveaway_id=".$row['id'])
                    ->select(["*"], function($row) { $this->already_joined = true; });
 
               if ($this->already_joined == false) {

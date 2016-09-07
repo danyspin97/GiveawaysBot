@@ -6,7 +6,7 @@ $localization = ['languages' => [
     ]
 ];
 
-$localization = ['en' => [
+$localization['en'] = [
     'Welcome_Msg' => "Welcome to GiveawayBot.\nTo start choose a language.",
     'Menu_Msg' => 'GiveawayBot let you create and join giveaway without leaving Telegram.
 To start press one of the following buttons or click /help to get help.',
@@ -67,7 +67,6 @@ The hashtag has to be long between 5 and 32 characters.',
     'CancelSuccess_Msg' => 'You refused the giveaway  ¯\_(ツ)_/¯',
     'MissingHashtagWarn_Msg' => 'You should specify an hashtag:',
     'StatsEmpty_Msg' => 'Sorry, you didn\'t join giveaways'
-    ]
 ];
 
 $localization['it'] = [

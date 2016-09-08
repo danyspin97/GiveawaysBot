@@ -674,11 +674,13 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         $this->callback_query_origin = $callback_query_origin;
         $this->response = ' ';
         $this->giveaway_id;
+        $this->owner_id;
 
         $this->database->from('Giveaway')->where("hashtag='".$hashtag."'")->select(["*"], function($row){
           $this->response = '<b>'.$row['name'].'</b>'.NEWLINE.$row['hashtag'].NEWLINE.NEWLINE;
           $this->response .= $row['description'].NEWLINE.NEWLINE;
           $this->already_joined = false;
+          $this->owner_id = $row['owner_id'];
           $this->giveaway_id = $row['id'];
 
           if ($this->update["callback_query"] === null) {
@@ -693,13 +695,17 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                    ->select(["*"], function($row) { $this->already_joined = true; });
 
               if ($this->already_joined == false) {
-                  $this->inline_keyboard->addLevelButtons([
-                      'text' => $this->localization[$this->language]['Join_Button'],
-                      'callback_data' => 'join_'.$row['id']
-                  ], [
-                      'text' => $this->localization[$this->language]['Cancel_Button'],
-                      'callback_data' => 'hide_join_button'
-                  ]);
+                  if ($this->owner_id != $this->chat_id) {
+                      $this->inline_keyboard->addLevelButtons([
+                          'text' => $this->localization[$this->language]['Join_Button'],
+                          'callback_data' => 'join_'.$row['id']
+                      ], [
+                          'text' => $this->localization[$this->language]['Cancel_Button'],
+                          'callback_data' => 'hide_join_button'
+                      ]);
+                  } else {
+                      $this->response .= $this->localization[$this->language]['Owned_Msg'].'  |  ';
+                  }
               } else {
                   $this->response .= $this->localization[$this->language]['Joined_Msg'].'  |  ';
               }

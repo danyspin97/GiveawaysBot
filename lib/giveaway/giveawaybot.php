@@ -35,8 +35,8 @@ define('CURRENCY', '€$');
 
 class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
-    public $listLength = 0;
-    public $currentPage = 0;
+    public $listLength = 1;
+    public $currentPage = 1;
     public $userGiveaway = array();
     public $userGiveawaySize = 0;
     public $userGiveawayFull = false;
@@ -81,13 +81,14 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $this->userGiveaway = $response[0];
                     $this->userGiveawaySize = $response[1];
                     $this->userGiveawayFull = true;
+                    $this->listLength = ($this->userGiveawaySize - ($this->userGiveawaySize % OBJECT_PER_LIST)) / OBJECT_PER_LIST;
                 }
             } elseif (strpos($text, '/register') === 0) {
                 $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Standard_Button'], 'callback_data' => 'standard'], ['text' => &$this->localization[$this->language]['Cumulative_Button'], 'callback_data' => 'cumulative']);
                 $this->sendMessageKeyboard($this->localization[$this->language]['Register_Msg'], $this->inline_keyboard->getKeyboard());
                 $this->redis->set($this->chat_id . ':status', REGISTER);
             } elseif (preg_match('/^\/stats$/', $text, $matches)) {
-                $this->statsAction();
+                $this->getStatsList();
             } elseif (preg_match('/^\/show \#(.*)$/', $text, $matches)) {
                 $this->showGiveaway('#'.$matches[1]);
             } elseif (preg_match('/^\/show$/', $text, $matches)) {
@@ -415,14 +416,22 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $this->showGiveaway($data[1], true);
                     } elseif (strpos($data, 'list/') === 0) {
                         $page = intval(explode('/', $data)[1]);
-                        $limit = OBJECT_PER_LIST * $page;
                         $response = array();
                         $details = array();
+                        $limit = OBJECT_PER_LIST * $page;
+                        $start = $limit - OBJECT_PER_LIST;
+
+                        if ($page == 1) {
+                            if ($this->userGiveawaySize < OBJECT_PER_LIST) {
+                                $limit = $this->userGiveawaySize;
+                                $start = 0;
+                            }
+                        }
 
                         $this->totalLength = $this->userGiveawaySize - ($this->userGiveawaySize % OBJECT_PER_LIST);
                         $this->listLength = $this->totalLength / OBJECT_PER_LIST;
 
-                        for($i = $limit - OBJECT_PER_LIST; $i < $limit; $i++) {
+                        for($i = $start; $i < $limit; $i++) {
                             array_push($response, $this->userGiveaway[$i]);
                             $hashtag = explode("\n", $this->userGiveaway[$i])[1];
 
@@ -466,6 +475,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                              if ($response != false) {
                                  $this->userGiveaway = $response[0];
                                  $this->userGiveawaySize = $response[1];
+                                 $this->listLength = ($this->userGiveawaySize - ($this->userGiveawaySize % OBJECT_PER_LIST)) / OBJECT_PER_LIST;
                                  $this->userGiveawayFull = true;
                              }
                         }
@@ -605,36 +615,35 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         return true;
     }
 
-    // Respond to `/stats` command which returns information about
-    // user's giveaways (both - owned and joined).
-    private function statsAction() {
-        $data = $this->getUserGiveaway();
-
-        if ($data == false) {
-            return;
-        }
-
-        $this->listLength = intval($this->userGiveawaySize / OBJECT_PER_LIST); 
-        $this->rest = $this->userGiveawaySize % OBJECT_PER_LIST;
-
-        $this->getStatsList($this->listLength);
-    }
-
-    private function getStatsList($listLength) {
+    private function getStatsList() {
         $response = array();
         $details = array();
+        $limit = OBJECT_PER_LIST;
 
-        for($i = 0; $i < OBJECT_PER_LIST; $i++) {
-            array_push($response, $this->userGiveaway[$i]);
-            $hashtag = explode("\n", $this->userGiveaway[$i])[1];
-
-            array_push($details, [
-                'text' => $hashtag,
-                'callback_data' => 'show_'.$hashtag.'_1'
-            ]);
+        if ($this->listLength == 0) {
+            $this->listLength = 1;
         }
 
-        $this->sendMessage(join("\n=======================\n\n", $response), $this->inline_keyboard->getListKeyboard(1, $listLength, false, false, false, $details));
+        if (!empty($this->userGiveaway)) {
+            if ($this->userGiveawaySize < OBJECT_PER_LIST) {
+                $limit = $this->userGiveawaySize;
+            }
+
+            for($i = 0; $i < $limit; $i++) {
+                array_push($response, $this->userGiveaway[$i]);
+                $hashtag = explode("\n", $this->userGiveaway[$i])[1];
+
+                array_push($details, [
+                    "text" => $hashtag,
+                    "callback_data" => 'show_'.$hashtag.'_1'
+                ]);
+            }
+
+            $this->sendMessage(join("\n=======================\n\n", $response), $this->inline_keyboard->getListKeyboard(1, $this->listLength, false, false, false, $details));
+        } else {
+            echo 2222222;
+            $this->sendMessage($this->localization[$this->language]["StatsEmpty_Msg"]);
+        }
     }
 
     // Respond to `/show <hashtag>` command which returns information about
@@ -696,7 +705,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             }
         } else {
             $this->editMessageText($this->response, $this->update['callback_query']['message']['message_id'],
-                $this->inline_keyboard->getListKeyboard($this->currentPage, intval($this->listLength), false, false, false, [
+                $this->inline_keyboard->getListKeyboard($this->currentPage, intval($this->listLength),false, false, false, [
                     ['text' => $this->localization[$this->language]['Back_Button'],
                      'callback_data' => 'list/'.$this->currentPage],
                     ['text' => 'Browse Prize', 'callback_data' => 'null']]));

@@ -88,7 +88,6 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 $this->redis->set($this->chat_id . ':status', REGISTER);
             } elseif (preg_match('/^\/stats$/', $text, $matches)) {
                 $this->statsAction();
-                print_r($this->userGiveaway);
             } elseif (preg_match('/^\/show \#(.*)$/', $text, $matches)) {
                 $this->showGiveaway('#'.$matches[1]);
             } elseif (preg_match('/^\/show$/', $text, $matches)) {
@@ -415,21 +414,17 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
                         $this->showGiveaway($data[1], true);
                     } elseif (strpos($data, 'list/') === 0) {
-                        $stats = $this->getUserGiveaway();
                         $page = intval(explode('/', $data)[1]);
                         $limit = OBJECT_PER_LIST * $page;
                         $response = array();
                         $details = array();
 
-                        $this->counter = $stats[1] - ($stats[1] % OBJECT_PER_LIST);
-                        $this->rest = $stats[1] % OBJECT_PER_LIST;
-                        $this->records = $stats[0];
-
-                        $this->totalLength = $this->counter / OBJECT_PER_LIST;
+                        $this->totalLength = $this->userGiveawaySize - ($this->userGiveawaySize % OBJECT_PER_LIST);
+                        $this->listLength = $this->totalLength / OBJECT_PER_LIST;
 
                         for($i = $limit - OBJECT_PER_LIST; $i < $limit; $i++) {
-                            array_push($response, $this->records[$i]);
-                            $hashtag = explode("\n", $this->records[$i])[1];
+                            array_push($response, $this->userGiveaway[$i]);
+                            $hashtag = explode("\n", $this->userGiveaway[$i])[1];
 
                             array_push($details, [
                                 'text' => $hashtag,
@@ -438,7 +433,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         }
 
                         $this->editMessageText(join("\n=======================\n\n", $response), $message_id,
-                                               $this->inline_keyboard->getListKeyboard($page, $this->totalLength, false, false, false, $details));
+                                               $this->inline_keyboard->getListKeyboard($page, $this->listLength, false, false, false, $details));
 
                     } elseif (strpos($data, 'join_') === 0) {
                         $this->editMessageReplyMarkup($message_id, []);
@@ -619,28 +614,19 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             return;
         }
 
-        if ($this->userGiveawaySize <= OBJECT_PER_LIST) {
-            $this->sendMessage(join("\n=======================\n\n", $this->userGiveaway));
-        } else {
-            $this->listLength = intval($this->userGiveawaySize / OBJECT_PER_LIST); 
-            $this->rest = $this->userGiveawaySize % OBJECT_PER_LIST;
+        $this->listLength = intval($this->userGiveawaySize / OBJECT_PER_LIST); 
+        $this->rest = $this->userGiveawaySize % OBJECT_PER_LIST;
 
-            $this->getStatsList($this->listLength);
-        }
+        $this->getStatsList($this->listLength);
     }
 
     private function getStatsList($listLength) {
         $response = array();
         $details = array();
 
-        if ($listLength == 1) {
-            $this->sendMessage(join("\n=======================\n\n", $this->records));
-            return;
-        }
-
         for($i = 0; $i < OBJECT_PER_LIST; $i++) {
-            array_push($response, $this->records[$i]);
-            $hashtag = explode("\n", $this->records[$i])[1];
+            array_push($response, $this->userGiveaway[$i]);
+            $hashtag = explode("\n", $this->userGiveaway[$i])[1];
 
             array_push($details, [
                 'text' => $hashtag,
@@ -659,7 +645,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
         $this->database->from('Giveaway')->where("hashtag='".$hashtag."'")->select(["*"], function($row){
           $this->response = '<b>'.$row['name'].'</b>'.NEWLINE.$row['hashtag'].NEWLINE.NEWLINE;
-          $this->response .= $row['description'].NEWLINE.NEWLINE;
+          $this->response .= $row['desc'].NEWLINE.NEWLINE;
           $this->already_joined = false;
 
           if ($this->update["callback_query"] === null) {
@@ -710,9 +696,10 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             }
         } else {
             $this->editMessageText($this->response, $this->update['callback_query']['message']['message_id'],
-                $this->inline_keyboard->getListKeyboard($this->currentPage, intval($this->totalLength), false, false, false,
-                    [['text' => $this->localization[$this->language]['Back_Button'], 'callback_data' => 'list/'.$this->currentPage],
-                     ['text' => 'Browse Prize', 'callback_data' => 'null']]));
+                $this->inline_keyboard->getListKeyboard($this->currentPage, intval($this->listLength), false, false, false, [
+                    ['text' => $this->localization[$this->language]['Back_Button'],
+                     'callback_data' => 'list/'.$this->currentPage],
+                    ['text' => 'Browse Prize', 'callback_data' => 'null']]));
         }
     }
 }

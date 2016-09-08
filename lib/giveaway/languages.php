@@ -66,7 +66,8 @@ The hashtag has to be long between 5 and 32 characters.',
     'JoinedSuccess_Msg' => 'You joined this giveaway!',
     'CancelSuccess_Msg' => 'You refused the giveaway  ¯\_(ツ)_/¯',
     'MissingHashtagWarn_Msg' => 'You should specify an hashtag:',
-    'StatsEmpty_Msg' => 'Sorry, you didn\'t join giveaways'
+    'StatsEmpty_Msg' => 'Sorry, you didn\'t join giveaways',
+    'Value_Msg' => 'For a value of '
 ];
 
 $localization['it'] = [
@@ -91,6 +92,7 @@ Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'JoinedSuccess_Msg' => 'Hai preso parte a questo giveaway! ',
     'CancelSuccess_Msg' => 'Hai deciso di non partecipare ¯\_(ツ)_/¯',
     'MissingHashtagWarn_Msg' => 'Devi specificare un hashtag:',
-    'StatsEmpty_Msg' => 'Non stai partecipando a nessun giveaway'
+    'StatsEmpty_Msg' => 'Non stai partecipando a nessun giveaway',
+    'Value_Msg' => 'Per un valore di '
 ];
 

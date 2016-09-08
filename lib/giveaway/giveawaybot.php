@@ -84,8 +84,13 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $this->listLength = ($this->userGiveawaySize - ($this->userGiveawaySize % OBJECT_PER_LIST)) / OBJECT_PER_LIST;
                 }
             } elseif (strpos($text, '/register') === 0) {
-                $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Standard_Button'], 'callback_data' => 'standard'], ['text' => &$this->localization[$this->language]['Cumulative_Button'], 'callback_data' => 'cumulative']);
-                $this->sendMessageKeyboard($this->localization[$this->language]['Register_Msg'], $this->inline_keyboard->getKeyboard());
+                $this->inline_keyboard->addLevelButtons([
+                    'text' => &$this->localization[$this->language]['Standard_Button'],
+                    'callback_data' => 'standard'],
+                    ['text' => &$this->localization[$this->language]['Cumulative_Button'],
+                     'callback_data' => 'cumulative']);
+                $this->sendMessageKeyboard($this->localization[$this->language]['Register_Msg'],
+                                           $this->inline_keyboard->getKeyboard());
                 $this->redis->set($this->chat_id . ':status', REGISTER);
             } elseif (preg_match('/^\/stats$/', $text, $matches)) {
                 $this->getStatsList();
@@ -409,6 +414,11 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                                 $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL);
                                 break;
                          }
+                    } elseif (strpos($data, 'prizes_') === 0) {
+                        $data = explode('_', $data);
+                        $this->currentPage = $data[2];
+
+                        $this->showGiveawayPrizes($data[1]);
                     } elseif (strpos($data, 'show_') === 0) {
                         $data = explode('_', $data);
                         $this->currentPage = $data[2];
@@ -554,6 +564,19 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         $container['string'] += $this->localization[$this->language]['PrizeName_Msg'] . $prize['name'] . NEWLINE . $this->localization[$this->language]['PrizeType_Msg'] . $this->localization[$this->language]['Type' . $prize['type'] . '_Msg'] . NEWLINE . $this->localization[$this->language]['Value_Msg'] . $prize['currency'] . $prize['value'] . NEWLINE;
     }
 
+    private function showGiveawayPrizes($giveaway_id) {
+        $this->response = "";
+
+        $this->database->from("prize")->where("giveaway=".$giveaway_id)->select(["name", "value", "currency"], function($row){
+            $this->counter++;
+            $this->response .= NEWLINE.'<b>'.$row['name'].'</b>'.NEWLINE.'<i>'.$this->localization[$this->language]['Value_Msg'].$row['value'].' '.$row['currency'].'</i>'.NEWLINE.NEWLINE;
+        });
+
+        $this->editMessageText($this->response, $this->update['callback_query']['message']['message_id'],
+                        $this->inline_keyboard->getListKeyboard($this->currentPage, intval($this->listLength),false, false, false, [['text' => $this->localization[$this->language]['Back_Button'],
+                                           'callback_data' => 'list/'.$this->currentPage]]));
+    }
+
     private function getUserRecords() {
         $this->response = " ";
         $this->records = array();
@@ -572,7 +595,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
           $this->found = true;
 
           $this->database->from("Giveaway")->where("id=".$row["giveaway_id"])->select(["*"], function($row){
-            $partial .= "<b>".$row['name']."</b>".NEWLINE.$row['hashtag'].NEWLINE.NEWLINE.$row['desc'].NEWLINE.NEWLINE;
+            $partial .= "<b>".$row['name']."</b>".NEWLINE.$row['hashtag'].NEWLINE.NEWLINE.$row['description'].NEWLINE.NEWLINE;
 
             if ($row['owner_id'] == $this->message["from"]["id"])
             {
@@ -582,13 +605,13 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             }
 
             // Show giveaway's status
-            if (date("Y-m-d") > $row['end'])
+            if (date("Y-m-d") > $row['last'])
             {
                 $partial .= $this->localization[$this->language]['Closed_Msg'].NEWLINE;
-            } else if (date("Y-m-d") == $row['end']) {
+            } else if (date("Y-m-d") == $row['last']) {
                 $partial .= $this->localization[$this->language]['LastDay_Msg'].NEWLINE;
             } else {
-                $left = (strtotime(date("Y-m-d")) - strtotime($row['end'])) / 3600 / 24;
+                $left = (strtotime(date("Y-m-d")) - strtotime($row['last'])) / 3600 / 24;
                 $partial .= $left.' '.$this->localization[$this->language]['Days_Msg'].NEWLINE;
             }
 
@@ -641,7 +664,6 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
             $this->sendMessage(join("\n=======================\n\n", $response), $this->inline_keyboard->getListKeyboard(1, $this->listLength, false, false, false, $details));
         } else {
-            echo 2222222;
             $this->sendMessage($this->localization[$this->language]["StatsEmpty_Msg"]);
         }
     }
@@ -651,11 +673,13 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
     private function showGiveaway($hashtag, $callback_query_origin = false) {
         $this->callback_query_origin = $callback_query_origin;
         $this->response = ' ';
+        $this->giveaway_id;
 
         $this->database->from('Giveaway')->where("hashtag='".$hashtag."'")->select(["*"], function($row){
           $this->response = '<b>'.$row['name'].'</b>'.NEWLINE.$row['hashtag'].NEWLINE.NEWLINE;
-          $this->response .= $row['desc'].NEWLINE.NEWLINE;
+          $this->response .= $row['description'].NEWLINE.NEWLINE;
           $this->already_joined = false;
+          $this->giveaway_id = $row['id'];
 
           if ($this->update["callback_query"] === null) {
               $this->chat_id = $this->update["message"]["from"]["id"];
@@ -684,15 +708,15 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
           }
 
           // Show giveaway's status
-          if (date("Y-m-d") > $row['end'])
+          if (date("Y-m-d") > $row['last'])
           {
               $this->response .= $this->localization[$this->language]['Closed_Msg'].NEWLINE;
               $this->inline_keyboard->getKeyboard();
               $this->response = $this->localization[$this->language]['ClosedGiveaway_Msg'];
-          } else if (date("Y-m-d") == $row['end']) {
+          } else if (date("Y-m-d") == $row['last']) {
               $this->response .= $this->localization[$this->language]['LastDay_Msg'].NEWLINE;
           } else {
-              $left = (strtotime(date("Y-m-d")) - strtotime($row['end'])) / 3600 / 24;
+              $left = (strtotime(date("Y-m-d")) - strtotime($row['last'])) / 3600 / 24;
               $this->response .= $left.' '.$this->localization[$this->language]['Days_Msg'].NEWLINE;
           }
         });
@@ -708,7 +732,8 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 $this->inline_keyboard->getListKeyboard($this->currentPage, intval($this->listLength),false, false, false, [
                     ['text' => $this->localization[$this->language]['Back_Button'],
                      'callback_data' => 'list/'.$this->currentPage],
-                    ['text' => 'Browse Prize', 'callback_data' => 'null']]));
+                    ['text' => 'Browse Prize',
+                     'callback_data' => 'prizes_'.$this->giveaway_id.'_'.$this->currentPage]]));
         }
     }
 }

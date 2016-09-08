@@ -32,6 +32,7 @@ CREATE TABLE Type (
 CREATE TABLE Prize (
     id SERIAL,
     name VARCHAR(32),
+    key VARCHAR(32),
     value float,
     currency VARCHAR(1) DEFAULT '€',
     giveaway int,

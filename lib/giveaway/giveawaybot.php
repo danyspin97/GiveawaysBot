@@ -37,9 +37,9 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
     public $listLength = 1;
     public $currentPage = 1;
-    public $userGiveaway = array();
-    public $userGiveawaySize = 0;
-    public $userGiveawayFull = false;
+    private $userGiveaway = array();
+    private $userGiveawaySize = 0;
+    private $userGiveawayFull = false;
 
     public function processMessage() {
         $message = &$this->update['message'];
@@ -431,24 +431,24 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $limit = OBJECT_PER_LIST * $page;
                         $start = $limit - OBJECT_PER_LIST;
 
-                        if ($page == 1) {
-                            if ($this->userGiveawaySize < OBJECT_PER_LIST) {
-                                $limit = $this->userGiveawaySize;
-                                $start = 0;
-                            }
-                        }
-
                         $this->totalLength = $this->userGiveawaySize - ($this->userGiveawaySize % OBJECT_PER_LIST);
                         $this->listLength = $this->totalLength / OBJECT_PER_LIST;
 
-                        for($i = $start; $i < $limit; $i++) {
-                            array_push($response, $this->userGiveaway[$i]);
-                            $hashtag = explode("\n", $this->userGiveaway[$i])[1];
+                        // Show other giveaway if there are any
+                        if ($page == $this->listLength && $this->userGiveawaySize % OBJECT_PER_LIST > 0) {
+                          $limit += $this->userGiveawaySize % OBJECT_PER_LIST;
+                        }
 
-                            array_push($details, [
-                                'text' => $hashtag,
-                                'callback_data' => 'show_'.$hashtag.'_'.$page
-                            ]);
+                        for($i = $start; $i < $limit; $i++) {
+                            if ($this->userGiveaway[$i] != null) {
+                                array_push($response, $this->userGiveaway[$i]);
+                                $hashtag = explode("\n", $this->userGiveaway[$i])[1];
+
+                                array_push($details, [
+                                    'text' => $hashtag,
+                                    'callback_data' => 'show_'.$hashtag.'_'.$page
+                                ]);
+                            }
                         }
 
                         $this->editMessageText(join("\n=======================\n\n", $response), $message_id,
@@ -571,7 +571,6 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             $this->counter++;
             $this->response .= NEWLINE.'<b>'.$row['name'].'</b>'.NEWLINE.'<i>'.$this->localization[$this->language]['Value_Msg'].$row['value'].' '.$row['currency'].'</i>'.NEWLINE.NEWLINE;
         });
-
         $this->editMessageText($this->response, $this->update['callback_query']['message']['message_id'],
                         $this->inline_keyboard->getListKeyboard($this->currentPage, intval($this->listLength),false, false, false, [['text' => $this->localization[$this->language]['Back_Button'],
                                            'callback_data' => 'list/'.$this->currentPage]]));
@@ -643,23 +642,23 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         $details = array();
         $limit = OBJECT_PER_LIST;
 
-        if ($this->listLength == 0) {
-            $this->listLength = 1;
+        
+        // Show other giveaway if there are any
+        if ($this->listLength == 1 && $this->userGiveawaySize % OBJECT_PER_LIST > 0) {
+          $limit += $this->userGiveawaySize % OBJECT_PER_LIST;
         }
 
         if (!empty($this->userGiveaway)) {
-            if ($this->userGiveawaySize < OBJECT_PER_LIST) {
-                $limit = $this->userGiveawaySize;
-            }
-
             for($i = 0; $i < $limit; $i++) {
-                array_push($response, $this->userGiveaway[$i]);
-                $hashtag = explode("\n", $this->userGiveaway[$i])[1];
+                if ($this->userGiveaway[$i] != null) {
+                    array_push($response, $this->userGiveaway[$i]);
+                    $hashtag = explode("\n", $this->userGiveaway[$i])[1];
 
-                array_push($details, [
-                    "text" => $hashtag,
-                    "callback_data" => 'show_'.$hashtag.'_1'
-                ]);
+                    array_push($details, [
+                        "text" => $hashtag,
+                        "callback_data" => 'show_'.$hashtag.'_1'
+                    ]);
+                }
             }
 
             $this->sendMessage(join("\n=======================\n\n", $response), $this->inline_keyboard->getListKeyboard(1, $this->listLength, false, false, false, $details));
@@ -727,7 +726,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
           }
         });
 
-        if ($callback_query_origin == false) {
+        if (!$callback_query_origin) {
             if ($this->response == ' ') {
                 $this->sendMessage($this->localization[$this->language]['NoGiveawayWarn_Msg']);
             } else {
@@ -736,9 +735,9 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         } else {
             $this->editMessageText($this->response, $this->update['callback_query']['message']['message_id'],
                 $this->inline_keyboard->getListKeyboard($this->currentPage, intval($this->listLength),false, false, false, [
-                    ['text' => $this->localization[$this->language]['Back_Button'],
+                    ["text" => $this->localization[$this->language]['Back_Button'],
                      'callback_data' => 'list/'.$this->currentPage],
-                    ['text' => 'Browse Prize',
+                    ["text" => 'Browse Prize',
                      'callback_data' => 'prizes_'.$this->giveaway_id.'_'.$this->currentPage]]));
         }
     }

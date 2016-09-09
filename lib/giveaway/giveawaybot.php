@@ -351,6 +351,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $sth->execute();
                     }
                     $sth = null;
+                    showGiveaway($giveaway['name']);
                 default:
                     $info = explode('_', $data);
                     if (strpos('currency', $info[0])) {

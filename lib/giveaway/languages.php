@@ -7,8 +7,7 @@ $localization = ['languages' => [
 ];
 
 $localization['en'] = [
-    'Welcome_Msg' => 'Welcome to GiveawayBot.
-To start choose a language.',
+    'Welcome_Msg' => "Welcome to GiveawayBot.\nTo start choose a language.",
     'Menu_Msg' => 'GiveawayBot let you create and join giveaway without leaving Telegram.
 To start press one of the following buttons or click /help to get help.',
     'Register_Msg' => 'Now you start the creation of a giveaway. select one of the type below.
@@ -73,11 +72,12 @@ The hashtag has to be long between 5 and 32 characters.',
     'JoinedSuccess_Msg' => 'You joined this giveaway!',
     'CancelSuccess_Msg' => 'You refused the giveaway  ¯\_(ツ)_/¯',
     'MissingHashtagWarn_Msg' => 'You should specify an hashtag:',
-    'UserRegistred_AnswerCallback' => 'Registred'
+    'StatsEmpty_Msg' => 'Sorry, you didn\'t join giveaways',
+    'Value_Msg' => 'For a value of '
 ];
 
-
 $localization['it'] = [
+    'UserRegistred_AnswerCallback' => 'Registrato',
     'Menu_Msg' => 'GiveawayBot ti permette di creare e parteciapre a giveaway senza uscire da Telegram.
 Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'Register_Button' => 'Crea',
@@ -87,6 +87,7 @@ Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'Owned_Msg' => 'Creato',
     'Joined_Msg' => 'Partecipo',
     'Closed_Msg' => 'Chiuso',
+    'Back_Button' => 'Indietro',
     'LastDay_Msg' => 'Ultimo giorno',
     'Days_Msg' => 'giorni',
     'ClosedGiveaway_Msg' => '<b>Il giveaway richiesto è chiuso.</b>',
@@ -96,6 +97,8 @@ Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'MaxParticipants_Msg' => 'Il giveaway ha raggiunto il numero massimo di partecipanti, impossible partecipare.',
     'JoinedSuccess_Msg' => 'Hai preso parte a questo giveaway! ',
     'CancelSuccess_Msg' => 'Hai deciso di non partecipare ¯\_(ツ)_/¯',
-    'MissingHashtagWarn_Msg' => 'Devi specificare un hashtag:'
+    'MissingHashtagWarn_Msg' => 'Devi specificare un hashtag:',
+    'StatsEmpty_Msg' => 'Non stai partecipando a nessun giveaway',
+    'Value_Msg' => 'Per un valore di '
 ];
 

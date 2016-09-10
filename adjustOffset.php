@@ -20,5 +20,9 @@ $bot->setDatabase(new WiseDragonStd\HadesWrapper\Database($driver, $dbname, $use
 $bot->connectToRedis();
 $bot->redis->setOption(Redis::OPT_PREFIX, 'Giveaway:');
 $bot->inline_keyboard = new WiseDragonStd\HadesWrapper\InlineKeyboard($bot);
-$bot->adjustOffsetRedis();
+try {
+    $bot->adjustOffsetRedis();
+} catch (Exception $e) {
+    echo $e->getMessage();
+}
 $bot = null;

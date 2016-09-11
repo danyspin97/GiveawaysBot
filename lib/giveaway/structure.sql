@@ -1,4 +1,5 @@
 CREATE TYPE language AS ENUM('en', 'it', 'fr', 'de', 'ru', 'fa', 'hi', 'pt');
+CREATE TYPE giveaway_type AS ENUM('standard', 'cumulative');
 
 CREATE TABLE "User" (
     chat_id int,
@@ -10,6 +11,7 @@ CREATE TABLE "User" (
 CREATE TABLE Giveaway (
     id SERIAL,
     name VARCHAR(32),
+    type giveaway_type,
     hashtag VARCHAR(32),
     description VARCHAR(50),
     max_partecipants int DEFAULT 0, /* 0 for no limit */

@@ -64,11 +64,19 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             $this->getStatus();
 
             if (strpos($text, '/start') === 0) {
+                $parameter = explode(' ', $text)[1];
+
                 if(!$this->database->exist("User", ["chat_id" => $this->chat_id])) {
                     $sth = $this->pdo->prepare('SELECT COUNT(chat_id) FROM "User" WHERE chat_id = :chat_id');
                     $sth->bindParam(':chat_id', $this->chat_id);
                     $sth->execute();
                     $user_registred = $sth->fetchColumn();
+
+                    $this->database->into('"User"')->insert([
+                      "chat_id" => $this->chat_id,
+                      "language" => 'en'
+                    ]);
+
                     $this->inline_keyboard->addLevelButtons(['text' => &$this->localization['languages']['en'], 'callback_data' => 'cls_en']);
                     $this->inline_keyboard->addLevelButtons(['text' => &$this->localization['languages']['it'], 'callback_data' => 'cls_it']);
                     $this->sendMessageKeyboard($this->localization['en']['Welcome_Msg'], $this->inline_keyboard->getKeyboard());
@@ -81,6 +89,25 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Options_Button'], 'callback_data' => 'options']);
                     $this->sendMessageKeyboard($this->localization[$this->language]['Menu_Msg'], $this->inline_keyboard->getKeyboard());
                     $this->redis->set($this->chat_id . ':status', MENU);
+                }
+
+                if ($parameter != null) {
+                    $data = explode('_', $parameter);
+                    $ref_id = $data[0];
+                    $chat_id = $this->chat_id;
+                    $giveaway_id = $data[1];
+
+                    if($this->database->exist('joined', ["giveaway_id" => $giveaway_id, "chat_id" => $ref_id]) ||
+                       $this->database->exist('giveaway', ["id" => $giveaway_id])) {
+                        if(!$this->database->exist('joined', ["giveaway_id" => $giveaway_id,
+                                                   "chat_id" => $this->update["message"]["chat"]["id"]])) {
+                            $this->addByReferral($giveaway_id, $ref_id, $chat_id);
+                        } else {
+                            $this->sendMessage($this->localization[$this->language]['AlreadyIn_Msg']);
+                        }
+                    } else {
+                        $this->sendMessage($this->localization[$this->language]['UserError_Msg']);
+                    }
                 }
 
                 $response = $this->getUserRecords();
@@ -620,7 +647,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                              }
                         }
                     } elseif (strpos('cls', $info[0]) !== false) {
-                        $sth = $this->pdo->prepare('INSERT INTO "User" (chat_id, language) VALUES (:chat_id, :language)');
+                        $sth = $this->pdo->prepare('UPDATE "User" SET language = :language WHERE chat_id = :chat_id');
                         $sth->bindParam(':chat_id', $this->chat_id);
                         $sth->bindParam(':language', $info[1]);
                         $sth->execute();
@@ -918,6 +945,30 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                      'callback_data' => 'list/'.$this->currentPage],
                     ["text" => 'Browse Prize',
                      'callback_data' => 'prizes_'.$this->giveaway_id.'_'.$this->currentPage]]));
+        }
+    }
+
+    // Add participants to a cumulative giveaway.
+    private function addByReferral($giveaway_id, $referral_id, $chat_id) {
+        // Check for joined' number
+        $this->joined = 0;
+        $this->max_joined = 0;
+        
+        $this->database->from("joined")->where('giveaway_id='.$giveaway_id)->select(["count(*)"],
+        function($row){ $this->joined = $row['count']; });
+        $this->database->from("giveaway")->where('id='.$giveaway_id)->select(["max_partecipants"],
+        function($row){ $this->max_joined = $row['max_partecipants']; });
+
+        if ($this->joined == $this->max_joined) {
+             $this->answerCallbackQuery($this->localization[$this->language]['Maxjoined_Msg'], true);
+        } else {
+             $this->database->into('joined')->insert([
+                 'chat_id' => $chat_id,
+                 'giveaway_id' => $giveaway_id
+             ]);
+
+             $this->database->execute("UPDATE joined SET invites = invites + 1 WHERE chat_id = '$referral_id'");
+             $this->sendMessage($this->localization[$this->language]['JoinedSuccess_Msg']);
         }
     }
 }

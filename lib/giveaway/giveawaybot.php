@@ -93,9 +93,9 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
                 if ($parameter != null) {
                     $data = explode('_', $parameter);
-                    $ref_id = $data[0];
+                    $ref_id = base64_decode($data[0]);
                     $chat_id = $this->chat_id;
-                    $giveaway_id = $data[1];
+                    $giveaway_id = base64_decode($data[1]);
 
                     if($this->database->exist('joined', ["giveaway_id" => $giveaway_id, "chat_id" => $ref_id]) ||
                        $this->database->exist('giveaway', ["id" => $giveaway_id])) {

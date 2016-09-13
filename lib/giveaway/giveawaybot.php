@@ -1132,4 +1132,12 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
              $this->sendMessage($this->localization[$this->language]['JoinedSuccess_Msg']);
         }
     }
+
+    // Generate the referral link for the given giveaway (ID)
+    private function generateReferralLink($giveaway) {
+        $link = "telegram.me/aimashibot?start=".base64_encode($this->chat_id)."_"
+                                               .base64_encode($giveaway);
+        $message = $this->localization[$this->language]['ReferralLink_Msg'].NEWLINE.NEWLINE.$link.NEWLINE;
+        $this->sendMessage($message);
+    }
 }

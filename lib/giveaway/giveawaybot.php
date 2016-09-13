@@ -449,7 +449,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                             break;
                         case ENTERING_PRIZE_NAME:
                             $this->editMessageTextKeyboard($this->getPrizesBrowse(), $this->inline_keyboard->getKeyboard(), $message_id);
-                            $this->redis->hIncrBy($this->chat_id . ':create', 'prizes_count', -1);
+                            $this->redis->hIncrBy($this->chat_id . ':create', 'prizes', -1);
                             $this->redis->set($this->chat_id . ':status', PRIZE_SUMMARY);
                             break;
                         case GIVEAWAY_EDIT_TITLE:
@@ -461,7 +461,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                             $this->redis->set($this->chat_id . ':status', GIVEAWAY_SUMMARY);
                             break;
                         case ENTERING_PRIZE_VALUE:
-                            if ($this->redis->hGet($this->chat_id . ':create', 'prizes_count') == 0) {
+                            if ($this->redis->hGet($this->chat_id . ':create', 'prizes') == 0) {
                                 $this->editMessageText($this->localization[$this->language]['EnteringPrizeName_Msg'], $message_id);
                             } else {
                                 $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringPrizeName_Msg'], $this->inline_keyboard->getBackKeyboard(), $message_id);
@@ -538,7 +538,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $sth->bindParam(':date', $giveaway['date']);
                     $sth->execute();
                     $sth = null;
-                    $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes_count');
+                    $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes');
                     $sth = $this->pdo->prepare('INSERT INTO Prize (name, value, currency, giveaway, type) VALUES (:name, :value, :currency, :giveaway, :type)');
                     for ($i = 0; $i < $prizes_count; $i++) {
                         $prize = $this->redis->hGetAll($this->chat_id . ':prize:' . $i);
@@ -570,8 +570,18 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 case 'add_prize':
                     $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringPrizeName_Msg'], $this->inline_keyboard->getBackKeyboard(), $message_id);
                     $this->redis->set($this->chat_id . ':status', ENTERING_PRIZE_NAME);
-                    $this->redis->hIncr($this->chat_id . ':create', 'prizes_count');
+                    $this->redis->hIncrBy($this->chat_id . ':create', 'prizes', 1);
                     $this->redis->set($this->chat_id . ':message_id', $message_id);
+                    break;
+                case 'delete_prize':
+                    $selected_prize = $this->redis->hGet($this->chat_id . ':create', 'prize_selected');
+                    $this->redis->delete($this->chat_id . ':prize:' . $selected_prize);
+                    $last_prize = $this->redis->hGet($this->chat_id . ':create', 'prizes');
+                    if ($last_prize != $selected_prize) {
+                        $prize = $this->redis->hGetAll($this->chat_id . ':prize:' . $last_prize);
+                        $this->redis->hMSet($this->chat_id . ':prize:' . $selected_prize, $prize);
+                        $this->redis->delete($this->chat_id . ':prize:' . $last_prize);
+                    }
                     break;
                 default:
                     $info = explode('_', $data);
@@ -828,7 +838,13 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             $i++;
         }
         $this->inline_keyboard->getCompositeListKeyboard($index, $this->redis->hGet($this->chat_id . ':create', 'prizes') + 1, 'prize'); 
-        $this->inline_keyboard->addLevelButtons($this->prizes_button[0], $this->prizes_button[1] ?? [], $this->prizes_button[2] ?? []);
+        if (isset($this->prizes_button[2])) {
+            $this->inline_keyboard->addLevelButtons($this->prizes_button[0], $this->prizes_button[1], $this->prizes_button[2]);
+        } elseif (isset($this->prizes_button[1])) {
+            $this->inline_keyboard->addLevelButtons($this->prizes_button[0], $this->prizes_button[1]);
+        } else {
+            $this->inline_keyboard->addLevelButtons($this->prizes_button[0]);
+        }
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['AddPrize_Button'], 'callback_data' => 'add_prize']);
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['ConfirmPrizes_Button'], 'callback_data' => 'confirm_prize'], ['text' => &$this->localization[$this->language]['CancelGiveaway_Button'], 'callback_data' => 'back']);
         return $string;

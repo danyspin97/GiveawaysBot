@@ -933,8 +933,8 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             }
 
             if ($this->listLength == 0) { $this->listLength++; }
-
-            $this->sendMessage(join("\n=======================\n\n", $response), $this->inline_keyboard->getListKeyboard(0, $this->listLength, false, false, false, $details));
+ 
+            $this->sendMessage(join("\n=======================\n\n", $response), $this->inline_keyboard->getListKeyboard(1, $this->listLength, false, false, false, $details));
         } else {
             $this->sendMessage($this->localization[$this->language]["StatsEmpty_Msg"]);
         }

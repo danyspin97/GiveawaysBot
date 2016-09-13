@@ -117,7 +117,8 @@ It is securely stored on a database.',
     '€_AnswerCallback' => 'Euro',
     '$_AnswerCallback' => 'Dollar',
     'UserError_Msg' => '<b>The giveaway or the user you\'re finding for don\'t exist.</b>',
-    'AlreadyIn_Msg' => '<b>You already joined the giveaway.</b>'
+    'AlreadyIn_Msg' => '<b>You already joined the giveaway.</b>',
+    'ReferralLink_Msg' => 'Here it\'s your referral link, copy it and share with your friends:',
 ];
 
 $localization['it'] = [
@@ -145,6 +146,7 @@ Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'StatsEmpty_Msg' => 'Non stai partecipando a nessun giveaway',
     'Value_Msg' => 'Per un valore di ',
     'UserError_Msg' => '<b>Il giveaway o l\'utente a cui si fa riferimento non esistono.</b>',
-    'AlreadyIn_Msg' >= '<b>Stai già partecipando al giveaway.</b>'
+    'AlreadyIn_Msg' >= '<b>Stai già partecipando al giveaway.</b>',
+    'ReferralLink_Msg' => 'Ecco qui il tuo link d\'invito, copialo e invialo ai tuoi amici:',
 ];
 

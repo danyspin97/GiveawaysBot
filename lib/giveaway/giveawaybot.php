@@ -942,13 +942,15 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
     // a specific giveaway and permits user to join it if possible.
     private function showGiveaway($hashtag, $callback_query_origin = false) {
         $this->callback_query_origin = $callback_query_origin;
-        $this->response = ' ';
+        $this->response = "";
         $this->giveaway_id;
         $this->owner_id;
 
-        $this->database->from('Giveaway')->where("hashtag='".$hashtag."'")->select(["*"], function($row){
-          $this->response = '<b>'.$row['name'].'</b>'.NEWLINE.$row['hashtag'].NEWLINE.NEWLINE;
-          $this->response .= $row['description'].NEWLINE.NEWLINE;
+        $this->database->from('giveaway')->where("hashtag='".$hashtag."'")->select(["*"], function($row){
+          $response = "";
+          $response .= '<b>'.$row['name'].'</b>'.NEWLINE.$row['hashtag'].NEWLINE.NEWLINE;
+          $response .= $row['description'].NEWLINE.NEWLINE;
+
           $this->already_joined = false;
           $this->owner_id = $row['owner_id'];
           $this->giveaway_id = $row['id'];
@@ -958,7 +960,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
           } else {
               $this->chat_id = $this->update["callback_query"]["from"]["id"];
           }
-          
+
           if ($this->callback_query_origin == false) {
               // Check if the user is already a participant
               $this->database->from("joined")->where("chat_id='".$this->chat_id."' and giveaway_id=".$row['id'])
@@ -974,31 +976,33 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                           'callback_data' => 'hide_join_button'
                       ]);
                   } else {
-                      $this->response .= $this->localization[$this->language]['Owned_Msg'].'  |  ';
+                      $response .= $this->localization[$this->language]['Owned_Msg'].'  |  ';
                   }
               } else {
-                  $this->response .= $this->localization[$this->language]['Joined_Msg'].'  |  ';
+                  $response .= $this->localization[$this->language]['Joined_Msg'].'  |  ';
               }
           } else {
-              $this->response .= $this->localization[$this->language]['Joined_Msg'].'  |  ';
+              $response .= $this->localization[$this->language]['Joined_Msg'].'  |  ';
           }
 
           // Show giveaway's status
           if (date("Y-m-d") > $row['last'])
           {
-              $this->response .= $this->localization[$this->language]['Closed_Msg'].NEWLINE;
+              $response .= $this->localization[$this->language]['Closed_Msg'].NEWLINE;
               $this->inline_keyboard->getKeyboard();
-              $this->response = $this->localization[$this->language]['ClosedGiveaway_Msg'];
+              $response = $this->localization[$this->language]['ClosedGiveaway_Msg'];
           } else if (date("Y-m-d") == $row['last']) {
-              $this->response .= $this->localization[$this->language]['LastDay_Msg'].NEWLINE;
+              $response .= $this->localization[$this->language]['LastDay_Msg'].NEWLINE;
           } else {
               $left = (strtotime(date("Y-m-d")) - strtotime($row['last'])) / 3600 / 24;
-              $this->response .= $left.' '.$this->localization[$this->language]['Days_Msg'].NEWLINE;
+              $response .= $left.' '.$this->localization[$this->language]['Days_Msg'].NEWLINE;
           }
+
+          $this->response = $response;
         });
 
-        if (!$callback_query_origin) {
-            if ($this->response == ' ') {
+        if ($callback_query_origin == false) {
+            if ($this->response == null) {
                 $this->sendMessage($this->localization[$this->language]['NoGiveawayWarn_Msg']);
             } else {
                 $this->sendMessage($this->response, $this->inline_keyboard->getKeyboard());
@@ -1025,7 +1029,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         function($row){ $this->max_joined = $row['max_partecipants']; });
 
         if ($this->joined == $this->max_joined) {
-             $this->sendMessage($this->localization[$this->language]['Maxjoined_Msg']);
+             $this->sendMessage($this->localization[$this->language]['MaxParticipants_Msg']);
         } else {
              $this->database->into('joined')->insert([
                  'chat_id' => $chat_id,

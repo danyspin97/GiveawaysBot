@@ -108,6 +108,7 @@ It is securely stored on a database.',
     'Type3_Button' => 'Other',
     'Join_Button' => 'Join',
     'Cancel_Button' => 'Cancel',
+    'ClosedGiveaway_Msg' => '<b>The requested giveaway is closed.</b>',
     'standard_AnswerCallback' => 'JoinIn',
     'cumulative_AnswerCallback' => 'ShareIt',
     'HashtagSkipped_AnswerCallback' => 'Hashtag skipped',
@@ -115,6 +116,8 @@ It is securely stored on a database.',
     'MaxPartecipantsInfinite_AnswerCallback' => 'No limit',
     '€_AnswerCallback' => 'Euro',
     '$_AnswerCallback' => 'Dollar',
+    'UserError_Msg' => '<b>The giveaway or the user you\'re finding for don\'t exist.</b>',
+    'AlreadyIn_Msg' => '<b>You already joined the giveaway.</b>'
 ];
 
 $localization['it'] = [
@@ -140,6 +143,8 @@ Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'CancelSuccess_Msg' => 'Hai deciso di non partecipare ¯\_(ツ)_/¯',
     'MissingHashtagWarn_Msg' => 'Devi specificare un hashtag:',
     'StatsEmpty_Msg' => 'Non stai partecipando a nessun giveaway',
-    'Value_Msg' => 'Per un valore di '
+    'Value_Msg' => 'Per un valore di ',
+    'UserError_Msg' => '<b>Il giveaway o l\'utente a cui si fa riferimento non esistono.</b>',
+    'AlreadyIn_Msg' >= '<b>Stai già partecipando al giveaway.</b>'
 ];
 

@@ -731,8 +731,12 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                             }
                         }
 
+                        if ($this->listLength == 0) { $this->listLength++; }
+                        $this->inline_keyboard->getCompositeListKeyboard($page, intval($this->listLength), "list");
+                        call_user_func_array([$this->inline_keyboard, "addLevelButtons"], $details);
+
                         $this->editMessageText(join("\n=======================\n\n", $response), $message_id,
-                                               $this->inline_keyboard->getListKeyboard($page, $this->listLength, false, false, false, $details));
+                                               $this->inline_keyboard->getKeyboard());
 
                     } elseif (strpos($data, 'join_') === 0) {
                         $this->editMessageReplyMarkup($message_id, []);
@@ -912,9 +916,15 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             $this->counter++;
             $this->response .= NEWLINE.'<b>'.$row['name'].'</b>'.NEWLINE.'<i>'.$this->localization[$this->language]['Value_Msg'].$row['value'].' '.$row['currency'].'</i>'.NEWLINE.NEWLINE;
         });
+
+        $this->inline_keyboard->getCompositeListKeyboard($this->currentPage, intval($this->listLength), "list");
+        $this->inline_keyboard->addLevelButtons([
+            'text' => $this->localization[$this->language]['Back_Button'],
+            'callback_data' => 'list/'.$this->currentPage
+        ]);
+
         $this->editMessageText($this->response, $this->update['callback_query']['message']['message_id'],
-                        $this->inline_keyboard->getListKeyboard($this->currentPage, intval($this->listLength),false, false, false, [['text' => $this->localization[$this->language]['Back_Button'],
-                                           'callback_data' => 'list/'.$this->currentPage]]));
+                               $this->inline_keyboard->getKeyboard());
     }
 
     private function getUserRecords() {
@@ -1003,8 +1013,12 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             }
 
             if ($this->listLength == 0) { $this->listLength++; }
- 
-            $this->sendMessage(join("\n=======================\n\n", $response), $this->inline_keyboard->getListKeyboard(1, $this->listLength, false, false, false, $details));
+
+            $this->inline_keyboard->getCompositeListKeyboard(1, intval($this->listLength), "list");
+            call_user_func_array([$this->inline_keyboard, "addLevelButtons"], $details);
+
+            $this->sendMessage(join("\n=======================\n\n", $response),
+                               $this->inline_keyboard->getKeyboard());
         } else {
             $this->sendMessage($this->localization[$this->language]["StatsEmpty_Msg"]);
         }
@@ -1080,12 +1094,18 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 $this->sendMessage($this->response, $this->inline_keyboard->getKeyboard());
             }
         } else {
+            $this->inline_keyboard->getCompositeListKeyboard($this->currentPage,
+                                                             intval($this->listLength), "list");
+            $this->inline_keyboard->addLevelButtons([
+                'text' => $this->localization[$this->language]['Back_Button'],
+                'callback_data' => 'list/'.$this->currentPage
+            ], [
+                'text' => 'Browse Prize',
+                'callback_data' => 'prizes_'.$this->giveaway_id.'_'.$this->currentPage
+            ]);
+
             $this->editMessageText($this->response, $this->update['callback_query']['message']['message_id'],
-                $this->inline_keyboard->getListKeyboard($this->currentPage, intval($this->listLength),false, false, false, [
-                    ["text" => $this->localization[$this->language]['Back_Button'],
-                     'callback_data' => 'list/'.$this->currentPage],
-                    ["text" => 'Browse Prize',
-                     'callback_data' => 'prizes_'.$this->giveaway_id.'_'.$this->currentPage]]));
+                                   $this->inline_keyboard->getKeyboard());
         }
     }
 

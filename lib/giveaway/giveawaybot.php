@@ -101,7 +101,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                        $this->database->exist('giveaway', ["id" => $giveaway_id])) {
                         if(!$this->database->exist('joined', ["giveaway_id" => $giveaway_id,
                                                    "chat_id" => $this->update["message"]["chat"]["id"]])) {
-                            $this->addByReferral($giveaway_id, $ref_id, $chat_id);
+                            $this->addByReferral($giveaway_id, $ref_id, $this->update["message"]["chat"]["id"]);
                         } else {
                             $this->sendMessage($this->localization[$this->language]['AlreadyIn_Msg']);
                         }
@@ -1018,14 +1018,14 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         // Check for joined' number
         $this->joined = 0;
         $this->max_joined = 0;
-        
+
         $this->database->from("joined")->where('giveaway_id='.$giveaway_id)->select(["count(*)"],
-        function($row){ $this->joined = $row['count']; });
+        function($row){ $this->joined = intval($row['count']); });
         $this->database->from("giveaway")->where('id='.$giveaway_id)->select(["max_partecipants"],
         function($row){ $this->max_joined = $row['max_partecipants']; });
 
         if ($this->joined == $this->max_joined) {
-             $this->answerCallbackQuery($this->localization[$this->language]['Maxjoined_Msg'], true);
+             $this->sendMessage($this->localization[$this->language]['Maxjoined_Msg']);
         } else {
              $this->database->into('joined')->insert([
                  'chat_id' => $chat_id,

@@ -36,7 +36,8 @@ define('JOINED', 28);
 define('GV_NOT_VALID', 29);
 define('SHOW_ALL', 30);
 define('OPTIONS', 31);
-define('CANCEL_GIVEAWAY_PROMPT', 32);
+define('GIVEAWAY_CANCEL_PROMPT', 32);
+define('PRIZE_CANCEL_PROMPT', 33);
 define('OBJECT_PER_LIST', 3);
 define('CURRENCY', '€$');
 
@@ -147,6 +148,10 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 $this->showGiveaway('#'.$matches[1]);
             } elseif (preg_match('/^\/show$/', $text, $matches)) {
                 $this->sendMessage($this->localization[$this->language]['MissingHashtagWarn_Msg'].NEWLINE.'<code>/show #giveaway</code>');
+            } elseif (strpos($text, '/help') !== false) {
+                $this->sendMessage($this->localization[$this->language]['Help_Msg']);
+            } elseif (strpos($text, '/about') !== false) {
+                $this->sendMessage($this->localization[$this->language]['About_Msg']);
             } else {
                 switch($this->getStatus()) {
                     case ENTERING_TITLE:
@@ -342,17 +347,17 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $prize = $this->redis->hGet($this->chat_id . ':create', 'prizes_selected');
                         $this->redis->hSet($this->chat_id . ':prize:' . $prize, 'name', $text);
                         $this->editMessageText($this->localization[$this->language]['NewPrizeName_Msg'] . $text, $this->redis->get($this->chat_id . ':message_id'));
-                        $container = [];
-                        $this->getPrizeInfo($container);
-                        $this->sendReplyMessageKeyboard($container['string'], $this->getPrizeEditKeyboard(), $message_id);
+                        $string = '';
+                        $this->getPrizeInfo($string);
+                        $this->sendReplyMessageKeyboard($string, $this->getPrizeEditKeyboard(), $message_id);
                         $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL);
                         break;
                     case PRIZE_DETAIL_EDIT_VALUE:
                         $prize = $this->redis->hGet($this->chat_id . ':create', 'prizes_selected');
                         $text = str_replace(',', '.', $text);
-                        $money = preg_split('/((\d+)('. CURRENCY . ')|(' . CURRENCY . ')(\d+))/', $text);
-                        if ((is_float($money[0]) || is_integer($money[0])) || (is_float($money[1] || is_integer($money[1])))) {
-                            if (is_float($money[0]) || is_integer($money[0])) {
+                        $money = preg_split('/(?<=\d)(?=[' . CURRENCY . '])/', $text);
+                        if (is_numeric((float)$money[0]) || is_numeric((float)$money[1])) {
+                            if ((float)$money[0] != 0 && is_numeric($money[0])) {
                                 $i = 0;
                                 $j = 1;
                             } else {
@@ -361,18 +366,18 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                             }
                             $value = $money[$i];
                             $this->redis->hSet($this->chat_id . ':prize:' . $prize, 'value', $value);
-                            $currency = preg_match('/[' . CURRENCY . '=*]+/', $money[$j]);
-                            $currency = $currecy[$j][0];
-                            if (isset($currency)) {
+                            preg_match('/[' . CURRENCY . '=*]+/', $money[$j], $currency);
+                            $currency = $currency[0];
+                            if (isset($currency) && strpos(CURRENCY, $currency) !== false) {
                                 $this->redis->hSet($this->chat_id . ':prize:' . $prize, 'currency', $currency);
                                 $this->editMessageText($this->localization[$this->language]['NewValue_Msg'] . $currency . $value, $this->redis->get($this->chat_id . ':message_id'));
-                                $container = [];
-                                $this->getPrizeInfo($container);
-                                $this->sendReplyMessageKeyboard($container['string'], $this->getTypeKeyboard(), $message_id);
+                                $string = '';
+                                $this->getPrizeInfo($string);
+                                $this->sendReplyMessageKeyboard($string, $this->getPrizeEditKeyboard(), $message_id);
                                 $this->redis->set($this->chat_id . ':status', PRIZE_SUMMARY);
                             } else {
-                                $this->editMessageText($this->localization[$this->langauge]['NewValueNoCurrency_Msg'] . '?' . $value, $this->redis->get($this->chat_id . ':message_id'));
-                                $this->sendReplyMessageKeyboard($this->localization[$this->langauge]['EditPrizeCurrency_Msg'], $this->getCurrencyKeyboard(), $message_id);
+                                $this->editMessageText($this->localization[$this->langauge]['NewValueNoCurrency_Msg'] . $value . '?', $this->redis->get($this->chat_id . ':message_id'));
+                                $this->sendReplyMessageKeyboard($this->localization[$this->language]['EditPrizeCurrency_Msg'], $this->getCurrencyKeyboard(true), $message_id);
                                 $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL_EDIT_CURRENCY);
                             }
                         } else {
@@ -423,8 +428,12 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     break;
                 case 'back':
                     switch ($this->getStatus()) {
-                        case OPTIONS:
                         case SELECTING_TYPE:
+                            // User might have inserted data so delete this scrap
+                            if ($this->redis->exists($this->chat_id . ':create')) {
+                                $this->redis->delete($this->chat_id . ':create');
+                            }
+                        case OPTIONS:
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Register_Button'], 'callback_data' => 'register']);
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Show_Button'], 'callback_data' => 'show']);
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Options_Button'], 'callback_data' => 'options']);
@@ -460,6 +469,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                             $this->editMessageTextKeyboard($this->getPrizesBrowse(), $this->inline_keyboard->getKeyboard(), $message_id);
                             $this->redis->set($this->chat_id . ':status', PRIZE_SUMMARY);
                             break;
+                        case GIVEAWAY_CANCEL_PROMPT:
                         case GIVEAWAY_EDIT_TITLE:
                         case GIVEAWAY_EDIT_HASHTAG:
                         case GIVEAWAY_EDIT_DESCRIPTION:
@@ -487,15 +497,25 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                             $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringPrizeType_Msg'], $this->getPrizeTypeKeyboard(), $message_id);
                             $this->redis->set($this->chat_id . ':status', ENTERING_PRIZE_TYPE);
                             break;
-                        case PRIZE_EDIT_NAME:
-                        case PRIZE_EDIT_VALUE:
-                        case PRIZE_EDIT_CURRENCY:
-                        case PRIZE_EDIT_TYPE:
-                            $this->redis->hSet($chat_id . ':create', 'prizes_selected', $info[1]);
+                        case PRIZE_DETAIL_EDIT_NAME:
+                        case PRIZE_DETAIL_EDIT_VALUE:
+                        case PRIZE_DETAIL_EDIT_CURRENCY:
+                        case PRIZE_DETAIL_EDIT_TYPE:
                             $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL);
-                            $container = [];
-                            $this->getPrizeInfo($container);
-                            $this->editMessageTextKeyboard($container['string'], $this->getPrizeEditList(), $message_id);
+                            $string = '';
+                            $this->getPrizeInfo($string);
+                            $this->editMessageTextKeyboard($string, $this->getPrizeEditKeyboard(), $message_id);
+                            break;
+                        case GIVEAWAY_SUMMARY:
+                            $status2 = GIVEAWAY_CANCEL_PROMPT;
+                        case PRIZE_SUMMARY:
+                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back'], ['text' => &$this->localization[$this->language]['Confirm_Button'], 'callback_data' => 'delete_giveaway_confirm']);
+                            $this->editMessageTextKeyboard($this->localization[$this->language]['CancelGiveawayPrompt_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
+                            $this->redis->set($this->chat_id . ':status', $status2 ?? PRIZE_CANCEL_PROMPT);
+                            break;
+                        case PRIZE_CANCEL_PROMPT:
+                            $this->editMessageTextKeyboard($this->getPrizesBrowse(), $this->inline_keyboard->getKeyboard(), $message_id);
+                            $this->redis->set($this->chat_id . ':status', PRIZE_SUMMARY);
                             break;
                     }
                     break;
@@ -542,8 +562,8 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $sth->bindParam(':description', substr($giveaway['description'], 0, 49));
                     $sth->bindParam(':max_partecipants', $giveaway['max_partecipants']);
                     $sth->bindParam(':owner_id', $this->chat_id);
-                    $sth->bindParam(':created', time());
-                    $sth->bindParam(':date', $giveaway['date']);
+                    $sth->bindParam(':created', date('Y-m-d', time()));
+                    $sth->bindParam(':date', date('Y-m-d', $giveaway['date']));
                     $sth->execute();
                     $sth = null;
                     $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes');
@@ -559,7 +579,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     }
                     $sth = null;
                     $this->redis->delete($this->chat_id . ':create');
-                    showGiveaway($giveaway['name']);
+                    $this->showGiveaway($giveaway['name']);
                     break;
                 case 'delete_hashtag':
                     $this->redis->hSet($this->chat_id . ':create', 'hashtag', 'NULL');
@@ -582,7 +602,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $this->redis->set($this->chat_id . ':message_id', $message_id);
                     break;
                 case 'delete_prize':
-                    $selected_prize = $this->redis->hGet($this->chat_id . ':create', 'prize_selected');
+                    $selected_prize = $this->redis->hGet($this->chat_id . ':create', 'prizes_selected');
                     $this->redis->delete($this->chat_id . ':prize:' . $selected_prize);
                     // Check if there are other prizes to show
                     if ($this->redis->hGet($this->chat_id . ':create', 'prizes') != 0) {
@@ -603,37 +623,53 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $this->redis->set($this->chat_id . ':message_id', $message_id);
                     }
                     break;
+                case 'delete_giveaway_confirm':
+                    switch ($this->getStatus()) {
+                        case PRIZE_CANCEL_PROMPT:
+                            // Prizes might exists so delete them
+                            $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes') + 1;
+                            for ($i = 0; $i < $prizes_count; $i++) {
+                                $this->redis->delete($this->chat_id . ':prize:' . $i);
+                            }
+                        case GIVEAWAY_CANCEL_PROMPT:
+                            // User might have inserted data so delete this scrap
+                            if ($this->redis->exists($this->chat_id . ':create')) {
+                                $this->redis->delete($this->chat_id . ':create');
+                            }
+                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Register_Button'], 'callback_data' => 'register']);
+                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Show_Button'], 'callback_data' => 'show']);
+                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Options_Button'], 'callback_data' => 'options']);
+                            $this->editMessageTextKeyboard($this->localization[$this->language]['Menu_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
+                            $this->redis->set($this->chat_id . ':status', MENU);
+                            $this->redis->delete($this->chat_id . ':create');
+                            break;
+                    }
+                    break;
                 case 'null':
                     $this->answerEmptyCallbackQuery();
                     break;
                 default:
                     $info = explode('_', $data);
-                    if (strpos('currency', $info[0]) !== false) {
+                    if (strpos($info[0], 'currency') !== false) {
                         $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes');
                         $this->editMessageText($this->localization[$this->language]['PrizeValue_Msg'] . $info[1] . $this->redis->hGet($this->chat_id . ':prize:' . $prizes_count, 'value'), $this->redis->get($this->chat_id . ':message_id')); 
                         $this->redis->hSet($this->chat_id . ':prize:' . $prizes_count, 'currency', $info[1]);
                         $this->editMessageText($this->localization[$this->language]['EnteringPrizeType_Msg'], $message_id, $this->getPrizeTypeKeyboard());
                         $this->answerCallbackQueryRef($this->localization[$this->language][$info[1] . '_AnswerCallback']);
                         $this->redis->set($this->chat_id . ':status', ENTERING_PRIZE_TYPE);
-                    } elseif (strpos('type', $info[0]) !== false) {
+                    } elseif (strpos($info[0], 'type') !== false) {
                         $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes');
                         $this->redis->hSet($this->chat_id . ':prize:' . $prizes_count, 'type', $info[1]);
                         $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringPrizeKey_Msg'], $this->inline_keyboard->getBackKeyboard(), $message_id) ;
                         $this->answerCallbackQueryRef($this->localization[$this->language]['Type' . $info[1] . '_Button']);
                         $this->redis->set($this->chat_id . ':message_id', $message_id);
                         $this->redis->set($this->chat_id . ':status', ENTERING_PRIZE_KEY);
-                    } elseif (strpos('prize', $info[0]) !== false) {
-                        $this->redis->hSet($chat_id . ':create', 'prizes_selected', $info[1]);
-                        $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL);
-                        $string = '';
-                        $this->getPrizeInfo($string);
-                        $this->editMessageTextKeyboard($string, $this->getPrizeEditKeyboard(), $message_id);
                     // list keyboard use slash as limiter so parse $data instead of $info[0]
                     } elseif (strpos($data, 'indpr') !== false) {
                         $info = explode('/', $data);
                         $this->redis->hSet($this->chat_id . ':create', 'prizes_index', $info[1]);
                         $this->editMessageTextKeyboard($this->getPrizesBrowse(), $this->inline_keyboard->getKeyboard(), $message_id);
-                    } elseif (strpos('edit', $info[0]) !== false) {
+                    } elseif (strpos($info[0], 'edit') !== false) {
                         switch ($info[1]) {
                             case 'title':
                                 $this->editMessageTextKeyboard($this->localization[$this->language]['EditTitle_Msg'], $this->inline_keyboard->getBackKeyboard(), $message_id);
@@ -681,44 +717,51 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                                 $this->redis->set($this->chat_id . ':status', GIVEAWAY_SUMMARY);
                                 break;
                             case 'prize':
-                                switch ($info[3]) {
+                                switch ($info[2]) {
                                     case 'name':
                                         $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL_EDIT_NAME);
-                                        $this->editMessageText($this->chat_id . ':message_id', $message_id);
-                                        $this->editMessageTextKeyboard($this->localization[$this->langauge]['EditPrizeName_Msg'], $this->inline_keyboard->getBackKeyboard(), $message_id);
+                                        $this->redis->set($this->chat_id . ':message_id', $message_id);
+                                        $this->editMessageTextKeyboard($this->localization[$this->language]['EditPrizeName_Msg'], $this->inline_keyboard->getBackKeyboard(), $message_id);
                                         break;
                                     case 'type':
                                         $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL_EDIT_TYPE);
-                                        $this->editMessageTextKeyboard($this->localization[$this->langauge]['EditPrizeType_Msg'], $this->getTypeKeyboard(), $message_id);
+                                        $this->editMessageTextKeyboard($this->localization[$this->language]['EditPrizeType_Msg'], $this->getPrizeTypeKeyboard(true), $message_id);
                                         break;
                                     case 'value':
                                         $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL_EDIT_VALUE);
-                                        $this->editMessageTextKeyboard($this->localization[$this->langauge]['EditPrizeValue_Msg'], $this->getBackKeyboard(), $message_id);
+                                        $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringPrizeValue_Msg'], $this->inline_keyboard->getBackKeyboard(), $message_id);
                                         $this->redis->set($this->chat_id . ':message_id', $message_id);
                                         break;
                                     case 'currency':
                                         $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL_EDIT_CURRENCY);
-                                        $this->editMessageTextKeyboard($this->localization[$this->language]['EditPrizeCurrency_Msg'], $this->getCurrencyKeyboard(), $message_id);
+                                        $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringPrizeCurrency_Msg'], $this->getCurrencyKeyboard(true), $message_id);
                                         break;
                                 }
                                 break;
                         }
-                    } elseif (strpos('new', $info[0]) !== false) {
+                    } elseif (strpos($info[0], 'prize') !== false) {
+                        $this->redis->hSet($this->chat_id . ':create', 'prizes_selected', $info[1]);
+                        $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL);
+                        $string = '';
+                        $this->getPrizeInfo($string);
+                        $this->editMessageTextKeyboard($string, $this->getPrizeEditKeyboard(), $message_id);
+                    // When editing prize
+                    } elseif (strpos($info[0], 'new') !== false) {
                         switch ($info[1]) {
                             case 'currency':
                                 $prize = $this->redis->hGet($this->chat_id . ':create', 'prizes_selected');
-                                $this->redis->hSet($this->chat_id . ':prize:' . $prize, 'currency', $info[1]);
-                                $container = [];
-                                $this->getPrizeInfo($container);
-                                $this->editMessageTextKeyboard($container['string'], $this->getPrizeEditKeyboard(), $message_id);
+                                $this->redis->hSet($this->chat_id . ':prize:' . $prize, 'currency', $info[2]);
+                                $string = '';
+                                $this->getPrizeInfo($string);
+                                $this->editMessageTextKeyboard($string, $this->getPrizeEditKeyboard(), $message_id);
                                 $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL);
                                 break;
                             case 'type':
                                 $prize = $this->redis->hGet($this->chat_id . ':create', 'prizes_selected');
-                                $this->redis->hSet($this->chat_id . ':prize:' . $prize, 'type', $info[1]);
-                                $container = [];
-                                $this->getPrizeInfo($container);
-                                $this->editMessageTextKeyboard($container['string'], $this->getPrizeEditKeyboard(), $message_id);
+                                $this->redis->hSet($this->chat_id . ':prize:' . $prize, 'type', $info[2]);
+                                $string = '';
+                                $this->getPrizeInfo($string);
+                                $this->editMessageTextKeyboard($string, $this->getPrizeEditKeyboard(), $message_id);
                                 $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL);
                                 break;
                          }
@@ -834,17 +877,23 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         return $hashtags;
     }
 
-    public function &getCurrencyKeyboard() {
-        $this->inline_keyboard->addLevelButtons(['text' => '€', 'callback_data' => 'currency_€'], ['text' => '$', 'callback_data' => 'currency_$']);
+    public function &getCurrencyKeyboard($editing = false) {
+        if ($editing) {
+            $prefix = 'new_';
+        }
+        $this->inline_keyboard->addLevelButtons(['text' => '€', 'callback_data' => $prefix . 'currency_€'], ['text' => '$', 'callback_data' => $prefix . 'currency_$']);
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back']);
         return $this->inline_keyboard->getKeyboard();
     }
 
-    public function &getPrizeTypeKeyboard() {
-        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Type0_Button'], 'callback_data' => 'type_0']);
-        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Type1_Button'], 'callback_data' => 'type_1']);
-        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Type2_Button'], 'callback_data' => 'type_2']);
-        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Type3_Button'], 'callback_data' => 'type_3']);
+    public function &getPrizeTypeKeyboard($editing = false) {
+        if ($editing) {
+            $prefix = 'new_';
+        }
+        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Type0_Button'], 'callback_data' => $prefix . 'type_0']);
+        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Type1_Button'], 'callback_data' => $prefix . 'type_1']);
+        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Type2_Button'], 'callback_data' => $prefix . 'type_2']);
+        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Type3_Button'], 'callback_data' => $prefix . 'type_3']);
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back']);
         return $this->inline_keyboard->getKeyboard();
     }
@@ -887,7 +936,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             $this->inline_keyboard->addLevelButtons($this->prizes_button[0]);
         }
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['AddPrize_Button'], 'callback_data' => 'add_prize']);
-        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['ConfirmPrizes_Button'], 'callback_data' => 'confirm_prize'], ['text' => &$this->localization[$this->language]['CancelGiveaway_Button'], 'callback_data' => 'back']);
+        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['CancelGiveaway_Button'], 'callback_data' => 'back'], ['text' => &$this->localization[$this->language]['ConfirmPrizes_Button'], 'callback_data' => 'confirm_prizes']);
         $this->prizes_button = [];
         return $string;
     }
@@ -943,7 +992,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         }
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language][$description_button], 'callback_data' => 'edit_description'], ['text' => &$this->localization[$this->language][$max_button], 'callback_data' => 'edit_max']);
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['EditDate_Button'], 'callback_data' => 'edit_date']);
-        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['ConfirmGiveaway_Button'], 'callback_data' => 'confirm_giveaway']);
+        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['CancelGiveaway_Button'], 'callback_data' => 'back'], ['text' => &$this->localization[$this->language]['ConfirmGiveaway_Button'], 'callback_data' => 'confirm_giveaway']);
         return $this->inline_keyboard->getKeyboard();
     }
 

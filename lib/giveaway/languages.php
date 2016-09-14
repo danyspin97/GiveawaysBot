@@ -1,5 +1,19 @@
 <?php
 
+/*
+ * Hi, i'm GiveawayBot and i'm here to create and manage giveaway on Telegram.
+   Click on /start to show what i can do.
+ * /start - Show the menu
+ * /register - Create a new giveaway
+ * /show - Show a giveaway associated with a particular hashtag
+ * /stats - Show all your ongoing and won giveaway
+ * /help - Get help using me
+ * /about - Get info about me and my creators
+ */ 
+
+
+
+
 $localization = ['languages' => [
     'en' => 'English',
     'it' => 'Italian'
@@ -10,6 +24,23 @@ $localization['en'] = [
     'Welcome_Msg' => "Welcome to GiveawayBot.\nTo start choose a language.",
     'Menu_Msg' => 'GiveawayBot let you create and join giveaway without leaving Telegram.
 To start press one of the following buttons or click /help to get help.',
+    'Help_Msg' => 'These instructions will guide you to use me.
+If you experience problems click /start to reset the bot or contact @danyspin97.
+
+/start will show you the menu and let you change language.
+
+/register will guide you step by step to create a new giveaway.
+<code>JoinIn</code>: these giveaway are simple, join and wait them to end to know if you won a prize.
+<code>ShareIt</code>: "the more you share, the more you can win", each user that will join by your invite will grant you more winnind possibilities.
+
+/show <code>#hashtag</code> will let you join a giveaway just knowing its hashtag. Each giveaway can have a unique hashtag.
+
+/stats will show you the giveaway you have joined, the details of each of them, the prize you can win and even the giveaways you already won.
+
+WE DO NOT PROVIDE WARRANTY FOR THE GIVEAWAYS. ONLY THE CREATOR ADD THE KEYS OF THE PRIZES AND WE DO NOT PROVIDE RELIABILITY FOR WHO USE THIS BOT. JOIN ONLY THE GIVEAWAY WHICH YOU TRUST THE CREATOR.
+Thank you for your attenction and good luck.',
+    'About_Msg' => 'This is bot is bot is written in php and uses HadesWrapper.
+For updates follow @wisedragonstd.',
     'Register_Msg' => 'Now you start the creation of a giveaway. select one of the type below.
 <code>JoinIn</code>: everyone that join your giveaway will have the same winning possibility.
 <code>ShareIt</code>: share is the way; users will gain winning possibilities by sharing it.',
@@ -31,6 +62,8 @@ It is securely stored on a database.',
     'EditDescription_Msg' => 'Enter the new <b>description</b>.',
     'EditDate_Msg' => 'Enter the new date when the giveaway will end.
 (Enter a number between 3-40)',
+    'EditPrizeName_Msg' => 'Enter a new name for the prize',
+    'EditPrizeType_Msg' => 'Enter the new tipe for the prize by pressing one of the button below',
     'Title_Msg' => '<b>Title: </b>',
     'Hashatag_Msg' => '<b>Hashtag: </b>',
     'MaxPartecipants_Msg' => '<b>Max partecipants allowed: </b>',
@@ -58,6 +91,8 @@ It is securely stored on a database.',
     'DateNotValid_Msg' => 'The date inserted is not valid, please insert a number between 3-40 that represent the days the giveaway will last.',
     'ValueNotValid_Msg' => 'Please insert a valid value.',
     'NewValueNotValid_Msg' => 'The new value is not valid, please insert a new one.',
+    'CancelGiveawayPrompt_Msg' => 'Are you really sure you want to cancel the creation of this giveaway?
+It cannot be undone and all data inserted will be lost.',
     'ShowHashtagMissing_Msg' => 'You should specify the giveaway\'s hashtag:',
     'ClosedGiveawayWarn_Msg' => '<b>The requested giveaway is closed.</b>',
     'NoGiveawayWarn_Msg' => '<b>Giveaway not found</b>',

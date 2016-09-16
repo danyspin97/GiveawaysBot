@@ -768,7 +768,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                                 $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL);
                                 break;
                          }
-                    } elseif (strpos($data, 'prizes_') === 0) {
+                    } elseif (strpos($data, 'awards_') === 0) {
                         $data = explode('_', $data);
                         $this->currentPage = $data[2];
 
@@ -824,8 +824,14 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $this->database->from("giveaway")->where('id='.$giveaway_id)->select(["max_partecipants"],
                             function($row){ $this->max_joined = $row['max_partecipants']; });
 
-                        if ($this->max_joined > 0 && $this->joined == $this->max_joined) {
-                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Menu_Button'], 'callback_data' => 'menu']);
+                        // Controls that the number of participants is limited and that
+                        // this number hasn't reached.
+                        if ($this->max_joined > 0 && ($this->joined == $this->max_joined)) {
+                             $this->inline_keyboard->addLevelButtons([
+                                'text' => &$this->localization[$this->language]['Menu_Button'],
+                                'callback_data' => 'menu'
+                             ]);
+
                              $this->editMessageReplyMarkup($message_id, $this->inline_keyboard->getKeyboard());
                              $this->answerCallbackQuery($this->localization[$this->language]['Maxjoined_Msg'], true);
                         } else {
@@ -1001,13 +1007,13 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
     private function showGiveawayPrizes($giveaway_id) {
         $this->response = "";
-
-        $this->database->from("prize")->where("giveaway=".$giveaway_id)->select(["name", "value", "currency"], function($row){
+        $this->database->from("prize")->where("giveaway=$giveaway_id")->select(['*'], function($row){
             $this->counter++;
             $this->response .= NEWLINE.'<b>'.$row['name'].'</b>'.NEWLINE.'<i>'.$this->localization[$this->language]['Value_Msg'].$row['value'].' '.$row['currency'].'</i>'.NEWLINE.NEWLINE;
         });
 
-        $this->inline_keyboard->getCompositeListKeyboard($this->currentPage, intval($this->listLength), "list");
+        $this->inline_keyboard->getCompositeListKeyboard($this->currentPage,
+                                                         intval($this->listLength), "list");
         $this->inline_keyboard->addLevelButtons([
             'text' => $this->localization[$this->language]['Back_Button'],
             'callback_data' => 'list/'.$this->currentPage
@@ -1176,7 +1182,6 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
           $this->response = $response;
         });
-
         if ($callback_query_origin == false) {
             if ($this->response == null) {
                 $this->sendMessage($this->localization[$this->language]['NoGiveawayWarn_Msg']);
@@ -1191,7 +1196,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 'callback_data' => 'list/'.$this->currentPage
             ], [
                 'text' => 'Browse Prize',
-                'callback_data' => 'prizes_'.$this->giveaway_id.'_'.$this->currentPage
+                'callback_data' => 'awards_'.$this->giveaway_id.'_'.$this->currentPage
             ]);
 
             $this->editMessageText($this->response, $this->update['callback_query']['message']['message_id'],

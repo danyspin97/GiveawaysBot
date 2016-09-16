@@ -565,10 +565,10 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $sth->bindParam(':created', date('Y-m-d', time()));
                     $sth->bindParam(':date', date('Y-m-d', $giveaway['date']));
                     $sth->execute();
-                    $giveaway_id = $sth->fetchColumn();
+                    $giveaway_id = $this->getMostRecent()['id'];
                     $sth = null;
                     $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes') + 1;
-                    $sth = $this->pdo->prepare('INSERT INTO Prize (name, value, currency, giveaway, type, key) VALUES (:name, :value, :currency, :giveaway, :type, :key)');
+                    $sth = $this->pdo->prepare('INSERT INTO Prize (name, value, currency, giveaway, type, key) VALUES ("name", 30, "€", 1, 2, "JEJJWEJWJW")');
                     for ($i = 0; $i < $prizes_count; $i++) {
                         $prize = $this->redis->hGetAll($this->chat_id . ':prize:' . $i);
                         $sth->bindParam(':name', substr($prize['name'], 0, 31));
@@ -577,6 +577,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $sth->bindParam(':giveaway', $giveaway_id);
                         $sth->bindParam(':type', $prize['type']);
                         $sth->bindParam(':key', $prize['key']);
+
                         $sth->execute();
                     }
                     $sth = null;

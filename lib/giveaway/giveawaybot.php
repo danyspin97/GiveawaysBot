@@ -1227,4 +1227,15 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         $message = $this->localization[$this->language]['ReferralLink_Msg'].NEWLINE.NEWLINE.$link.NEWLINE;
         $this->sendMessage($message);
     }
+
+    // Returns the most recent giveaway from the Giveaway table.
+    private function getMostRecent() {
+        $this->giveaway = null;
+
+        $this->database->execute('SELECT * FROM Giveaway ORDER BY id DESC LIMIT 1', function($row){
+            $this->giveaway = $row;
+        });
+
+        return $this->giveaway;
+    }
 }

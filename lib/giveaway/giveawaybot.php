@@ -556,7 +556,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 case 'confirm_prizes':
                     $giveaway = $this->redis->hGetAll($this->chat_id . ':create');
                     $sth = $this->pdo->prepare('INSERT INTO Giveaway (name, type, hashtag, description, max_partecipants, owner_id, created, last) VALUES (:name, :type, :hashtag, :description, :max_partecipants, :owner_id, :created, :date)');
-                    $sth->bindParam(':name',  substr($giveaway['name'], 0, 31));
+                    $sth->bindParam(':name',  substr($giveaway['title'], 0, 31));
                     $sth->bindParam(':type', $giveaway['type']);
                     $sth->bindParam(':hashtag', substr($giveaway['hashtag'], 0, 31));
                     $sth->bindParam(':description', substr($giveaway['description'], 0, 49));
@@ -565,16 +565,18 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $sth->bindParam(':created', date('Y-m-d', time()));
                     $sth->bindParam(':date', date('Y-m-d', $giveaway['date']));
                     $sth->execute();
+                    $giveaway_id = $sth->fetchColumn();
                     $sth = null;
-                    $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes');
-                    $sth = $this->pdo->prepare('INSERT INTO Prize (name, value, currency, giveaway, type) VALUES (:name, :value, :currency, :giveaway, :type)');
+                    $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes') + 1;
+                    $sth = $this->pdo->prepare('INSERT INTO Prize (name, value, currency, giveaway, type, key) VALUES (:name, :value, :currency, :giveaway, :type, :key)');
                     for ($i = 0; $i < $prizes_count; $i++) {
                         $prize = $this->redis->hGetAll($this->chat_id . ':prize:' . $i);
                         $sth->bindParam(':name', substr($prize['name'], 0, 31));
                         $sth->bindParam(':value', $prize['value']);
                         $sth->bindParam(':currency', substr($prize['currency'], 0, 1));
-                        $sth->bindParam(':giveaway', $prize['giveaway']);
+                        $sth->bindParam(':giveaway', $giveaway_id);
                         $sth->bindParam(':type', $prize['type']);
+                        $sth->bindParam(':key', $prize['key']);
                         $sth->execute();
                     }
                     $sth = null;
@@ -890,10 +892,10 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         if ($editing) {
             $prefix = 'new_';
         }
-        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Type0_Button'], 'callback_data' => $prefix . 'type_0']);
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Type1_Button'], 'callback_data' => $prefix . 'type_1']);
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Type2_Button'], 'callback_data' => $prefix . 'type_2']);
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Type3_Button'], 'callback_data' => $prefix . 'type_3']);
+        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Type4_Button'], 'callback_data' => $prefix . 'type_4']);
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back']);
         return $this->inline_keyboard->getKeyboard();
     }

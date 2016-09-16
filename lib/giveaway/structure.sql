@@ -20,8 +20,7 @@ CREATE TABLE Giveaway (
     last date,
 
     PRIMARY KEY (id),
-    FOREIGN KEY (owner_id) REFERENCES "User" (chat_id),
-    CONSTRAINT hashtag_unique UNIQUE (hashtag)
+    FOREIGN KEY (owner_id) REFERENCES "User" (chat_id)
 );
 
 CREATE TABLE Type (

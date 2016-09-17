@@ -154,6 +154,16 @@ It cannot be undone and all data inserted will be lost.',
     'UserError_Msg' => '<b>The giveaway or the user you\'re finding for don\'t exist.</b>',
     'AlreadyIn_Msg' => '<b>You already joined the giveaway.</b>',
     'ReferralLink_Msg' => 'Here it\'s your referral link, copy it and share with your friends:',
+    'AfterCreation_Msg' => 'Giveaway created with success!',
+    'Hash_Msg' => '<b>Hashtag: </b>',
+    'Title_Msg' => '<b>Title: </b>',
+    'Type_Msg' => '<b>Type: </b>',
+    'MPValue_Msg' => '<b>Maximum of participants: </b>',
+    'EndDate_Msg' => '<b>End date: </b>',
+    'Desc_Msg' => '<b>Description: </b>',
+    'GiveawayPrizes_Msg' => '<b>Number of prizes: </b>',
+    'Undefined_Msg' => '<i>Not defined</i>',
+    'TotalValue_Msg' => '<b>For a value of: </b>'
 ];
 
 $localization['it'] = [
@@ -183,5 +193,15 @@ Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'UserError_Msg' => '<b>Il giveaway o l\'utente a cui si fa riferimento non esistono.</b>',
     'AlreadyIn_Msg' >= '<b>Stai già partecipando al giveaway.</b>',
     'ReferralLink_Msg' => 'Ecco qui il tuo link d\'invito, copialo e invialo ai tuoi amici:',
+    'AfterCreation_Msg' => 'Giveaway creato con successo!',
+    'Hash_Msg' => '<b>Hashtag: </b>',
+    'Title_Msg' => '<b>Titolo: </b>',
+    'Type_Msg' => '<b>Tipo giveaway: </b>',
+    'MPValue_Msg' => '<b>Limite partecipanti: </b>',
+    'EndDate_Msg' => '<b>Data di chiusura: </b>',
+    'Desc_Msg' => '<b>Descrizione: </b>',
+    'GiveawayPrizes_Msg' => '<b>Premi: </b>',
+    'Undefined_Msg' => '<i>Non definito</i>',
+    'TotalValue_Msg' => '<b>Per un valore di: </b>'
 ];
 

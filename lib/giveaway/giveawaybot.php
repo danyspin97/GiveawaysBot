@@ -582,7 +582,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     }
                     $sth = null;
                     $this->redis->delete($this->chat_id . ':create');
-                    $this->showGiveaway($giveaway['name']);
+                    $this->editMessageText($this->showCreatedGiveaway($giveaway_id), $message_id);
                     break;
                 case 'delete_hashtag':
                     $this->redis->hSet($this->chat_id . ':create', 'hashtag', 'NULL');
@@ -1128,7 +1128,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         $this->giveaway_id;
         $this->owner_id;
 
-        $this->database->from('giveaway')->where("hashtag='".$hashtag."'")->select(["*"], function($row){
+        $this->database->from('giveaway')->where("hashtag='$hashtag'")->select(["*"], function($row){
           $response = "";
           $response .= '<b>'.$row['name'].'</b>'.NEWLINE.$row['hashtag'].NEWLINE.NEWLINE;
           $response .= $row['description'].NEWLINE.NEWLINE;
@@ -1233,7 +1233,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         $link = "telegram.me/aimashibot?start=".base64_encode($this->chat_id)."_"
                                                .base64_encode($giveaway);
         $message = $this->localization[$this->language]['ReferralLink_Msg'].NEWLINE.NEWLINE.$link.NEWLINE;
-        $this->sendMessage($message);
+        return $message;
     }
 
     // Returns the most recent giveaway from the Giveaway table.
@@ -1245,5 +1245,50 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         });
 
         return $this->giveaway;
+    }
+
+    // Show the given giveaway after it's created.
+    private function showCreatedGiveaway($id) {
+        $this->result = '';
+        $this->prizes = 0;
+        $this->totalValue = 0.0;
+        $this->currency = '';
+        $this->addition = null;
+
+        $this->database->from('Giveaway')->where("id=$id")->select(['*'], function($row){
+            if ($row['type'] == 'cumulative') {
+                $this->addition = $this->generateReferralLink($row['id']);
+            }
+
+            foreach ($row as $key => $value) {
+                if ($value == 'NULL' || ($key == 'max_partecipants' && $value == 0)) {
+                    $row[$key] = $this->localization[$this->language]['Undefined_Msg'];
+                }
+            }
+
+            $this->result .= $this->localization[$this->language]['Title_Msg'] . $row['name'] . NEWLINE
+                            .$this->localization[$this->language]['Hash_Msg'] . $row['hashtag'] . NEWLINE
+                            .$this->localization[$this->language]['Type_Msg'] . $row['type'] . NEWLINE
+                            .$this->localization[$this->language]['MPValue_Msg'] . $row['max_partecipants'] . NEWLINE
+                            .$this->localization[$this->language]['EndDate_Msg'] . $row['last'] . NEWLINE
+                            .$this->localization[$this->language]['Desc_Msg'] . $row['description'] . NEWLINE;
+        });
+
+        $this->database->from('prize')->where("giveaway=$id")->select(['*'], function($row){
+            $this->prizes++;
+            $this->totalValue += floatval($row['value']);
+            $this->currency = $row['currency'];
+        });
+
+        $this->result .=  NEWLINE.$this->localization[$this->language]['GiveawayPrizes_Msg'].$this->prizes;
+        $this->result .= NEWLINE.$this->localization[$this->language]['TotalValue_Msg']."$this->totalValue"
+                                .$this->currency;
+
+        if ($this->addition != null) {
+            $this->result .= NEWLINE.NEWLINE.$this->addition;
+        }
+
+        $this->answerCallbackQuery($this->localization[$this->language]['AfterCreation_Msg']);
+        return $this->result;
     }
 }

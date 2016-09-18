@@ -13,7 +13,7 @@ CREATE TABLE Giveaway (
     name VARCHAR(32),
     type giveaway_type,
     hashtag VARCHAR(32),
-    description VARCHAR(50),
+    description VARCHAR(140),
     max_partecipants int DEFAULT 0, /* 0 for no limit */
     owner_id int,
     created date,
@@ -32,7 +32,7 @@ CREATE TABLE Type (
 
 CREATE TABLE Prize (
     id SERIAL,
-    name VARCHAR(32),
+    name VARCHAR(50),
     key VARCHAR(32),
     value float,
     currency VARCHAR(1) DEFAULT '€',

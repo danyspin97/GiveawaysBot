@@ -163,7 +163,10 @@ It cannot be undone and all data inserted will be lost.',
     'Desc_Msg' => '<b>Description: </b>',
     'GiveawayPrizes_Msg' => '<b>Number of prizes: </b>',
     'Undefined_Msg' => '<i>Not defined</i>',
-    'TotalValue_Msg' => '<b>For a value of: </b>'
+    'TotalValue_Msg' => '<b>For a value of: </b>',
+    'JoinLabel_Msg' => 'Join ',
+    'Unlimited_Msg' => '<i>Unlimited</i>',
+    'Inception_Msg' => '<b>You can\'t join a giveaway created by yourself.</b>'
 ];
 
 $localization['it'] = [
@@ -202,6 +205,9 @@ Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'Desc_Msg' => '<b>Descrizione: </b>',
     'GiveawayPrizes_Msg' => '<b>Premi: </b>',
     'Undefined_Msg' => '<i>Non definito</i>',
-    'TotalValue_Msg' => '<b>Per un valore di: </b>'
+    'TotalValue_Msg' => '<b>Per un valore di: </b>',
+    'JoinLabel_Msg' => 'Partecipa a ',
+    'Unlimited_Msg' => '<i>Illimitato</i>',
+    'Inception_Msg' => '<b>Non puoi partecipare a un giveaway da te creato.</b>'
 ];
 

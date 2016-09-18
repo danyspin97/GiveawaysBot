@@ -1232,8 +1232,9 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
     private function generateReferralLink($giveaway) {
         $link = "telegram.me/aimashibot?start=".base64_encode($this->chat_id)."_"
                                                .base64_encode($giveaway);
+
         $message = $this->localization[$this->language]['ReferralLink_Msg'].NEWLINE.NEWLINE.$link.NEWLINE;
-        return $message;
+        $this->sendMessage($message);
     }
 
     // Returns the most recent giveaway from the Giveaway table.
@@ -1253,12 +1254,10 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         $this->prizes = 0;
         $this->totalValue = 0.0;
         $this->currency = '';
-        $this->addition = null;
+        $this->type = null;
 
         $this->database->from('Giveaway')->where("id=$id")->select(['*'], function($row){
-            if ($row['type'] == 'cumulative') {
-                $this->addition = $this->generateReferralLink($row['id']);
-            }
+            $this->type = $row['type'];
 
             foreach ($row as $key => $value) {
                 if ($value == 'NULL' || ($key == 'max_partecipants' && $value == 0)) {
@@ -1284,11 +1283,12 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         $this->result .= NEWLINE.$this->localization[$this->language]['TotalValue_Msg']."$this->totalValue"
                                 .$this->currency;
 
-        if ($this->addition != null) {
-            $this->result .= NEWLINE.NEWLINE.$this->addition;
+        $this->answerCallbackQuery($this->localization[$this->language]['AfterCreation_Msg']);
+
+        if ($this->type == 'cumulative') {
+            $this->generateReferralLink($id);
         }
 
-        $this->answerCallbackQuery($this->localization[$this->language]['AfterCreation_Msg']);
         return $this->result;
     }
 }

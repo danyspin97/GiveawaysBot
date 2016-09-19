@@ -12,13 +12,12 @@
  */ 
 
 
+$localization = [];
 
-
-$localization = ['languages' => [
+$localization['languages'] = [
     'en' => 'English',
     'it' => 'Italian'
-    ]
-];
+    ];
 
 $localization['en'] = [
     'Welcome_Msg' => "Welcome to GiveawayBot.\nTo start choose a language.",
@@ -106,11 +105,27 @@ It cannot be undone and all data inserted will be lost.',
     'Joined_Msg' => '<code>Joined</code>',
     'Closed_Msg' => '<code>Closed</code>',
     'LastDay_Msg' => '<code>Last day</code>',
+    'UserError_Msg' => '<b>The giveaway or the user you\'re finding for don\'t exist.</b>',
+    'AlreadyIn_Msg' => '<b>You already joined the giveaway.</b>',
+    'ReferralLink_Msg' => 'Here it\'s your referral link, copy it and share with your friends:',
+    'AfterCreation_Msg' => 'Giveaway created with success!',
+    'Hash_Msg' => '<b>Hashtag: </b>',
+    'Title_Msg' => '<b>Title: </b>',
+    'Type_Msg' => '<b>Type: </b>',
+    'MPValue_Msg' => '<b>Maximum of participants: </b>',
+    'EndDate_Msg' => '<b>End date: </b>',
+    'Desc_Msg' => '<b>Description: </b>',
+    'GiveawayPrizes_Msg' => '<b>Number of prizes: </b>',
+    'Undefined_Msg' => '<i>Not defined</i>',
+    'TotalValue_Msg' => '<b>For a value of: </b>',
+    'JoinLabel_Msg' => 'Join ',
+    'Unlimited_Msg' => '<i>Unlimited</i>',
+    'Inception_Msg' => '<b>You can\'t join a giveaway created by yourself.</b>',
     'Days_Msg' => 'days',
     'Menu_Button' => 'Menu',
     'Register_Button' => 'Create',
     'Show_Button' => 'Browse',
-    'Options_Button' => 'Options',
+    'Language_Button' => 'Language',
     'standard_Button' => 'JoinIn',
     'cumulative_Button' => 'ShareIt',
     'Back_Button' => 'Back',
@@ -149,24 +164,9 @@ It cannot be undone and all data inserted will be lost.',
     'HashtagSkipped_AnswerCallback' => 'Hashtag skipped',
     'DescriptionSkippet_AnswerCallback' => 'No description',
     'MaxPartecipantsInfinite_AnswerCallback' => 'No limit',
+    'Language_AnswerCallback' => 'Choose language',
     '€_AnswerCallback' => 'Euro',
     '$_AnswerCallback' => 'Dollar',
-    'UserError_Msg' => '<b>The giveaway or the user you\'re finding for don\'t exist.</b>',
-    'AlreadyIn_Msg' => '<b>You already joined the giveaway.</b>',
-    'ReferralLink_Msg' => 'Here it\'s your referral link, copy it and share with your friends:',
-    'AfterCreation_Msg' => 'Giveaway created with success!',
-    'Hash_Msg' => '<b>Hashtag: </b>',
-    'Title_Msg' => '<b>Title: </b>',
-    'Type_Msg' => '<b>Type: </b>',
-    'MPValue_Msg' => '<b>Maximum of participants: </b>',
-    'EndDate_Msg' => '<b>End date: </b>',
-    'Desc_Msg' => '<b>Description: </b>',
-    'GiveawayPrizes_Msg' => '<b>Number of prizes: </b>',
-    'Undefined_Msg' => '<i>Not defined</i>',
-    'TotalValue_Msg' => '<b>For a value of: </b>',
-    'JoinLabel_Msg' => 'Join ',
-    'Unlimited_Msg' => '<i>Unlimited</i>',
-    'Inception_Msg' => '<b>You can\'t join a giveaway created by yourself.</b>'
 ];
 
 $localization['it'] = [

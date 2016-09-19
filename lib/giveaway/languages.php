@@ -166,7 +166,9 @@ It cannot be undone and all data inserted will be lost.',
     'TotalValue_Msg' => '<b>For a value of: </b>',
     'JoinLabel_Msg' => 'Join ',
     'Unlimited_Msg' => '<i>Unlimited</i>',
-    'Inception_Msg' => '<b>You can\'t join a giveaway created by yourself.</b>'
+    'Inception_Msg' => '<b>You can\'t join a giveaway created by yourself.</b>',
+    'NowLabel_Msg' => ' now and win wonderful prizes!',
+    'UnavailableDesc_Msg' => 'No description found'
 ];
 
 $localization['it'] = [
@@ -208,6 +210,8 @@ Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'TotalValue_Msg' => '<b>Per un valore di: </b>',
     'JoinLabel_Msg' => 'Partecipa a ',
     'Unlimited_Msg' => '<i>Illimitato</i>',
-    'Inception_Msg' => '<b>Non puoi partecipare a un giveaway da te creato.</b>'
+    'Inception_Msg' => '<b>Non puoi partecipare a un giveaway da te creato.</b>',
+    'NowLabel_Msg' => ' subito e vinci fantastici premi!',
+    'UnavailableDesc_Msg' => 'Nessuna descrizione disponibile'
 ];
 

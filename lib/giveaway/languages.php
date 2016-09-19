@@ -168,9 +168,6 @@ It cannot be undone and all data inserted will be lost.',
     'Language_AnswerCallback' => 'Choose language',
     '€_AnswerCallback' => 'Euro',
     '$_AnswerCallback' => 'Dollar',
-<<<<<<< HEAD
-=======
->>>>>>> b76b294f9e9e83892dddb5886a66da77ae1bb5e6
 ];
 
 $localization['it'] = [

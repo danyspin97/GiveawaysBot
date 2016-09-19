@@ -50,6 +50,28 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
     private $userGiveawaySize = 0;
     private $userGiveawayFull = false;
 
+    public function processInlineQuery() {
+        $keyword = str_replace(["'", '"'], ["", '"'], $this->update['inline_query']['query']);
+        $this->results = new \WiseDragonStd\HadesWrapper\InlineQueryResults();
+        $query = "(SELECT * FROM giveaway WHERE name ~* '$keyword') UNION".
+                 "(SELECT * FROM giveaway WHERE hashtag ~* '$keyword')";
+
+        $this->database->execute($query, function($row){
+            $message = $this->localization['en']['JoinLabel_Msg'].' <b>'.$row['name'].'</b>'
+                      .$this->localization['en']['NowLabel_Msg'];
+            $link = 'telegram.me/aimashibot?start='.base64_encode($row['owner_id']).'_'
+                                                   .base64_encode($row['id']);
+            $this->inline_keyboard->addLevelButtons([
+                'text' => $this->localization['en']['Join_Button'],
+                'url' => $link
+            ]);
+
+            $this->results->newArticleKeyboard($row['name'], $message, $row['description'],
+                                               $this->inline_keyboard->getNoJSONKeyboard());
+        });
+        $this->answerInlineQuerySwitchPM($this->results->getResults(), 'Join a giveaway', 'start');
+    }
+
     public function processMessage() {
         $message = &$this->update['message'];
         $this->chat_id = $this->update["message"]["chat"]["id"];

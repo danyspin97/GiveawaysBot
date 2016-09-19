@@ -121,7 +121,7 @@ It cannot be undone and all data inserted will be lost.',
     'Unlimited_Msg' => '<i>Unlimited</i>',
     'Inception_Msg' => '<b>You can\'t join a giveaway created by yourself.</b>',
     'NowLabel_Msg' => ' now and win wonderful prizes!',
-    'UnavailableDesc_Msg' => 'No description found'
+    'UnavailableDesc_Msg' => 'No description found',
     'Days_Msg' => 'days',
     'Menu_Button' => 'Menu',
     'Register_Button' => 'Create',

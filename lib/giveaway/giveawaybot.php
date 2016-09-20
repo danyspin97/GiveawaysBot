@@ -35,7 +35,7 @@ define('JOIN_HASHTAG_PROMPT', 27);
 define('JOINED', 28);
 define('GV_NOT_VALID', 29);
 define('SHOW_ALL', 30);
-define('OPTIONS', 31);
+define('LANGUAGE', 31);
 define('GIVEAWAY_CANCEL_PROMPT', 32);
 define('PRIZE_CANCEL_PROMPT', 33);
 define('OBJECT_PER_LIST', 3);
@@ -120,7 +120,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     }
                     $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Register_Button'], 'callback_data' => 'register']);
                     $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Show_Button'], 'callback_data' => 'show']);
-                    $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Options_Button'], 'callback_data' => 'options']);
+                    $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Language_Button'], 'callback_data' => 'options']);
                     $this->sendMessageKeyboard($this->localization[$this->language]['Menu_Msg'], $this->inline_keyboard->getKeyboard());
                     $this->redis->set($this->chat_id . ':status', MENU);
                 }
@@ -466,10 +466,10 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                             if ($this->redis->exists($this->chat_id . ':create')) {
                                 $this->redis->delete($this->chat_id . ':create');
                             }
-                        case OPTIONS:
+                        case LANGUAGE:
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Register_Button'], 'callback_data' => 'register']);
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Show_Button'], 'callback_data' => 'show']);
-                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Options_Button'], 'callback_data' => 'options']);
+                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Language_Button'], 'callback_data' => 'options']);
                             $this->editMessageTextKeyboard($this->localization[$this->language]['Menu_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
                             $this->redis->set($this->chat_id . ':status', MENU);
                             $this->redis->delete($this->chat_id . ':create');
@@ -674,12 +674,17 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                             }
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Register_Button'], 'callback_data' => 'register']);
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Show_Button'], 'callback_data' => 'show']);
-                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Options_Button'], 'callback_data' => 'options']);
+                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Language_Button'], 'callback_data' => 'options']);
                             $this->editMessageTextKeyboard($this->localization[$this->language]['Menu_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
                             $this->redis->set($this->chat_id . ':status', MENU);
                             $this->redis->delete($this->chat_id . ':create');
                             break;
                     }
+                    break;
+                case 'options':
+                    $this->editMessageTextKeyboard($this->chat_id, $this->inline_keyboard->getChooseLanguageKeyboard(), $message_id);
+                    $this->redis->set($this->chat_id . ':status', LANGUAGE);
+                    $this->answerCallbackQueryRef($this->localization[$this->language]['Language_AnswerCallback']);
                     break;
                 case 'null':
                     $this->answerEmptyCallbackQuery();
@@ -895,7 +900,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $this->language = $info[1];
                         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Register_Button'], 'callback_data' => 'register']);
                         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Show_Button'], 'callback_data' => 'show']);
-                        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Options_Button'], 'callback_data' => 'options']);
+                        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Language_Button'], 'callback_data' => 'options']);
                         $this->editMessageTextKeyboard($this->localization[$this->language]['Menu_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
                         $this->answerCallbackQueryRef($this->localization[$this->language]['UserRegistred_AnswerCallbackQuery']);
                         $this->redis->set($this->chat_id . ':status', MENU);

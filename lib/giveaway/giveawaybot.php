@@ -51,18 +51,25 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
     private $userGiveawayFull = false;
 
     public function processInlineQuery() {
+        $this->language = 'en';
+        $user = $this->update['inline_query']['from']['id'];
+
+        $this->database->from('"User"')->where("chat_id=$user")->select(['language'], function($row){
+            $this->language = $row['language'];
+        });
+
         $keyword = str_replace(["'", '"'], ["", '"'], $this->update['inline_query']['query']);
         $this->results = new \WiseDragonStd\HadesWrapper\InlineQueryResults();
         $query = "(SELECT * FROM giveaway WHERE name ~* '$keyword') UNION".
                  "(SELECT * FROM giveaway WHERE hashtag ~* '$keyword')";
 
         $this->database->execute($query, function($row){
-            $message = $this->localization['en']['JoinLabel_Msg'].' <b>'.$row['name'].'</b>'
-                      .$this->localization['en']['NowLabel_Msg'];
+            $message = $this->localization[$this->language]['JoinLabel_Msg'].' <b>'.$row['name'].'</b>'
+                      .$this->localization[$this->language]['NowLabel_Msg'];
             $link = 'telegram.me/aimashibot?start='.base64_encode($row['owner_id']).'_'
                                                    .base64_encode($row['id']);
             $this->inline_keyboard->addLevelButtons([
-                'text' => $this->localization['en']['Join_Button'],
+                'text' => $this->localization[$this->language]['Join_Button'],
                 'url' => $link
             ]);
 

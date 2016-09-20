@@ -171,6 +171,9 @@ It cannot be undone and all data inserted will be lost.',
 ];
 
 $localization['it'] = [
+    'Register_Button' => 'Crea',
+    'Show_Button' => 'Sfoglia',
+    'Language_Button' => 'Cambia Lingua',
     'UserRegistred_AnswerCallback' => 'Registrato',
     'Menu_Msg' => 'GiveawayBot ti permette di creare e parteciapre a giveaway senza uscire da Telegram.
 Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
@@ -211,6 +214,17 @@ Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'Unlimited_Msg' => '<i>Illimitato</i>',
     'Inception_Msg' => '<b>Non puoi partecipare a un giveaway da te creato.</b>',
     'NowLabel_Msg' => ' subito e vinci fantastici premi!',
-    'UnavailableDesc_Msg' => 'Nessuna descrizione disponibile'
+    'UnavailableDesc_Msg' => 'Nessuna descrizione disponibile',
+    'Prizes_Button' => 'Tutti i premi',
+    'Type1_Button' => 'Videogioco',
+    'Type2_Button' => 'Coupon',
+    'Type3_Button' => 'Gift Card',
+    'Type4_Button' => 'Altro',
+    'AddPrize_Button' => 'Aggiungi premio',
+    'EditPrizeName_Button' => 'Modifica nome',
+    'EditPrizeType_Button' => 'Modifica tipo',
+    'EditPrizeValue_Button' => 'Modifica valore',
+    'EditPrizeCurrency_Button' => 'Modifica moneta',
+    'DeletePrize_Button' => 'Cancella'
 ];
 

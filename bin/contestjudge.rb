@@ -4,13 +4,13 @@ require 'pg'
 require 'yaml'
 require_relative '../lib/contestjudge'
 
-@db = PG.connect(dbname: 'YOURDB', user: 'YOURUSER', password: 'YOURPASSWORD')
+@db = PG.connect(dbname: 'GiveawayDB', user: 'danyspin', password: 'Mach399')
 @database = Database.new(@db)
 
 @giveaways = ContestJudge::Contest.new(database: @database)
 @giveaways = @giveaways.fetch
 
-@endpoint = "https://api.telegram.org/botEXAMPLETOKEN/sendMessage"
+@endpoint = "https://api.telegram.org/bot274795805:AAHZvzEoe8wTZ6212k2OGAbdfqTAVktueGI/sendMessage"
 @localization = YAML.load_file(File.dirname($PROGRAM_NAME) + '/languages.yml')
 
 @giveaways.each do |giveaway|

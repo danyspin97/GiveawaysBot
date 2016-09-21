@@ -51,32 +51,43 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
     private $userGiveawayFull = false;
 
     public function processInlineQuery() {
-        $this->language = 'en';
-        $user = $this->update['inline_query']['from']['id'];
+        $inline_query = &$this->update['inline_query'];
+        $this->chat_id = &$inline_query['from']['id'];
+        $text = &$inline_query['query'];
+        $this->getLanguage();
 
-        $this->database->from('"User"')->where("chat_id=$user")->select(['language'], function($row){
-            $this->language = $row['language'];
-        });
-
-        $keyword = str_replace(["'", '"'], ["", '"'], $this->update['inline_query']['query']);
-        $this->results = new \WiseDragonStd\HadesWrapper\InlineQueryResults();
-        $query = "(SELECT * FROM giveaway WHERE name ~* '$keyword') UNION".
-                 "(SELECT * FROM giveaway WHERE hashtag ~* '$keyword')";
-
-        $this->database->execute($query, function($row){
-            $message = $this->localization[$this->language]['JoinLabel_Msg'].' <b>'.$row['name'].'</b>'
-                      .$this->localization[$this->language]['NowLabel_Msg'];
-            $link = 'telegram.me/aimashibot?start='.base64_encode($row['owner_id']).'_'
+        if ($this->database->exist("User", ["chat_id" => $this->chat_id])) {
+            $this->results = new \WiseDragonStd\HadesWrapper\InlineQueryResults();
+            if (isset($text) && $text !== '') {
+                $sth = $this->pdo->prepare("SELECT T.id, T.name, T.owner_id, T.description, T.hashtag FROM (
+                                                SELECT giveaway.id, giveaway.name, giveaway.owner_id, giveaway.description, giveaway.type, giveaway.hashtag, giveaway.last
+                                                   FROM giveaway, joined
+                                                   WHERE joined.chat_id = :chat_id AND giveaway.id = joined.giveaway_id OR giveaway.id = :chat_id
+                                            ) AS T WHERE T.name ~* :query OR T.hashtag ~* :query ORDER BY T.last LIMIT 50");
+                $sth->bindParam(':query', str_replace(["'", '"'], ["", '"'], $text));
+                $sth->bindParam(':chat_id', $this->chat_id);
+            } else {
+                $sth = $this->pdo->prepare('SELECT * FROM giveaway ORDER BY last LIMIT 50');
+            }
+            $sth->execute();
+            while($row = $sth->fetch()) {
+                $message = $this->localization[$this->language]['JoinLabel_Msg'].' <b>'.$row['name'].'</b>'
+                    . $this->localization[$this->language]['NowLabel_Msg'];
+                $link = 'telegram.me/giveaways_bot?start='.base64_encode($row['owner_id']).'_'
                                                    .base64_encode($row['id']);
-            $this->inline_keyboard->addLevelButtons([
-                'text' => $this->localization[$this->language]['Join_Button'],
-                'url' => $link
-            ]);
+                $this->inline_keyboard->addLevelButtons([
+                        'text' => $this->localization[$this->language]['Join_Button'],
+                        'url' => $link
+                ]);
 
-            $this->results->newArticleKeyboard($row['name'], $message, $row['description'],
+                $description = $row['description'] === 'NULL' ? '' : $row['description'];
+                $this->results->newArticleKeyboard($row['name'], $message, $description,
                                                $this->inline_keyboard->getNoJSONKeyboard());
-        });
-        $this->answerInlineQuerySwitchPM($this->results->getResults(), 'Join a giveaway', 'start');
+            }
+                $this->answerInlineQuerySwitchPMRef($this->results->getResults(), $this->localization[$this->language]['SwitchPM_InlineQuery'], 'start');
+        } else {
+            $this->answerEmptyInlineQuerySwitchPM($this->localization[$this->language]['Register_InlineQuery']);
+        }
     }
 
     public function processMessage() {
@@ -475,7 +486,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                             $this->redis->delete($this->chat_id . ':create');
                             break;
                         case ENTERING_TITLE:
-                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Standard_Button'], 'callback_data' => 'standard'], ['text' => $this->localization[$this->language]['Cumulative_Button'], 'callback_data' => 'cumulative']);
+                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['standard_Button'], 'callback_data' => 'standard'], ['text' => $this->localization[$this->language]['cumulative_Button'], 'callback_data' => 'cumulative']);
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back']);
                             $this->editMessageTextKeyboard($this->localization[$this->language]['Register_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
                             $this->redis->set($this->chat_id . ':status', SELECTING_TYPE);
@@ -589,10 +600,10 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 case 'confirm_prizes':
                     $giveaway = $this->redis->hGetAll($this->chat_id . ':create');
                     $sth = $this->pdo->prepare('INSERT INTO Giveaway (name, type, hashtag, description, max_partecipants, owner_id, created, last) VALUES (:name, :type, :hashtag, :description, :max_partecipants, :owner_id, :created, :date)');
-                    $sth->bindParam(':name',  substr($giveaway['title'], 0, 31));
+                    $sth->bindParam(':name',  mb_substr($giveaway['title'], 0, 49));
                     $sth->bindParam(':type', $giveaway['type']);
-                    $sth->bindParam(':hashtag', substr($giveaway['hashtag'], 0, 31));
-                    $sth->bindParam(':description', substr($giveaway['description'], 0, 49));
+                    $sth->bindParam(':hashtag', mb_substr($giveaway['hashtag'], 0, 31));
+                    $sth->bindParam(':description', mb_substr($giveaway['description'], 0, 139));
                     $sth->bindParam(':max_partecipants', $giveaway['max_partecipants']);
                     $sth->bindParam(':owner_id', $this->chat_id);
                     $sth->bindParam(':created', date('Y-m-d', time()));
@@ -612,6 +623,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $sth->bindParam(':key', $prize['key']);
 
                         $sth->execute();
+                        $this->redis->delete($this->chat_id . ':prize:' . $i);
                     }
                     $sth = null;
                     $this->redis->delete($this->chat_id . ':create');
@@ -1272,7 +1284,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
     // Generate the referral link for the given giveaway (ID)
     private function generateReferralLink($giveaway, $title) {
-        $link = "telegram.me/aimashibot?start=".base64_encode($this->chat_id)."_"
+        $link = "telegram.me/giveaways_bot?start=".base64_encode($this->chat_id)."_"
                                                .base64_encode($giveaway);
 
         $message = $this->localization[$this->language]['JoinLabel_Msg'] . '<b>'.$title.'</b>'.':'

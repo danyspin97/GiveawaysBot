@@ -1,5 +1,0 @@
-TooManyStatements:
-  max_statements: 8
-
-NestedIterators:
-  max_allowed_nesting: 2

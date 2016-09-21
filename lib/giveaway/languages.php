@@ -1,14 +1,14 @@
 <?php
 
 /*
- * Hi, i'm GiveawayBot and i'm here to create and manage giveaway on Telegram.
+ * Hi, i'm GiveawayssBot and i'm here to create and manage giveaways on Telegram.
    Click on /start to show what i can do.
- * /start - Show the menu
- * /register - Create a new giveaway
- * /show - Show a giveaway associated with a particular hashtag
- * /stats - Show all your ongoing and won giveaway
- * /help - Get help using me
- * /about - Get info about me and my creators
+ * start - Show the menu
+ * register - Create a new giveaway
+ * show - Show a giveaway associated with a particular hashtag
+ * stats - Show all your ongoing and won giveaway
+ * help - Get help using me
+ * about - Get info about me and my creators
  */ 
 
 
@@ -168,6 +168,8 @@ It cannot be undone and all data inserted will be lost.',
     'Language_AnswerCallback' => 'Choose language',
     '€_AnswerCallback' => 'Euro',
     '$_AnswerCallback' => 'Dollar',
+    'Register_InlineQuery' => 'Register',
+    'SwitchPM_InlineQuery' => 'Create or browse',
 ];
 
 $localization['it'] = [

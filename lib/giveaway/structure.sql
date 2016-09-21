@@ -10,7 +10,7 @@ CREATE TABLE "User" (
 
 CREATE TABLE Giveaway (
     id SERIAL,
-    name VARCHAR(32),
+    name VARCHAR(50),
     type giveaway_type,
     hashtag VARCHAR(32),
     description VARCHAR(140),

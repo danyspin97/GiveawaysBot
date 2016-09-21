@@ -1,0 +1,2 @@
+it: "Congratulazioni! Sei uno dei vincitori di *%s*.\n\nIl tuo premio è _%s_ del valore di %s %s.\n\nBeh, ecco a te la chiave del tuo premio: ```%s```"
+en: "Congratulations! You're one of the winners of *%s*.\n\nYou got _%s_ for a value of %s %s.\n\nSo, here it's your prize key: ```%s```"

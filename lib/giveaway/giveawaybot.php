@@ -61,14 +61,16 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             if (isset($text) && $text !== '') {
                 $sth = $this->pdo->prepare("SELECT T.id, T.name, T.owner_id, T.description, T.hashtag FROM (
                                                 SELECT giveaway.id, giveaway.name, giveaway.owner_id, giveaway.description, giveaway.type, giveaway.hashtag, giveaway.last
-                                                   FROM giveaway, joined
-                                                   WHERE joined.chat_id = :chat_id AND giveaway.id = joined.giveaway_id OR giveaway.id = :chat_id
+                                                   FROM giveaway LEFT JOIN joined
+                                                   ON joined.chat_id = :chat_id AND giveaway.id = joined.giveaway_id OR giveaway.owner_id = :chat_id
                                             ) AS T WHERE T.name ~* :query OR T.hashtag ~* :query ORDER BY T.last LIMIT 50");
                 $sth->bindParam(':query', str_replace(["'", '"'], ["", '"'], $text));
-                $sth->bindParam(':chat_id', $this->chat_id);
             } else {
-                $sth = $this->pdo->prepare('SELECT * FROM giveaway ORDER BY last LIMIT 50');
+                $sth = $this->pdo->prepare('SELECT giveaway.id, giveaway.name, giveaway.owner_id, giveaway.description, giveaway.type, giveaway.hashtag, giveaway.last
+                                               FROM giveaway LEFT JOIN joined
+                                               ON joined.chat_id = :chat_id AND giveaway.id = joined.giveaway_id OR giveaway.owner_id = :chat_id ORDER BY last LIMIT 50');
             }
+            $sth->bindParam(':chat_id', $this->chat_id);
             $sth->execute();
             while($row = $sth->fetch()) {
                 $message = $this->localization[$this->language]['JoinLabel_Msg'].' <b>'.$row['name'].'</b>'
@@ -84,7 +86,8 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 $this->results->newArticleKeyboard($row['name'], $message, $description,
                                                $this->inline_keyboard->getNoJSONKeyboard());
             }
-                $this->answerInlineQuerySwitchPMRef($this->results->getResults(), $this->localization[$this->language]['SwitchPM_InlineQuery'], 'start');
+            $this->answerInlineQuerySwitchPMRef($this->results->getResults(), $this->localization[$this->language]['SwitchPM_InlineQuery'], 'start');
+            $sth = null;
         } else {
             $this->answerEmptyInlineQuerySwitchPM($this->localization[$this->language]['Register_InlineQuery']);
         }
@@ -601,7 +604,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $sth = $this->pdo->prepare('INSERT INTO Prize (name, value, currency, giveaway, type, key) VALUES (:name, :value, :currency, :giveaway, :type, :key)');
                     for ($i = 0; $i < $prizes_count; $i++) {
                         $prize = $this->redis->hGetAll($this->chat_id . ':prize:' . $i);
-                        $sth->bindParam(':name', substr($prize['name'], 0, 31));
+                        $sth->bindParam(':name', mb_substr($prize['name'], 0, 31));
                         $sth->bindParam(':value', $prize['value']);
                         $sth->bindParam(':currency', $prize['currency']);
                         $sth->bindParam(':giveaway', $giveaway_id);

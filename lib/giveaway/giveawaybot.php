@@ -1098,8 +1098,13 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             $this->message = $this->update["callback_query"];
         }
 
-        $this->database->from("joined")->where("chat_id='".$this->message["from"]["id"]."'")->select(["*"], function($row){
+        $query = "SELECT giveaway_id FROM joined WHERE chat_id='".$this->message['from']['id']."' UNION ALL "
+                ."SELECT id FROM giveaway WHERE owner_id=".$this->message['from']['id']."";
+
+        $this->database->execute($query, function($row){
           $this->found = true;
+
+          $row['giveaway_id'] = $row['id'] || $row['giveaway_id'];
 
           $this->database->from("Giveaway")->where("id=".$row["giveaway_id"])->select(["*"], function($row){
             $partial .= "<b>".$row['name']."</b>".NEWLINE.$row['hashtag'].NEWLINE.NEWLINE.$row['description'].NEWLINE.NEWLINE;
@@ -1229,7 +1234,12 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                   $response .= $this->localization[$this->language]['Joined_Msg'].'  |  ';
               }
           } else {
-              $response .= $this->localization[$this->language]['Joined_Msg'].'  |  ';
+              if ($this->owner_id == $this->chat_id) {
+                  $response .= $this->localization[$this->language]['Owned_Msg'].'  |  ';
+              } else {
+                  $response .= $this->localization[$this->language]['Joined_Msg'].'  |  ';
+              }
+
           }
 
           // Show giveaway's status

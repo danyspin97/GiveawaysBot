@@ -14,7 +14,7 @@ CREATE TABLE Giveaway (
     type giveaway_type,
     hashtag VARCHAR(32),
     description VARCHAR(140),
-    max_partecipants int DEFAULT 0, /* 0 for no limit */
+    max_participants int DEFAULT 0, /* 0 for no limit */
     owner_id int,
     created date,
     last date,

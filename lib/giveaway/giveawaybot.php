@@ -209,7 +209,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                             if ($duplicated_hashtag == false) {
                                 $this->editMessageText($this->localization[$this->language]['Hashatag_Msg'] . $hashtag, $this->redis->get($this->chat_id . ':message_id'));
                                 $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back'], ['text' => &$this->localization[$this->language]['Infinite_Button'], 'callback_data' => 'infinite']);
-                                $new_message = $this->sendReplyMessageKeyboard($this->localization[$this->language]['EnteringMaxPartecipants_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
+                                $new_message = $this->sendReplyMessageKeyboard($this->localization[$this->language]['EnteringMaxparticipants_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
                                 $this->redis->set($this->chat_id . ':message_id', $new_message['message_id']);
                                 $this->redis->set($this->chat_id . ':status', ENTERING_MAX);
                                 $this->redis->hSet($this->chat_id . ':create', 'hashtag', $hashtag);
@@ -225,14 +225,14 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     case ENTERING_MAX:
                         $text = intval($text);
                         if (is_integer($text) && $text < PHP_INT_MAX && $text !== 0) {
-                            $this->editMessageText($this->localization[$this->language]['MaxPartecipants_Msg'] . $text, $this->redis->get($this->chat_id . ':message_id'));
+                            $this->editMessageText($this->localization[$this->language]['Maxparticipants_Msg'] . $text, $this->redis->get($this->chat_id . ':message_id'));
                             $new_message = $this->sendReplyMessageKeyboard($this->localization[$this->language]['EnteringDescription_Msg'], $this->inline_keyboard->getBackSkipKeyboard(), $message_id);
                             $this->redis->set($this->chat_id . ':status', ENTERING_DESCRIPTION);
                             $this->redis->set($this->chat_id . ':message_id', $new_message['message_id']);
-                            $this->redis->hSet($this->chat_id . ':create', 'max_partecipants', $text);
+                            $this->redis->hSet($this->chat_id . ':create', 'max_participants', $text);
                         } else {
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back'], ['text' => &$this->localization[$this->language]['Infinite_Button'], 'callback_data' => 'infinite']);
-                            $new_message = $this->sendReplyMessageKeyboard($this->localization[$this->language]['MaxPartecipantsNotValid_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
+                            $new_message = $this->sendReplyMessageKeyboard($this->localization[$this->language]['MaxparticipantsNotValid_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
                             $this->redis->set($this->chat_id . ':message_id', $new_message['message_id']);
                         }
                         break;
@@ -295,13 +295,13 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     case GIVEAWAY_EDIT_MAX:
                         $text = intval($text);
                         if (is_integer($text) && $text < PHP_INT_MAX && $text !== 0) {
-                            $this->redis->hSet($this->chat_id . ':create', 'max_partecipants', $text);
-                            $this->editMessageText($this->localization[$this->language]['NewMaxPartecipants_Msg'] . $text, $this->redis->get($this->chat_id . ':message_id'));
+                            $this->redis->hSet($this->chat_id . ':create', 'max_participants', $text);
+                            $this->editMessageText($this->localization[$this->language]['NewMaxparticipants_Msg'] . $text, $this->redis->get($this->chat_id . ':message_id'));
                             $this->sendMessageKeyboard($this->getGiveawaySummary(), $this->getGiveawayEditKeyboard());
                             $this->redis->set($this->chat_id . ':status', GIVEAWAY_SUMMARY);
                             $this->redis->set($this->chat_id . ':message_id', $new_message['message_id']);
                         } else {
-                            $new_message = $this->sendReplyMessageKeyboard($this->localization[$this->language]['MaxPartecipantsNotValid_Msg'], $this->inline_keyboard->getBackKeyboard(), $message_id);
+                            $new_message = $this->sendReplyMessageKeyboard($this->localization[$this->language]['MaxparticipantsNotValid_Msg'], $this->inline_keyboard->getBackKeyboard(), $message_id);
                             $this->redis->set($this->chat_id . ':message_id', $new_message['message_id']);
                         }
                         break;
@@ -490,7 +490,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                             break;
                         case ENTERING_DESCRIPTION:
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back'], ['text' => &$this->localization[$this->language]['Infinite_Button'], 'callback_data' => 'infinite']);
-                            $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringMaxPartecipants_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
+                            $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringMaxparticipants_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
                             $this->redis->set($this->chat_id . ':status', ENTERING_MAX);
                             break;
                         case ENTERING_DATE:
@@ -556,7 +556,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     switch ($this->getStatus()) {
                         case ENTERING_HASHTAG:
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back'], ['text' => &$this->localization[$this->language]['Infinite_Button'], 'callback_data' => 'infinite']);
-                            $this->editMessageText($this->localization[$this->language]['HashtagSkipped_Msg'] . NEWLINE . $this->localization[$this->language]['EnteringMaxPartecipants_Msg'], $message_id, $this->inline_keyboard->getKeyboard());
+                            $this->editMessageText($this->localization[$this->language]['HashtagSkipped_Msg'] . NEWLINE . $this->localization[$this->language]['EnteringMaxparticipants_Msg'], $message_id, $this->inline_keyboard->getKeyboard());
                             $this->answerCallbackQuery($this->localization[$this->language]['HashtagSkipped_AnswerCallback']);
                             $this->redis->hSet($this->chat_id . ':create', 'hashtag', 'NULL');
                             $this->redis->set($this->chat_id . ':status', ENTERING_MAX);
@@ -570,11 +570,11 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     }
                     break;
                 case 'infinite':
-                    $this->editMessageText($this->localization[$this->language]['MaxPartecipantsInfinite_Msg'] . NEWLINE . $this->localization[$this->language]['EnteringDescription_Msg'], $message_id, $this->inline_keyboard->getBackSkipKeyboard());
-                    $this->answerCallbackQuery($this->localization[$this->language]['MaxPartecipantsInfinite_AnswerCallback']);
+                    $this->editMessageText($this->localization[$this->language]['MaxparticipantsInfinite_Msg'] . NEWLINE . $this->localization[$this->language]['EnteringDescription_Msg'], $message_id, $this->inline_keyboard->getBackSkipKeyboard());
+                    $this->answerCallbackQuery($this->localization[$this->language]['MaxparticipantsInfinite_AnswerCallback']);
                     $this->redis->set($this->chat_id . ':status', ENTERING_DESCRIPTION);
                     $this->redis->set($this->chat_id . ':message_id', $message_id);
-                    $this->redis->hSet($this->chat_id . ':create', 'max_partecipants', 0);
+                    $this->redis->hSet($this->chat_id . ':create', 'max_participants', 0);
                     break;
                 case 'confirm_giveaway':
                     if(!$this->redis->hExists($this->chat_id . ':create', 'prizes')) {
@@ -588,12 +588,12 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     break;
                 case 'confirm_prizes':
                     $giveaway = $this->redis->hGetAll($this->chat_id . ':create');
-                    $sth = $this->pdo->prepare('INSERT INTO Giveaway (name, type, hashtag, description, max_partecipants, owner_id, created, last) VALUES (:name, :type, :hashtag, :description, :max_partecipants, :owner_id, :created, :date)');
+                    $sth = $this->pdo->prepare('INSERT INTO Giveaway (name, type, hashtag, description, max_participants, owner_id, created, last) VALUES (:name, :type, :hashtag, :description, :max_participants, :owner_id, :created, :date)');
                     $sth->bindParam(':name',  mb_substr($giveaway['title'], 0, 49));
                     $sth->bindParam(':type', $giveaway['type']);
                     $sth->bindParam(':hashtag', mb_substr($giveaway['hashtag'], 0, 31));
                     $sth->bindParam(':description', mb_substr($giveaway['description'], 0, 139));
-                    $sth->bindParam(':max_partecipants', $giveaway['max_partecipants']);
+                    $sth->bindParam(':max_participants', $giveaway['max_participants']);
                     $sth->bindParam(':owner_id', $this->chat_id);
                     $sth->bindParam(':created', date('Y-m-d', time()));
                     $sth->bindParam(':date', date('Y-m-d', $giveaway['date']));
@@ -729,12 +729,12 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                                 $this->redis->set($this->chat_id . ':message_id', $message_id);
                                 break;
                             case 'max':
-                                if ($this->redis->hGet($this->chat_id . ':create', 'max_partecipants') == 0) {
+                                if ($this->redis->hGet($this->chat_id . ':create', 'max_participants') == 0) {
                                     $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back']);
                                 } else {
                                     $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'back'], ['text' => &$this->localization[$this->language]['Infinite_Button'], 'callback_data' => 'edit_nolimit']);
                                 }
-                                $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringMaxPartecipants_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
+                                $this->editMessageTextKeyboard($this->localization[$this->language]['EnteringMaxparticipants_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
                                 $this->redis->set($this->chat_id . ':status', GIVEAWAY_EDIT_MAX);
                                 $this->redis->set($this->chat_id . ':message_id', $message_id);
                                 break;
@@ -754,7 +754,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                                 $this->redis->set($this->chat_id . ':message_id', $message_id);
                                 break;
                             case 'nolimit':
-                                $this->redis->hSet($this->chat_id . ':create', 'max_partecipants', 0);
+                                $this->redis->hSet($this->chat_id . ':create', 'max_participants', 0);
                                 $this->editMessageTextKeyboard($this->getGiveawaySummary(), $this->getGiveawayEditKeyboard(), $message_id);
                                 $this->redis->set($this->chat_id . ':status', GIVEAWAY_SUMMARY);
                                 break;
@@ -860,8 +860,8 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $this->max_joined = 0;
                         $this->database->from("joined")->where('giveaway_id='.$giveaway_id)->select(["count(*)"], function($row){ $this->joined = $row['count']; });
 
-                        $this->database->from("giveaway")->where('id='.$giveaway_id)->select(["max_partecipants"],
-                            function($row){ $this->max_joined = $row['max_partecipants']; });
+                        $this->database->from("giveaway")->where('id='.$giveaway_id)->select(["max_participants"],
+                            function($row){ $this->max_joined = $row['max_participants']; });
 
                         // Controls that the number of participants is limited and that
                         // this number hasn't reached.
@@ -1010,9 +1010,9 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         if ($giveaway['description'] !== 'NULL') {
             $string .= '<i>' . $giveaway['description'] . '</i>' . NEWLINE;
         }
-        $string .= NEWLINE . $this->localization[$this->language]['MaxPartecipants_Msg']; 
-        if ($giveaway['max_partecipants'] != 0) {
-            $string .= $giveaway['max_partecipants'];
+        $string .= NEWLINE . $this->localization[$this->language]['Maxparticipants_Msg']; 
+        if ($giveaway['max_participants'] != 0) {
+            $string .= $giveaway['max_participants'];
         } else {
             $string .= $this->localization[$this->language]['Infinite_Button'];
         }
@@ -1033,10 +1033,10 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         } else {
             $description_button = 'EditDescription_Button';
         }
-        if ($giveaway['max_partecipants'] == 0) {
-            $max_button = 'AddMaxPartecipants_Button';
+        if ($giveaway['max_participants'] == 0) {
+            $max_button = 'AddMaxparticipants_Button';
         } else {
-            $max_button = 'EditMaxPartecipants_Button';
+            $max_button = 'EditMaxparticipants_Button';
         }
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language][$description_button], 'callback_data' => 'edit_description'], ['text' => &$this->localization[$this->language][$max_button], 'callback_data' => 'edit_max']);
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['EditDate_Button'], 'callback_data' => 'edit_date']);
@@ -1255,8 +1255,8 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
         $this->database->from("joined")->where('giveaway_id='.$giveaway_id)->select(["count(*)"],
         function($row){ $this->joined = intval($row['count']); });
-        $this->database->from("giveaway")->where('id='.$giveaway_id)->select(["max_partecipants"],
-        function($row){ $this->max_joined = $row['max_partecipants']; });
+        $this->database->from("giveaway")->where('id='.$giveaway_id)->select(["max_participants"],
+        function($row){ $this->max_joined = $row['max_participants']; });
 
         $this->inline_keyboard->addLevelButtons([
             'text' => 'Menu',
@@ -1313,8 +1313,8 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             $this->title = $row['name'];
 
             foreach ($row as $key => $value) {
-                if ($value == 'NULL' || ($key == 'max_partecipants' && $value == 0)) {
-                    if ($key == 'max_partecipants') {
+                if ($value == 'NULL' || ($key == 'max_participants' && $value == 0)) {
+                    if ($key == 'max_participants') {
                         $row[$key] = $this->localization[$this->language]['Unlimited_Msg'];
                         continue;
                     }
@@ -1326,7 +1326,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             $this->result .= $this->localization[$this->language]['Title_Msg'] . $row['name'] . NEWLINE
                             .$this->localization[$this->language]['Hash_Msg'] . $row['hashtag'] . NEWLINE
                             .$this->localization[$this->language]['Type_Msg'] . $row['type'] . NEWLINE
-                            .$this->localization[$this->language]['MPValue_Msg'] . $row['max_partecipants'] . NEWLINE
+                            .$this->localization[$this->language]['MPValue_Msg'] . $row['max_participants'] . NEWLINE
                             .$this->localization[$this->language]['EndDate_Msg'] . $row['last'] . NEWLINE
                             .$this->localization[$this->language]['Desc_Msg'] . $row['description'] . NEWLINE;
         });

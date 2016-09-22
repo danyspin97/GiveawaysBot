@@ -20,33 +20,36 @@ $localization['languages'] = [
     ];
 
 $localization['en'] = [
-    'Welcome_Msg' => "Welcome to GiveawayBot.\nTo start choose a language.",
+    'Welcome_Msg' => "Welcome to GiveawayBot 🎰.
+To start choose a language.",
     'Menu_Msg' => 'GiveawayBot let you create and join giveaway without leaving Telegram.
 To start press one of the following buttons or click /help to get help.',
-    'Help_Msg' => 'These instructions will guide you to use me.
+    'Help_Msg' => 'These instructions will <b>guide you to use me.</b>
+
+A giveaway is a promotion or contest in which prizes are given away.
+This bot manage giveaways, there are <b>two type</b> of giveaways:
+<code>JoinIn</code>: Each participant has the same winning possibility.
+<code>ShareIt</code>: Each participant grants winning possibilities by inviting other people to the giveaway.
+
+To join it, click on an invite link or press Join button and follow the instructions.
+If you joined it, look the details by pressing Browse button on the menu, browse the prizes or just wait it to end; you\'ll receive a message if you won with the key of your prize.
+If you want to create it, press Create button in the menu and follow the instructions; at the end you\'ll receive the link to share it. The winners will be choosed by the bot and will be noticed by a message containing the key, your username will never be shared. 
+To just to the menu click /start.
 If you experience problems click /start to reset the bot or contact @danyspin97.
 
-/start will show you the menu and let you change language.
-
-/register will guide you step by step to create a new giveaway.
-<code>JoinIn</code>: these giveaway are simple, join and wait them to end to know if you won a prize.
-<code>ShareIt</code>: "the more you share, the more you can win", each user that will join by your invite will grant you more winnind possibilities.
-
-/show <code>#hashtag</code> will let you join a giveaway just knowing its hashtag. Each giveaway can have a unique hashtag.
-
-/stats will show you the giveaway you have joined, the details of each of them, the prize you can win and even the giveaways you already won.
-
-WE DO NOT PROVIDE WARRANTY FOR THE GIVEAWAYS. ONLY THE CREATOR ADD THE KEYS OF THE PRIZES AND WE DO NOT PROVIDE RELIABILITY FOR WHO USE THIS BOT. JOIN ONLY THE GIVEAWAY WHICH YOU TRUST THE CREATOR.
-Thank you for your attenction and good luck.',
-    'About_Msg' => 'This is bot is bot is written in php and uses HadesWrapper.
-For updates follow @wisedragonstd.',
-    'Register_Msg' => 'Now you start the creation of a giveaway. select one of the type below.
-<code>JoinIn</code>: everyone that join your giveaway will have the same winning possibility.
-<code>ShareIt</code>: share is the way; users will gain winning possibilities by sharing it.',
+<b>WE DO NOT PROVIDE WARRANTY FOR THE GIVEAWAYS. ONLY THE CREATOR ADD THE KEYS OF THE PRIZES AND WE DO NOT PROVIDE RELIABILITY FOR WHO USE THIS BOT. JOIN ONLY THE GIVEAWAY WHICH YOU TRUST THE CREATOR.</b>
+<i>Thank you for your attenction and good luck.</i>
+<code>WiseDragonStd</code>🐉',
+    'About_Msg' => 'This is bot is written in php and ruby, It has been developed by <code>WiseDragonStd</code>🐉 team and uses HadesWrapper. 
+The code  will be released as open source at the start of 2017.
+For updates follow @WiseDragonStd channel.',
+    'Register_Msg' => 'Now you start the creation of a giveaway. Select one of the type below.
+<code>JoinIn</code>: Each participant has the same winning possibility.
+<code>ShareIt</code>: Each participant grants winning possibilities by inviting other people to the giveaway.',
     'EnteringTitle_Msg' => 'Enter the giveaway title.',
-    'EnteringHashtag_Msg' => 'Enter the hashtag for this giveaway or skip. A giveaway with a hashtag can be joined by giving command <code>/show #hashtag</code>.',
+    'EnteringHashtag_Msg' => 'Enter the hashtag for this giveaway or skip. A giveaway with a hashtag can be joined by passing it to the bot after pressing Join button.',
     'EnteringDescription_Msg' => 'Enter a description for the giveaway.',
-    'EnteringMaxPartecipants_Msg' => 'Enter the max number of partecipants allowed to join or let unlimited users join by pressing the button below',
+    'EnteringMaxparticipants_Msg' => 'Enter the max number of participants allowed to join or let unlimited users join by pressing the button below',
     'EnteringDate_Msg' => 'Enter how many days will the giveaway last.
 (Enter a number between 3-40)',
     'EnteringPrizeName_Msg' => 'Enter the name of the prize.',
@@ -65,7 +68,7 @@ It is securely stored on a database.',
     'EditPrizeType_Msg' => 'Enter the new tipe for the prize by pressing one of the button below',
     'Title_Msg' => '<b>Title: </b>',
     'Hashatag_Msg' => '<b>Hashtag: </b>',
-    'MaxPartecipants_Msg' => '<b>Max partecipants allowed: </b>',
+    'Maxparticipants_Msg' => '<b>Max participants allowed: </b>',
     'Description_Msg' => '<b>Description: </b>',
     'Date_Msg' => '<b>Date: </b>',
     'NewTitle_Msg' => '<b>New title: </b>',
@@ -85,8 +88,8 @@ It is securely stored on a database.',
     'DuplicatedHashtag_Msg' => 'The hashtag you entered is already used, please enter a new one.',
     'HashtagSkipped_Msg' => '<b>Hashtag:</b> <i>Skipped</i>.',
     'DescriptionSkipped_Msg' => '<b>Description:</b> <i>no description</i>.',
-    'MaxPartecipantsNotValid_Msg' => 'The number of partecipants allowed is not valid. Please insert a new one.',
-    'MaxPartecipantsInfinite_Msg' => '<b>Max partecipants:</b> <i>no limit</i>.',
+    'MaxparticipantsNotValid_Msg' => 'The number of participants allowed is not valid. Please insert a new one.',
+    'MaxparticipantsInfinite_Msg' => '<b>Max participants:</b> <i>no limit</i>.',
     'DateNotValid_Msg' => 'The date inserted is not valid, please insert a number between 3-40 that represent the days the giveaway will last.',
     'ValueNotValid_Msg' => 'Please insert a valid value.',
     'NewValueNotValid_Msg' => 'The new value is not valid, please insert a new one.',
@@ -135,14 +138,14 @@ It cannot be undone and all data inserted will be lost.',
     'Infinite_Button' => 'No limit',
     'EditTitle_Button' => 'Edit title',
     'EditHashtag_Button' => 'Edit hashtag',
-    'EditMaxPartecipants_Button' => 'Edit partecipants',
+    'EditMaxparticipants_Button' => 'Edit participants',
     'EditDescription_Button' => 'Edit description',
     'EditDate_Button' => 'Edit date',
     'DeleteHashtag_Button' => 'Delete hashtag',
     'DeleteDescription_Button' => 'Delete description',
     'AddHashtag_Button' => 'Add hashtag',
     'AddDescription_Button' => 'Add description',
-    'AddMaxPartecipants_Button' => 'Add partecipants limit',
+    'AddMaxparticipants_Button' => 'Add participants limit',
     'ConfirmGiveaway_Button' => 'Confirm',
     'ConfirmPrizes_Button' => 'Confirm prizes',
     'AddPrize_Button' => 'Add prize',
@@ -164,7 +167,7 @@ It cannot be undone and all data inserted will be lost.',
     'cumulative_AnswerCallback' => 'ShareIt',
     'HashtagSkipped_AnswerCallback' => 'Hashtag skipped',
     'DescriptionSkippet_AnswerCallback' => 'No description',
-    'MaxPartecipantsInfinite_AnswerCallback' => 'No limit',
+    'MaxparticipantsInfinite_AnswerCallback' => 'No limit',
     'Language_AnswerCallback' => 'Choose language',
     '€_AnswerCallback' => 'Euro',
     '$_AnswerCallback' => 'Dollar',

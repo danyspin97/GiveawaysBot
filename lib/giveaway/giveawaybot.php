@@ -38,6 +38,7 @@ define('SHOW_ALL', 30);
 define('LANGUAGE', 31);
 define('GIVEAWAY_CANCEL_PROMPT', 32);
 define('PRIZE_CANCEL_PROMPT', 33);
+define('JOINING', 34);
 define('OBJECT_PER_LIST', 3);
 define('CURRENCY', '€$');
 
@@ -59,16 +60,17 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         if ($this->database->exist("User", ["chat_id" => $this->chat_id])) {
             $this->results = new \WiseDragonStd\HadesWrapper\InlineQueryResults();
             if (isset($text) && $text !== '') {
-                $sth = $this->pdo->prepare("SELECT T.id, T.name, T.owner_id, T.description, T.hashtag FROM (
-                                                SELECT giveaway.id, giveaway.name, giveaway.owner_id, giveaway.description, giveaway.type, giveaway.hashtag, giveaway.last
-                                                   FROM giveaway LEFT JOIN joined
-                                                   ON joined.chat_id = :chat_id AND giveaway.id = joined.giveaway_id OR giveaway.owner_id = :chat_id
-                                            ) AS T WHERE T.name ~* :query OR T.hashtag ~* :query ORDER BY T.last LIMIT 50");
-                $sth->bindParam(':query', str_replace(["'", '"'], ["", '"'], $text));
+                $sth = $this->pdo->prepare('SELECT T.id, T.name, T.owner_id, T.description, T.hashtag FROM (
+                                                SELECT DISTINCT giveaway.id, giveaway.name, giveaway.owner_id, giveaway.description, giveaway.type, giveaway.hashtag, giveaway.last
+                                                   FROM giveaway INNER JOIN joined
+                                                   ON giveaway.id = joined.giveaway_id AND (joined.chat_id = :chat_id AND giveaway.type = \'cumulative\' OR giveaway.owner_id = :chat_id)
+                                            ) AS T WHERE T.name ~* :query OR T.hashtag ~* :query ORDER BY T.last LIMIT 50');
+                $sth->bindParam(':query', $text);
             } else {
-                $sth = $this->pdo->prepare('SELECT giveaway.id, giveaway.name, giveaway.owner_id, giveaway.description, giveaway.type, giveaway.hashtag, giveaway.last
-                                               FROM giveaway LEFT JOIN joined
-                                               ON joined.chat_id = :chat_id AND giveaway.id = joined.giveaway_id OR giveaway.owner_id = :chat_id ORDER BY last LIMIT 50');
+                // Show all giveaways that the user joined or created
+                $sth = $this->pdo->prepare('SELECT DISTINCT giveaway.id, giveaway.name, giveaway.owner_id, giveaway.description, giveaway.type, giveaway.hashtag, giveaway.last
+                                               FROM giveaway INNER JOIN joined
+                                               ON giveaway.id = joined.giveaway_id AND (joined.chat_id = :chat_id AND giveaway.type = \'cumulative\' OR giveaway.owner_id = :chat_id) ORDER BY last LIMIT 50');
             }
             $sth->bindParam(':chat_id', $this->chat_id);
             $sth->execute();
@@ -85,6 +87,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 $description = $row['description'] === 'NULL' ? '' : $row['description'];
                 $this->results->newArticleKeyboard($row['name'], $message, $description,
                                                $this->inline_keyboard->getNoJSONKeyboard());
+                unset($description);
             }
             $this->answerInlineQuerySwitchPMRef($this->results->getResults(), $this->localization[$this->language]['SwitchPM_InlineQuery'], 'start');
             $sth = null;
@@ -123,7 +126,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
                     $this->inline_keyboard->addLevelButtons([
                         'text' => 'Menu',
-                        'callback_data' => 'startx'
+                        'callback_data' => 'menu'
                     ]);
 
                     if ($this->update["message"]["chat"]["id"] == intval($ref_id)) {
@@ -153,7 +156,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $this->userGiveawayFull = true;
                     $this->listLength = ($this->userGiveawaySize - ($this->userGiveawaySize % OBJECT_PER_LIST)) / OBJECT_PER_LIST;
                 }
-            } elseif (strpos($text, '/register') === 0) {
+            } elseif (strpos($text, '/create') === 0) {
                 if ($this->redis->exists($this->chat_id . ':create')) {
                     $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes') + 1;
                     for ($i = 0; $i < $prizes_count; $i++) {
@@ -172,16 +175,18 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 $this->sendMessageKeyboard($this->localization[$this->language]['Register_Msg'],
                                            $this->inline_keyboard->getKeyboard());
                 $this->redis->set($this->chat_id . ':status', REGISTER);
-            } elseif (preg_match('/^\/stats$/', $text, $matches)) {
+            } elseif (preg_match('/^\/browse$/', $text, $matches)) {
                 $this->getStatsList();
-            } elseif (preg_match('/^\/show \#(.*)$/', $text, $matches)) {
+            } elseif (preg_match('/^\/join \#(.*)$/', $text, $matches)) {
                 $this->showGiveaway('#'.$matches[1]);
-            } elseif (preg_match('/^\/show$/', $text, $matches)) {
-                $this->sendMessage($this->localization[$this->language]['MissingHashtagWarn_Msg'].NEWLINE.'<code>/show #giveaway</code>');
+            } elseif (preg_match('/^\/join$/', $text, $matches)) {
+                $this->sendMessage($this->localization[$this->language]['MissingHashtagWarn_Msg'].NEWLINE.'<code>/join #giveaway</code>');
             } elseif (strpos($text, '/help') !== false) {
                 $this->sendMessage($this->localization[$this->language]['Help_Msg']);
             } elseif (strpos($text, '/about') !== false) {
-                $this->sendMessage($this->localization[$this->language]['About_Msg']);
+                $this->inline_keyboard->addLevelButtons(['text' => 'HadesWrapper_Button', 'url' => 'https://gitlab.com/WiseDragonStd/HadesWrapper']);
+                $this->inline_keyboard->addLevelButtons(['text' => 'Updates_Button', 'url' => 'https://telegram.me/wisedragonstd']);
+                $this->sendMessageKeyboard($this->localization[$this->language]['About_Msg'], $this->inline_keyboard->getKeyboard());
             } else {
                 switch($this->getStatus()) {
                     case ENTERING_TITLE:
@@ -336,7 +341,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes');
                         $text = str_replace(',', '.', $text);
                         $money = preg_split('/(?<=\d)(?=[' . CURRENCY . '])/', $text);
-                        if (is_numeric((float)$money[0]) || is_numeric((float)$money[1])) {
+                        if ((is_numeric((float)$money[0]) && (float)$money[0] != 0) || (is_numeric((float)$money[1]) && (float)$money[1] != '0')) {
                             if ((float)$money[0] != 0 && is_numeric($money[0])) {
                                 $i = 0;
                                 $j = 1;
@@ -348,7 +353,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                             $this->redis->hSet($this->chat_id . ':prize:' . $prizes_count, 'value', $value);
                             preg_match('/[' . CURRENCY . '=*]+/', $money[$j], $currency);
                             $currency = $currency[0];
-                            if (isset($currency)) {
+                            if (isset($currency) && strpos(CURRENCY, $currency) !== false) {
                                 $this->redis->hSet($this->chat_id . ':prize:' . $prizes_count, 'currency', $currency);
                                 $this->editMessageText($this->localization[$this->language]['PrizeValue_Msg'] . $currency . $value, $this->redis->get($this->chat_id . ':message_id'));
                                 $this->sendReplyMessageKeyboard($this->localization[$this->language]['EnteringPrizeType_Msg'], $this->getPrizeTypeKeyboard(), $message_id);
@@ -415,6 +420,13 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                             $this->redis->set($chat_id . ':message_id', $new_message['message_id']);
                         }
                         break;
+                    case JOINING:
+                        if (preg_match('/\#(.*)$/', $text, $matches)) {
+                            $this->editMessageText($this->localization[$this->language]['Hashtag_Msg'] . $mathes[1]);
+                            $this->showGiveaway('#'.$matches[1]);
+                        } else {
+                            $this->sendMessage($this->localization[$this->language]['MissingHashtagWarn_Msg'].NEWLINE.'<code>/join #giveaway</code>');
+                        }
                     default:
                         break;
                 }
@@ -432,14 +444,21 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
          $this->getStatus();
          if (isset($data) && isset($this->chat_id)) {
              switch($data) {
-                case 'startx':
-                    $this->startAction();
-                    $this->editMessageReplyMarkup($message_id, []);
+                case 'hide_join_button':
+                    $this->answerCallbackQuery($this->localization[$this->language]['CancelSuccess_Msg']);
+                case 'menu':
+                    $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Register_Button'], 'callback_data' => 'register']);
+                    $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Join_Button'], 'callback_data' => 'join']);
+                    $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Show_Button'], 'callback_data' => 'show']);
+                    $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Language_Button'], 'callback_data' => 'options']);
+                    $this->editMessageTextKeyboard($this->localization[$this->language]['Menu_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
+                    $this->redis->set($this->chat_id . ':status', MENU);
                 case 'null':
                     break;
-                case 'hide_join_button':
-                    $this->editMessageReplyMarkup($message_id, []);
-                    $this->answerCallbackQuery($this->localization[$this->language]['CancelSuccess_Msg']);
+                case 'join':
+                    $this->editMessageTextKeyboard($this->localization[$this->language]['Join_Msg'], $this->inline_keyboard->getBackKeyboard(), $message_id);
+                    $this->redis->set($this->chat_id . ':status', JOINING);
+                    $this->redis->set($this->chat_id . ':message_id', $message_id);
                     break;
                 case 'register':
                     $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['standard_Button'], 'callback_data' => 'standard'], ['text' => $this->localization[$this->language]['cumulative_Button'], 'callback_data' => 'cumulative']);
@@ -467,7 +486,9 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                                 $this->redis->delete($this->chat_id . ':create');
                             }
                         case LANGUAGE:
+                        case JOIN:
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Register_Button'], 'callback_data' => 'register']);
+                            $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Join_Button'], 'callback_data' => 'join']);
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Show_Button'], 'callback_data' => 'show']);
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Language_Button'], 'callback_data' => 'options']);
                             $this->editMessageTextKeyboard($this->localization[$this->language]['Menu_Msg'], $this->inline_keyboard->getKeyboard(), $message_id);
@@ -616,7 +637,8 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     }
                     $sth = null;
                     $this->redis->delete($this->chat_id . ':create');
-                    $this->editMessageText($this->showCreatedGiveaway($giveaway_id), $message_id);
+                    $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Menu_Button'], 'callback_data' => 'menu']);
+                    $this->editMessageTextKeyboard($this->showCreatedGiveaway($giveaway_id), $this->inline_keyboard->$message_id);
                     break;
                 case 'delete_hashtag':
                     $this->redis->hSet($this->chat_id . ':create', 'hashtag', 'NULL');
@@ -1260,7 +1282,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
         $this->inline_keyboard->addLevelButtons([
             'text' => 'Menu',
-            'callback_data' => 'startx'
+            'callback_data' => 'menu'
         ]);
 
         if ($this->max_joined > 0 && ($this->joined == $this->max_joined)) {
@@ -1374,6 +1396,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 $this->redis->delete($this->chat_id . ':create');
             }
                 $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Register_Button'], 'callback_data' => 'register']);
+                $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Join_Button'], 'callback_data' => 'join']);
                 $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Show_Button'], 'callback_data' => 'show']);
                 $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Language_Button'], 'callback_data' => 'options']);
                 $this->sendMessageKeyboard($this->localization[$this->language]['Menu_Msg'], $this->inline_keyboard->getKeyboard());

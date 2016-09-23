@@ -57,6 +57,8 @@ For updates follow @WiseDragonStd channel.',
     'EnteringMaxparticipants_Msg' => 'Enter the MAX members allowed to join or skip for no limits:',
     'EnteringDate_Msg' => 'Enter the life (in days) of your giveaway:
 (Enter a number between 3-40)',
+    'EnteringFirstPrize_Msg' => 'Now you\'ll start creating the prizes for the current giveaway.
+I\'ll prompt you all the info about the current prize, then you'll se a summary where you can add more prizes.',
     'EnteringPrizeName_Msg' => 'Enter the prize name:',
     'EnteringPrizeValue_Msg' => 'Enter how much this prize worth in the form 29.99€. You can use your own currency, if it isn\'t allowed you will choose it from a list:',
     'EnteringPrizeType_Msg' => 'Select prize type:',

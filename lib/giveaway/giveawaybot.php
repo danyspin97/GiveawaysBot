@@ -153,14 +153,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     }
                 }
 
-                $response = $this->getUserRecords();
-
-                if ($response != false) {
-                    $this->userGiveaway = $response[0];
-                    $this->userGiveawaySize = $response[1];
-                    $this->userGiveawayFull = true;
-                    $this->listLength = ($this->userGiveawaySize - ($this->userGiveawaySize % OBJECT_PER_LIST)) / OBJECT_PER_LIST;
-                }
+                $this->updateStats();
             } elseif (strpos($text, '/create') === 0) {
                 if ($this->redis->exists($this->chat_id . ':create')) {
                     $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes') + 1;
@@ -647,6 +640,8 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $this->redis->delete($this->chat_id . ':create');
                     $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Menu_Button'], 'callback_data' => 'menu']);
                     $this->editMessageTextKeyboard($this->showCreatedGiveaway($giveaway_id), $this->inline_keyboard->getKeyboard(), $message_id);
+
+                    $this->updateStats();
                     break;
                 case 'delete_hashtag':
                     $this->redis->hSet($this->chat_id . ':create', 'hashtag', 'NULL');
@@ -916,15 +911,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                              $this->editMessageReplyMarkup($message_id, []);
                              $this->answerCallbackQuery($this->localization[$this->language]['JoinedSuccess_Msg']);
 
-                             # Update user's giveaway stats
-                             $response = $this->getUserRecords();
-
-                             if ($response != false) {
-                                 $this->userGiveaway = $response[0];
-                                 $this->userGiveawaySize = $response[1];
-                                 $this->listLength = ($this->userGiveawaySize - ($this->userGiveawaySize % OBJECT_PER_LIST)) / OBJECT_PER_LIST;
-                                 $this->userGiveawayFull = true;
-                             }
+                             $this->updateStats();
                         }
                     } elseif (strpos('cls', $info[0]) !== false) {
                         $sth = $this->pdo->prepare('UPDATE "User" SET language = :language WHERE chat_id = :chat_id');
@@ -1217,6 +1204,18 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         }
 
         return $name;
+    }
+
+    private function updateStats() {
+        # Update user's giveaway stats
+        $response = $this->getUserRecords();
+
+        if ($response != false) {
+            $this->userGiveaway = $response[0];
+            $this->userGiveawaySize = $response[1];
+            $this->listLength = ($this->userGiveawaySize - ($this->userGiveawaySize % OBJECT_PER_LIST)) / OBJECT_PER_LIST;
+            $this->userGiveawayFull = true;
+        }
     }
 
     // Respond to `/show <hashtag>` command which returns information about

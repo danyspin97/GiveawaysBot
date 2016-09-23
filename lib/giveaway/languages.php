@@ -18,57 +18,62 @@ $localization['languages'] = [
     'en' => 'English',
     'it' => 'Italian'
     ];
+$localization['languages'] = [
+    'en' => 'English',
+    'it' => 'Italian'
+    ];
 
 $localization['en'] = [
     'Welcome_Msg' => "Welcome to GiveawayBot 🎰.
-To start choose a language.",
-    'Menu_Msg' => 'GiveawayBot let you create and join giveaway without leaving Telegram.
-To start press one of the following buttons or click /help to get help.',
+Choose a language to begin:",
+    'Menu_Msg' => 'GiveawayBot let you create, join and manage giveaways on Telegram.
+Select an option:',
+    'Join_Msg' => 'Enter the giveaway hashtag you want join:',
     'Help_Msg' => 'These instructions will <b>guide you to use me.</b>
 
 A giveaway is a promotion or contest in which prizes are given away.
-This bot manage giveaways, there are <b>two type</b> of giveaways:
-<code>JoinIn</code>: Each participant has the same winning possibility.
-<code>ShareIt</code>: Each participant grants winning possibilities by inviting other people to the giveaway.
+This bot provides <b>two types</b> of giveaways:
+<code>JoinIn</code>: Each member has the same chance of winning.
+<code>ShareIt</code>: Each member increases chance of winning inviting other people to the giveaway.
 
-To join it, click on an invite link or press Join button and follow the instructions.
-If you joined it, look the details by pressing Browse button on the menu, browse the prizes or just wait it to end; you\'ll receive a message if you won with the key of your prize.
-If you want to create it, press Create button in the menu and follow the instructions; at the end you\'ll receive the link to share it. The winners will be choosed by the bot and will be noticed by a message containing the key, your username will never be shared. 
-To just to the menu click /start.
+You only have to join one of them for a chance to win great prizes: click on an invite link or press Join button and follow the instructions.
+If you joined it, look the details by pressing <code>Browse</code> button on the menu. Anyway if you won you\'ll receive a notification with your prize.
+If you want to create a giveaway, press <code>Create</code> button in the menu and follow the instructions; at the end you\'ll receive the link to share it. The winners will be chosen randomly and the bot will send them a notification containing the key.
+Click /start to return to the menu.
 If you experience problems click /start to reset the bot or contact @danyspin97.
 
-<b>WE DO NOT PROVIDE WARRANTY FOR THE GIVEAWAYS. ONLY THE CREATOR ADD THE KEYS OF THE PRIZES AND WE DO NOT PROVIDE RELIABILITY FOR WHO USE THIS BOT. JOIN ONLY THE GIVEAWAY WHICH YOU TRUST THE CREATOR.</b>
-<i>Thank you for your attenction and good luck.</i>
+<b>WE DO NOT PROVIDE WARRANTY FOR THE GIVEAWAYS. ONLY THE OWNER ADDS THE KEYS OF THE PRIZES AND WE DO NOT PROVIDE RELIABILITY FOR WHO USE THIS BOT.</b>
+<i>Thank you for your attention and good luck.</i>
 <code>WiseDragonStd</code>🐉',
-    'About_Msg' => 'This is bot is written in php and ruby, It has been developed by <code>WiseDragonStd</code>🐉 team and uses HadesWrapper. 
-The code  will be released as open source at the start of 2017.
+    'About_Msg' => 'This bot is written in php and ruby. It has been developed by <code>WiseDragonStd</code>🐉 team and uses HadesWrapper. 
+The code will be released as open source in early 2017.
 For updates follow @WiseDragonStd channel.',
-    'Register_Msg' => 'Now you start the creation of a giveaway. Select one of the type below.
-<code>JoinIn</code>: Each participant has the same winning possibility.
-<code>ShareIt</code>: Each participant grants winning possibilities by inviting other people to the giveaway.',
-    'EnteringTitle_Msg' => 'Enter the giveaway title.',
-    'EnteringHashtag_Msg' => 'Enter the hashtag for this giveaway or skip. A giveaway with a hashtag can be joined by passing it to the bot after pressing Join button.',
-    'EnteringDescription_Msg' => 'Enter a description for the giveaway.',
-    'EnteringMaxparticipants_Msg' => 'Enter the max number of participants allowed to join or let unlimited users join by pressing the button below',
-    'EnteringDate_Msg' => 'Enter how many days will the giveaway last.
+    'Register_Msg' => 'Welcome to the giveaway setup. Select one of the following types:
+<code>JoinIn</code>: Each member has the same chance of winning.
+<code>ShareIt</code>: Each member increases chance of winning inviting other people to the giveaway.',
+    'EnteringTitle_Msg' => 'Enter the giveaway title:',
+    'EnteringHashtag_Msg' => 'Enter a hashtag for this giveaway or skip. A giveaway can be joined inserting the hashtag after pressing <code>Join</code> button.',
+    'EnteringDescription_Msg' => 'Enter a description for the giveaway:',
+    'EnteringMaxparticipants_Msg' => 'Enter the MAX members allowed to join or skip for no limits:',
+    'EnteringDate_Msg' => 'Enter the life (in days) of your giveaway:
 (Enter a number between 3-40)',
-    'EnteringPrizeName_Msg' => 'Enter the name of the prize.',
-    'EnteringPrizeValue_Msg' => 'Enter how much this prize worth in the form 29.99€. You can use your own currency, if it is not valid i\'ll let it choose it from a list.',
-    'EnteringPrizeType_Msg' => 'Please select the type for this prize by pressing in one of the buttos below.',
-    'EnteringPrizeCurrency_Msg' => 'Please select the currency of the value by pressing one of the buttons below',
-    'EnteringPrizeKey_Msg' => 'Enter the key for this prize. You cannot modify the key after entering it, so please pay attenction.
-This Key will be sent to the winner when the giveaway will end.
+    'EnteringPrizeName_Msg' => 'Enter the prize name:',
+    'EnteringPrizeValue_Msg' => 'Enter how much this prize worth in the form 29.99€. You can use your own currency, if it isn\'t allowed you will choose it from a list:',
+    'EnteringPrizeType_Msg' => 'Select prize type:',
+    'EnteringPrizeCurrency_Msg' => 'Select a currency:',
+    'EnteringPrizeKey_Msg' => 'Enter a key for this prize. You cannot modify the key after entering it, so please pay attention.
+This Key will be sent to winner at the end of the giveaway.
 It is securely stored on a database.',
-    'EditTitle_Msg' => 'Enter the new <b>title</b>.',
-    'EditHashtag_Msg' => 'Enter the new <b>hashtag</b>.',
-    'EditDescription_Msg' => 'Enter the new <b>description</b>.',
-    'EditDate_Msg' => 'Enter the new date when the giveaway will end.
+    'EditTitle_Msg' => 'Enter the new <b>title</b>:',
+    'EditHashtag_Msg' => 'Enter the new <b>hashtag</b>:',
+    'EditDescription_Msg' => 'Enter the new <b>description</b>:',
+    'EditDate_Msg' => 'Enter the new duration of the giveaway:
 (Enter a number between 3-40)',
-    'EditPrizeName_Msg' => 'Enter a new name for the prize',
-    'EditPrizeType_Msg' => 'Enter the new tipe for the prize by pressing one of the button below',
+    'EditPrizeName_Msg' => 'Enter a new prize name:',
+    'EditPrizeType_Msg' => 'Enter a new prize type:',
     'Title_Msg' => '<b>Title: </b>',
     'Hashatag_Msg' => '<b>Hashtag: </b>',
-    'Maxparticipants_Msg' => '<b>Max participants allowed: </b>',
+    'Maxparticipants_Msg' => '<b>MAX members allowed: </b>',
     'Description_Msg' => '<b>Description: </b>',
     'Date_Msg' => '<b>Date: </b>',
     'NewTitle_Msg' => '<b>New title: </b>',
@@ -83,38 +88,38 @@ It is securely stored on a database.',
     'NewValue_Msg' => '<b>New value: </b>',
     'NewValueNoCurrency_Msg' => '<b>New incomplete value: </b>',
     'EditPrizeCurrency_Msg' => '<b>New value: </b>',
-    'TitleLenght_Msg' => 'The title you inserted is too short. Please insert a new one longer than 5 characters.',
+    'TitleLenght_Msg' => 'The title inserted is too short. Please insert a new one longer than 5 characters.',
     'ValidHashtag_Msg' => 'The hashtag inserted is not valid, please re-insert it.',
-    'DuplicatedHashtag_Msg' => 'The hashtag you entered is already used, please enter a new one.',
+    'DuplicatedHashtag_Msg' => 'The hashtag entered is already used, please enter a new one.',
     'HashtagSkipped_Msg' => '<b>Hashtag:</b> <i>Skipped</i>.',
     'DescriptionSkipped_Msg' => '<b>Description:</b> <i>no description</i>.',
-    'MaxparticipantsNotValid_Msg' => 'The number of participants allowed is not valid. Please insert a new one.',
-    'MaxparticipantsInfinite_Msg' => '<b>Max participants:</b> <i>no limit</i>.',
-    'DateNotValid_Msg' => 'The date inserted is not valid, please insert a number between 3-40 that represent the days the giveaway will last.',
+    'MaxparticipantsNotValid_Msg' => 'The MAX members allowed is not valid. Please insert a new one.',
+    'MaxparticipantsInfinite_Msg' => '<b>Max members:</b> <i>no limit</i>.',
+    'DateNotValid_Msg' => 'The date inserted is not valid, please insert a number between 3-40.',
     'ValueNotValid_Msg' => 'Please insert a valid value.',
     'NewValueNotValid_Msg' => 'The new value is not valid, please insert a new one.',
-    'CancelGiveawayPrompt_Msg' => 'Are you really sure you want to cancel the creation of this giveaway?
+    'CancelGiveawayPrompt_Msg' => 'Are you really sure you want to cancel the setup of this giveaway?
 It cannot be undone and all data inserted will be lost.',
-    'ShowHashtagMissing_Msg' => 'You should specify the giveaway\'s hashtag:',
+    'ShowHashtagMissing_Msg' => 'You should insert the giveaway hashtag:',
     'ClosedGiveawayWarn_Msg' => '<b>The requested giveaway is closed.</b>',
     'NoGiveawayWarn_Msg' => '<b>Giveaway not found</b>',
-    'MaxParticipants_Msg' => 'Sorry but the giveaway has reached the the maximum number of participants.',
+    'MaxParticipants_Msg' => 'Sorry but the giveaway has reached the MAX member allowed.',
     'JoinedSuccess_Msg' => 'You joined this giveaway!',
-    'CancelSuccess_Msg' => 'You refused the giveaway  ¯\_(ツ)_/¯',
-    'MissingHashtagWarn_Msg' => 'You should specify an hashtag:',
+    'CancelSuccess_Msg' => 'You deleted the giveaway  ¯\_(ツ)_/¯',
+    'MissingHashtagWarn_Msg' => 'You should insert an hashtag:',
     'StatsEmpty_Msg' => 'Sorry, you didn\'t join giveaways',
     'Value_Msg' => 'For a value of ',
     'Owned_Msg' => '<code>Owned</code>',
     'Joined_Msg' => '<code>Joined</code>',
     'Closed_Msg' => '<code>Closed</code>',
     'LastDay_Msg' => '<code>Last day</code>',
-    'UserError_Msg' => '<b>The giveaway or the user you\'re finding for don\'t exist.</b>',
+    'UserError_Msg' => '<b>The giveaway or the user you\'re searching for doesn\'t exist.</b>',
     'AlreadyIn_Msg' => '<b>You already joined the giveaway.</b>',
-    'ReferralLink_Msg' => 'Here it\'s your referral link, copy it and share with your friends:',
-    'AfterCreation_Msg' => 'Giveaway created with success!',
+    'ReferralLink_Msg' => 'This is your referral link, copy it and share with your friends:',
+    'AfterCreation_Msg' => 'Giveaway successfully created!',
     'Hash_Msg' => '<b>Hashtag: </b>',
     'Type_Msg' => '<b>Type: </b>',
-    'MPValue_Msg' => '<b>Maximum of participants: </b>',
+    'MPValue_Msg' => '<b>MAX members allowed: </b>',
     'EndDate_Msg' => '<b>End date: </b>',
     'Desc_Msg' => '<b>Description: </b>',
     'GiveawayPrizes_Msg' => '<b>Number of prizes: </b>',
@@ -122,46 +127,50 @@ It cannot be undone and all data inserted will be lost.',
     'TotalValue_Msg' => '<b>For a value of: </b>',
     'JoinLabel_Msg' => 'Join ',
     'Unlimited_Msg' => '<i>Unlimited</i>',
-    'Inception_Msg' => '<b>You can\'t join a giveaway created by yourself.</b>',
+    'Inception_Msg' => '<b>You created this giveaway. You can\'t join it ;)</b>',
     'NowLabel_Msg' => ' now and win wonderful prizes!',
     'UnavailableDesc_Msg' => 'No description found',
     'Days_Msg' => 'days',
-    'Menu_Button' => 'Menu',
-    'Register_Button' => 'Create',
-    'Show_Button' => 'Browse',
-    'Language_Button' => 'Language',
-    'standard_Button' => 'JoinIn',
-    'cumulative_Button' => 'ShareIt',
-    'Back_Button' => 'Back',
-    'Skip_Button' => 'Skip',
-    'Confirm_Button' => 'Confirm',
-    'Infinite_Button' => 'No limit',
-    'EditTitle_Button' => 'Edit title',
-    'EditHashtag_Button' => 'Edit hashtag',
-    'EditMaxparticipants_Button' => 'Edit participants',
-    'EditDescription_Button' => 'Edit description',
-    'EditDate_Button' => 'Edit date',
-    'DeleteHashtag_Button' => 'Delete hashtag',
-    'DeleteDescription_Button' => 'Delete description',
-    'AddHashtag_Button' => 'Add hashtag',
-    'AddDescription_Button' => 'Add description',
-    'AddMaxparticipants_Button' => 'Add participants limit',
-    'ConfirmGiveaway_Button' => 'Confirm',
-    'ConfirmPrizes_Button' => 'Confirm prizes',
-    'AddPrize_Button' => 'Add prize',
-    'CancelGiveaway_Button' => 'Cancel giveaway',
-    'EditPrizeName_Button' => 'Edit name',
-    'EditPrizeType_Button' => 'Edit type',
-    'EditPrizeValue_Button' => 'Edit value',
-    'EditPrizeCurrency_Button' => 'Edit currency',
-    'DeletePrize_Button' => 'Delete',
-    'Prizes_Button' => 'All prizes',
-    'Type1_Button' => 'Videogame key',
-    'Type2_Button' => 'Coupon',
-    'Type3_Button' => 'Gift Card',
-    'Type4_Button' => 'Other',
-    'Join_Button' => 'Join',
-    'Cancel_Button' => 'Cancel',
+    'Menu_Button' => '📜 Menu',
+    'Register_Button' => '🖍 Create',
+    'Show_Button' => '🕹 Browse',
+    'Language_Button' => '🌐 Language',
+    'standard_Button' => '➡️ JoinIn',
+    'cumulative_Button' => '↪️ ShareIt',
+    'Back_Button' => '🔙 Back',
+    'Skip_Button' => '🔜 Skip',
+    'Confirm_Button' => '✔️ Confirm',
+    'Infinite_Button' => '⚪️ No limit',
+    'EditTitle_Button' => '📝 Edit title',
+    'EditHashtag_Button' => '#⃣ Edit hashtag',
+    'EditMaxparticipants_Button' => '🔢 Edit members',
+    'EditDescription_Button' => '📝 Edit description',
+    'EditDate_Button' => '📅 Edit date',
+    'DeleteHashtag_Button' => '❎ Delete hashtag',
+    'DeleteDescription_Button' => '❎ Delete description',
+    'AddHashtag_Button' => '#⃣ Add hashtag',
+    'AddDescription_Button' => '📝 Add description',
+    'AddMaxparticipants_Button' => '🔢 Add members limit',
+    'ConfirmGiveaway_Button' => '✔️ Confirm',
+    'ConfirmPrizes_Button' => '✔️ Confirm prizes',
+    'AddPrize_Button' => '➕ Add prize',
+    'CancelGiveaway_Button' => '✖️ Cancel giveaway',
+    'EditPrizeName_Button' => '📝 Edit name',
+    'EditPrizeType_Button' => '🎲 Edit type',
+    'EditPrizeValue_Button' => '💲 Edit value',
+    'EditPrizeCurrency_Button' => '💱 Edit currency',
+    'DeletePrize_Button' => '❌ Delete',
+    'Prizes_Button' => '🎁 All prizes',
+    'Type1_Button' => '🎮 Videogame key',
+    'Type2_Button' => '📃 Coupon',
+    'Type3_Button' => '📄 Gift Card',
+    'Type4_Button' => '🔑 Other',
+    'Join_Button' => '#⃣ Join',
+    'Cancel_Button' => '🚫 Cancel',
+    'Help_Button' => '*⃣ Help',
+    'About_Button' => 'ℹ️ About',
+    'Source_Button' => '📖 Source',
+    'Updates_Button' => '❕ Updates',
     'ClosedGiveaway_Msg' => '<b>The requested giveaway is closed.</b>',
     'standard_AnswerCallback' => 'JoinIn',
     'cumulative_AnswerCallback' => 'ShareIt',

@@ -429,7 +429,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         break;
                     case JOINING:
                         if (preg_match('/\#(.*)$/', $text, $matches)) {
-                            $this->editMessageText($this->localization[$this->language]['Hashtag_Msg'] . $mathes[1]);
+                            $this->editMessageText($this->localization[$this->language]['Hashtag_Msg'] . $matches[1]);
                             $this->showGiveaway('#'.$matches[1]);
                         } else {
                             $this->sendMessage($this->localization[$this->language]['MissingHashtagWarn_Msg'].NEWLINE.'<code>/join #giveaway</code>');
@@ -859,14 +859,21 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                           $limit += $this->userGiveawaySize % OBJECT_PER_LIST;
                         }
 
-                        for($i = $start; $i < $limit; $i++) {
-                            if ($this->userGiveaway[$i] != null) {
-                                array_push($response, $this->userGiveaway[$i]);
-                                $hashtag = explode("\n", $this->userGiveaway[$i])[1];
+                        for($pos = $start; $pos < $limit; $pos++) {
+                            if ($this->userGiveaway[$pos] != null) {
+                                array_push($response, $this->userGiveaway[$pos]);
+                                $giveaway = explode("\n", $this->userGiveaway[$pos]);
+
+                                // Choose if search for name or hashtag
+                                if ($giveaway[1] == 'NULL') {
+                                    $target = substr($giveaway[0], 3, -4);
+                                } else {
+                                    $target = $giveaway[1];
+                                }
 
                                 array_push($details, [
-                                    'text' => $hashtag,
-                                    'callback_data' => 'show_'.$hashtag.'_'.$page
+                                    'text' => $target,
+                                    'callback_data' => 'show_'.$target.'_'.$page
                                 ]);
                             }
                         }
@@ -1106,10 +1113,10 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         $this->database->execute($query, function($row){
           $this->found = true;
 
-          $row['giveaway_id'] = $row['id'] || $row['giveaway_id'];
+          $id = $row['id'] ?? $row['giveaway_id'];
 
-          $this->database->from("Giveaway")->where("id=".$row["giveaway_id"])->select(["*"], function($row){
-            $partial .= "<b>".$row['name']."</b>".NEWLINE.$row['hashtag'].NEWLINE.NEWLINE.$row['description'].NEWLINE.NEWLINE;
+          $this->database->from("Giveaway")->where("id=$id")->select(["*"], function($row){
+            $partial .= $row['name'].NEWLINE.$row['hashtag'].NEWLINE.NEWLINE.$row['description'].NEWLINE.NEWLINE;
 
             if ($row['owner_id'] == $this->message["from"]["id"])
             {
@@ -1163,15 +1170,31 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
           $limit += $this->userGiveawaySize % OBJECT_PER_LIST;
         }
 
+        // Fill user's giveaways
         if (!empty($this->userGiveaway)) {
-            for($i = 0; $i < $limit; $i++) {
-                if ($this->userGiveaway[$i] != null) {
-                    array_push($response, $this->userGiveaway[$i]);
-                    $hashtag = explode("\n", $this->userGiveaway[$i])[1];
+            for($pos = 0; $pos < $limit; $pos++) {
+                if ($this->userGiveaway[$pos] != null) {
+                    array_push($response, $this->userGiveaway[$pos]);
+                    $giveaway = explode("\n", $this->userGiveaway[$pos]);
+                    $name = $giveaway[0];
+
+                    // Choose if search for name or hashtag
+                    if ($giveaway[1] == 'NULL') {
+                        $target = $this->adjustName($name);
+                    } else {
+                        $target = $giveaway[1];
+                    }
+
+                    // Highlight name if necessary
+                    if (substr($this->userGiveaway[$pos], 0, 3) != '<b>') {
+                        $this->userGiveaway[$pos] = "<b>".$name."</b>".substr($this->userGiveaway[$pos],
+                                                                              strlen($name));
+                        $response[-1] = $this->userGiveaway[$pos];
+                    }
 
                     array_push($details, [
-                        "text" => $hashtag,
-                        "callback_data" => 'show_'.$hashtag.'_1'
+                        "text" => $target,
+                        "callback_data" => 'show_'.$target.'_1'
                     ]);
                 }
             }
@@ -1188,15 +1211,29 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         }
     }
 
+    private function adjustName($name) {
+        if (substr($name, 0, 3) == '<b>') {
+            return substr($name, 3, -4);
+        }
+
+        return $name;
+    }
+
     // Respond to `/show <hashtag>` command which returns information about
     // a specific giveaway and permits user to join it if possible.
-    private function showGiveaway($hashtag, $callback_query_origin = false) {
+    private function showGiveaway($target, $callback_query_origin = false) {
         $this->callback_query_origin = $callback_query_origin;
         $this->response = "";
         $this->giveaway_id;
         $this->owner_id;
 
-        $this->database->from('giveaway')->where("hashtag='$hashtag'")->select(["*"], function($row){
+        if ($target[0] == '#') {
+            $condition = "hashtag='$target'";
+        } else {
+            $condition = "name='$target'";
+        }
+
+        $this->database->from('giveaway')->where($condition)->select(["*"], function($row){
           if ($row['description'] == 'NULL') {
             $row['description'] = $this->localization[$this->language]['Undefined_Msg'];
           }

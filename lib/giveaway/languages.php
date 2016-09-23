@@ -54,7 +54,7 @@ For updates follow @WiseDragonStd channel.',
     'EnteringDate_Msg' => 'Enter the life (in days) of your giveaway:
 (Enter a number between 3-40)',
     'EnteringFirstPrize_Msg' => 'Now you\'ll start creating the prizes for the current giveaway.
-I\'ll prompt you all the info about the current prize, then you'll se a summary where you can add more prizes.',
+I\'ll prompt you all the info about the current prize, then you\'ll se a summary where you can add more prizes.',
     'EnteringPrizeName_Msg' => 'Enter the prize name:',
     'EnteringPrizeValue_Msg' => 'Enter how much this prize worth in the form 29.99€. You can use your own currency, if it isn\'t allowed you will choose it from a list:',
     'EnteringPrizeType_Msg' => 'Select prize type:',
@@ -250,6 +250,7 @@ Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'EditPrizeCurrency_Button' => 'Modifica moneta',
     'DeletePrize_Button' => 'Cancella'
 ];
+/*
 
 $localization['fi'] = [
     'Welcome_Msg' => "Welcome to GiveawayBot 🎰.
@@ -1125,3 +1126,4 @@ It cannot be undone and all data inserted will be lost.',
     'nl' => 'Dutch',
     'zh' => 'Chinese',
 ];
+*/

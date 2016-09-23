@@ -638,7 +638,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $sth->bindParam(':currency', $prize['currency']);
                         $sth->bindParam(':giveaway', $giveaway_id);
                         $sth->bindParam(':type', $prize['type']);
-                        $sth->bindParam(':key', mb_substr($prize['key'], 0, 31);
+                        $sth->bindParam(':key', mb_substr($prize['key'], 0, 31));
 
                         $sth->execute();
                         $this->redis->delete($this->chat_id . ':prize:' . $i);

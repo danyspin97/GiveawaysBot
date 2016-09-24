@@ -9,7 +9,7 @@
  * stats - Show all your ongoing and won giveaway
  * help - Get help using me
  * about - Get info about me and my creators
- */ 
+ */
 
 
 $localization = [];
@@ -41,7 +41,7 @@ If you experience problems click /start to reset the bot or contact @danyspin97.
 <b>WE DO NOT PROVIDE WARRANTY FOR THE GIVEAWAYS. ONLY THE OWNER ADDS THE KEYS OF THE PRIZES AND WE DO NOT PROVIDE RELIABILITY FOR WHO USE THIS BOT.</b>
 <i>Thank you for your attention and good luck.</i>
 <code>WiseDragonStd</code>🐉',
-    'About_Msg' => 'This bot is written in php and ruby. It has been developed by <code>WiseDragonStd</code>🐉 team and uses HadesWrapper. 
+    'About_Msg' => 'This bot is written in php and ruby. It has been developed by <code>WiseDragonStd</code>🐉 team and uses HadesWrapper.
 The code will be released as open source in early 2017.
 For updates follow @WiseDragonStd channel.',
     'Register_Msg' => 'Welcome to the giveaway setup. Select one of the following types:
@@ -274,7 +274,7 @@ If you experience problems click /start to reset the bot or contact @danyspin97.
 <b>WE DO NOT PROVIDE WARRANTY FOR THE GIVEAWAYS. ONLY THE OWNER ADDS THE KEYS OF THE PRIZES AND WE DO NOT PROVIDE RELIABILITY FOR WHO USE THIS BOT.</b>
 <i>Thank you for your attention and good luck.</i>
 <code>WiseDragonStd</code>🐉',
-    'About_Msg' => 'This bot is written in php and ruby. It has been developed by <code>WiseDragonStd</code>🐉 team and uses HadesWrapper. 
+    'About_Msg' => 'This bot is written in php and ruby. It has been developed by <code>WiseDragonStd</code>🐉 team and uses HadesWrapper.
 The code will be released as open source in early 2017.
 For updates follow @WiseDragonStd channel.',
     'Register_Msg' => 'Welcome to the giveaway setup. Select one of the following types:
@@ -449,7 +449,7 @@ If you experience problems click /start to reset the bot or contact @danyspin97.
 <b>WE DO NOT PROVIDE WARRANTY FOR THE GIVEAWAYS. ONLY THE OWNER ADDS THE KEYS OF THE PRIZES AND WE DO NOT PROVIDE RELIABILITY FOR WHO USE THIS BOT.</b>
 <i>Thank you for your attention and good luck.</i>
 <code>WiseDragonStd</code>🐉',
-    'About_Msg' => 'This bot is written in php and ruby. It has been developed by <code>WiseDragonStd</code>🐉 team and uses HadesWrapper. 
+    'About_Msg' => 'This bot is written in php and ruby. It has been developed by <code>WiseDragonStd</code>🐉 team and uses HadesWrapper.
 The code will be released as open source in early 2017.
 For updates follow @WiseDragonStd channel.',
     'Register_Msg' => 'Welcome to the giveaway setup. Select one of the following types:
@@ -624,7 +624,7 @@ If you experience problems click /start to reset the bot or contact @danyspin97.
 <b>WE DO NOT PROVIDE WARRANTY FOR THE GIVEAWAYS. ONLY THE OWNER ADDS THE KEYS OF THE PRIZES AND WE DO NOT PROVIDE RELIABILITY FOR WHO USE THIS BOT.</b>
 <i>Thank you for your attention and good luck.</i>
 <code>WiseDragonStd</code>🐉',
-    'About_Msg' => 'This bot is written in php and ruby. It has been developed by <code>WiseDragonStd</code>🐉 team and uses HadesWrapper. 
+    'About_Msg' => 'This bot is written in php and ruby. It has been developed by <code>WiseDragonStd</code>🐉 team and uses HadesWrapper.
 The code will be released as open source in early 2017.
 For updates follow @WiseDragonStd channel.',
     'Register_Msg' => 'Welcome to the giveaway setup. Select one of the following types:
@@ -799,7 +799,7 @@ If you experience problems click /start to reset the bot or contact @danyspin97.
 <b>WE DO NOT PROVIDE WARRANTY FOR THE GIVEAWAYS. ONLY THE OWNER ADDS THE KEYS OF THE PRIZES AND WE DO NOT PROVIDE RELIABILITY FOR WHO USE THIS BOT.</b>
 <i>Thank you for your attention and good luck.</i>
 <code>WiseDragonStd</code>🐉',
-    'About_Msg' => 'This bot is written in php and ruby. It has been developed by <code>WiseDragonStd</code>🐉 team and uses HadesWrapper. 
+    'About_Msg' => 'This bot is written in php and ruby. It has been developed by <code>WiseDragonStd</code>🐉 team and uses HadesWrapper.
 The code will be released as open source in early 2017.
 For updates follow @WiseDragonStd channel.',
     'Register_Msg' => 'Welcome to the giveaway setup. Select one of the following types:
@@ -974,7 +974,7 @@ $localization['ru'] = [
 <b>МЫ НЕ ДАЁМ ГАРАНТИЙ ДЛЯ РАЗДАЧ. ИМЕННО СОЗДАТЕЛЬ РАЗДАЧИ ДОБАВЛЯЕТ КОДЫ ПРИЗОВ, И МЫ НЕ ОБЕСПЕЧИВАЕМ НАДЁЖНОСТЬ ЛЮДЕЙ, ИСПОЛЬЗУЮЩИХ ЭТОГО БОТА.</b>
 <i>Спасибо за внимание и удачи!</i>
 <code>WiseDragonStd</code>🐉',
-    'About_Msg' => 'Этот бот написан на php и ruby. Он был создан командой <code>WiseDragonStd</code>🐉 и использует HadesWrapper. 
+    'About_Msg' => 'Этот бот написан на php и ruby. Он был создан командой <code>WiseDragonStd</code>🐉 и использует HadesWrapper.
 Открытый исходный код будет опубликован в начале 2017.
 Следите за обновлениями на канале @WiseDragonStd.',
     'Register_Msg' => 'Добро пожаловать в настройки раздачи. Выберите тип раздачи:
@@ -1127,3 +1127,180 @@ I\'ll prompt you all the info about the current prize, then you'll see a summary
     'zh' => 'Chinese',
 ];
 */
+
+$localization['pt-br'] = [
+    'Welcome_Msg' => "Bem-vindo ao GiveawayBot 🎰.
+Escolha uma linguagem para iniciar:",
+    'Menu_Msg' => 'GiveawayBot permite a você criar, participar e gerenciar sorteios no Telegram.
+Selecionar uma opção:',
+    'Join_Msg' => 'Insira a hashtag do sorteio que deseja participar:',
+/*
+    'Help_Msg' => 'These instructions will <b>guide you to use me.</b>
+
+A giveaway is a promotion or contest in which prizes are given away.
+This bot provides <b>two types</b> of giveaways:
+<code>JoinIn</code>: Each member has the same chance of winning.
+<code>ShareIt</code>: Each member increases chance of winning inviting other people to the giveaway.
+
+You only have to join one of them for a chance to win great prizes: click on an invite link or press Join button and follow the instructions.
+If you joined it, look the details by pressing <code>Browse</code> button on the menu. Anyway if you won you\'ll receive a notification with your prize.
+If you want to create a giveaway, press <code>Create</code> button in the menu and follow the instructions; at the end you\'ll receive the link to share it. The winners will be chosen randomly and the bot will send them a notification containing the key.
+Click /start to return to the menu.
+If you experience problems click /start to reset the bot or contact @danyspin97.
+
+<b>WE DO NOT PROVIDE WARRANTY FOR THE GIVEAWAYS. ONLY THE OWNER ADDS THE KEYS OF THE PRIZES AND WE DO NOT PROVIDE RELIABILITY FOR WHO USE THIS BOT.</b>
+<i>Thank you for your attention and good luck.</i>
+<code>WiseDragonStd</code>🐉',
+*/
+    'About_Msg' => 'Este bot foi escrito em php e ruby. Ele foi desenvolvido pela equipe <code>WiseDragonStd</code>🐉 e usa HadesWrapper.
+O código será lançado como open source no começo de 2017.
+Para atualização siga o canal @WiseDragonStd.',
+    'Register_Msg' => 'Bem vindo a configuração do sorteio. Selecione um dos seguintes tipos:
+<code>JoinIn</code>: Cada membro tem a mesma chance de ganhar.
+<code>ShareIt</code>: Cada membro aumenta a chance de ganhar convidando outras pessoas ao sorteio.',
+    'EnteringTitle_Msg' => 'Insira o título do sorteio:',
+    'EnteringHashtag_Msg' => 'Insira uma hashtag para esse sorteio ou pule. As pessoas podem se inscrever em seu sorteio inserindo a hashtag após pressionar o botão <code>Participar</code>.',
+    'EnteringDescription_Msg' => 'Insira a descrição para o sorteio:',
+    'EnteringMaxparticipants_Msg' => 'Insira o número máximo de membros permitidos para participar, ou pule para não ter limites:',
+    'EnteringDate_Msg' => 'Insira a duração (em dias) de seu sorteio:
+(Insira um número entre 3-40)',
+    'EnteringFirstPrize_Msg' => 'Agora você irá começar a criar os prêmios para o sorteio atual.
+Eu irei te pedir todas as informações para o prêmio atual, então você verá um sumário onde você pode adicionar mais prêmios.',
+    'EnteringPrizeName_Msg' => 'Insira o nome do prêmio:',
+    'EnteringPrizeValue_Msg' => 'Insira quanto este prêmio vale no formato 29.99€. Você pode usar sua própria moeda, se ela não for aceita, você precisará escolher da lista abaixo:',
+    'EnteringPrizeType_Msg' => 'Selecione o tipo do prêmio:',
+    'EnteringPrizeCurrency_Msg' => 'Selecione uma moeda:',
+    'EnteringPrizeKey_Msg' => 'Insira uma chave para este prêmio. Você não pode modificar a chave depois de inseri-la, então preste atenção.
+Esta chave será enviada ao vencedor no fim do sorteio.
+Ele será guardado seguramente em nosso banco de dados.',
+    'EditTitle_Msg' => 'Insira um novo <b>título</b>:',
+    'EditHashtag_Msg' => 'Insira uma nova <b>hashtag</b>:',
+    'EditDescription_Msg' => 'Insira uma nova <b>descrição</b>:',
+    'EditDate_Msg' => 'Insira a nova duração do sorteio:
+(Insira um número entre 3-40)',
+    'EditPrizeName_Msg' => 'Insira o novo nome do prêmio:',
+    'EditPrizeType_Msg' => 'Insira o novo tipo do prêmio:',
+    'Title_Msg' => '<b>Título: </b>',
+    'Hashatag_Msg' => '<b>Hashtag: </b>',
+    'Maxparticipants_Msg' => '<b>Número máximo de usuários permitidos: </b>',
+    'Description_Msg' => '<b>Descrição: </b>',
+    'Date_Msg' => '<b>Data: </b>',
+    'NewTitle_Msg' => '<b>Novo título: </b>',
+    'NewHashtag_Msg' => '<b>Nova hashtag: </b>',
+    'NewDescription_Msg' => '<b>Nova descrição: </b>',
+    'NewDate_Msg' => '<b>Nova data: </b>',
+    'PrizeName_Msg' => '<b>Nome do Prêmio: </b>',
+    'PrizeValue_Msg' => '<b>Valor: </b>',
+    'ValueNoCurrency_Msg' => '<b>Valor incompleto: </b>',
+    'PrizeKey_Msg' => '<b>Chave: </b>',
+    'PrizeType_Msg' => '<b>Tipo: </b>',
+    'NewValue_Msg' => '<b>Novo valor: </b>',
+    'NewValueNoCurrency_Msg' => '<b>Novo valor incompleto: </b>',
+    'EditPrizeCurrency_Msg' => '<b>Novo valor: </b>',
+    'TitleLenght_Msg' => 'O título inserido é muito curto. Por favor insira um novo com mais de 5 caracteres.',
+    'ValidHashtag_Msg' => 'A hashtag inserida é inválida, por favor insira uma nova.',
+    'DuplicatedHashtag_Msg' => 'A hashtag inserida já está em uso, por favor insira uma nova.',
+    'HashtagSkipped_Msg' => '<b>Hashtag:</b> <i>Pulada</i>.',
+    'DescriptionSkipped_Msg' => '<b>Descrição:</b> <i>sem descrição</i>.',
+    'MaxparticipantsNotValid_Msg' => 'O número máximo de usuários permitidos não é válido. Por favor insira um novo.',
+    'MaxparticipantsInfinite_Msg' => '<b>Máximo de membros:</b> <i>sem limites</i>.',
+    'DateNotValid_Msg' => 'A data inserida não é válida, por favor insira um número entre 3-40.',
+    'ValueNotValid_Msg' => 'Por favor insira um valor válido.',
+    'NewValueNotValid_Msg' => 'O novo valor não é válido, por favor insira um novo.',
+    'CancelGiveawayPrompt_Msg' => 'Você tem certeza que deseja cancelar a configuração deste sorteio?
+Esta ação não pode ser desfeita e todos os dados inseridos serão perdidos.',
+    'ShowHashtagMissing_Msg' => 'você deveria inserir a hashtag do sorteio:',
+    'ClosedGiveawayWarn_Msg' => '<b>O sorteio pedido está fechado.</b>',
+    'NoGiveawayWarn_Msg' => '<b>Sorteio não encontrado</b>',
+    'MaxParticipants_Msg' => 'Desculpe mas o sorteio chegou ao limite de usuários.',
+    'JoinedSuccess_Msg' => 'Você entrou no sorteio!',
+    'CancelSuccess_Msg' => 'Você deletou o sorteio  ¯\_(ツ)_/¯',
+    'MissingHashtagWarn_Msg' => 'Você deveria inserir uma hashtag:',
+    'StatsEmpty_Msg' => 'Desculpe, você não se inscreveu em nenhum sorteio',
+    'Value_Msg' => 'Pelo valor de ',
+    'Owned_Msg' => '<code>Próprios</code>',
+    'Joined_Msg' => '<code>Participando</code>',
+    'Closed_Msg' => '<code>Fechado</code>',
+    'LastDay_Msg' => '<code>Último dia</code>',
+    'UserError_Msg' => '<b>O sorteio ou usuário pesquisado não existe.</b>',
+    'AlreadyIn_Msg' => '<b>Você já entrou neste sorteio.</b>',
+    'ReferralLink_Msg' => 'Este é seu link de referência, compatilhe-o com seus amigos:',
+    'AfterCreation_Msg' => 'Sorteio criado com sucesso!',
+    'Hash_Msg' => '<b>Hashtag: </b>',
+    'Type_Msg' => '<b>Tipo: </b>',
+    'MPValue_Msg' => '<b>Máximo de usuários permitidos: </b>',
+    'EndDate_Msg' => '<b>Data de fim: </b>',
+    'Desc_Msg' => '<b>Descrição: </b>',
+    'GiveawayPrizes_Msg' => '<b>Número de prêmios: </b>',
+    'Undefined_Msg' => '<i>Não definido</i>',
+    'TotalValue_Msg' => '<b>Pelo valor de: </b>',
+    'JoinLabel_Msg' => 'Participar ',
+    'Unlimited_Msg' => '<i>Ilimitado</i>',
+    'Inception_Msg' => '<b>Você criou este sorteio. Você não pode participar nele ;)</b>',
+    'NowLabel_Msg' => ' agora e ganhe prêmios incríveis!',
+    'UnavailableDesc_Msg' => 'Nenhuma descrição encontrada',
+    'Days_Msg' => 'dias',
+    'Menu_Button' => '📜 Menu',
+    'Register_Button' => '🖍 Criar',
+    'Show_Button' => '🕹 Navegar',
+    'Language_Button' => '🌐 Linguagem',
+    'standard_Button' => '➡️ JoinIn',
+    'cumulative_Button' => '↪️ ShareIt',
+    'Back_Button' => '🔙 Voltar',
+    'Skip_Button' => '🔜 Pular',
+    'Confirm_Button' => '✔️ Confirmar',
+    'Infinite_Button' => '⚪️ Sem limite',
+    'EditTitle_Button' => '📝 Editar título',
+    'EditHashtag_Button' => '#⃣ Editar hashtag',
+    'EditMaxparticipants_Button' => '🔢 Editar membros',
+    'EditDescription_Button' => '📝 Editar descrição',
+    'EditDate_Button' => '📅 Editar data',
+    'DeleteHashtag_Button' => '❎ Deletar hashtag',
+    'DeleteDescription_Button' => '❎ Deletar descrição',
+    'AddHashtag_Button' => '#⃣ Adicionar hashtag',
+    'AddDescription_Button' => '📝 Adicionar descrição',
+    'AddMaxparticipants_Button' => '🔢 Adicionar limite de membros',
+    'ConfirmGiveaway_Button' => '✔️ Confirmar',
+    'ConfirmPrizes_Button' => '✔️ Confirmar prêmios',
+    'AddPrize_Button' => '➕ Adicionar prêmio',
+    'CancelGiveaway_Button' => '✖️ Cancelar sorteio',
+    'EditPrizeName_Button' => '📝 Editar nome',
+    'EditPrizeType_Button' => '🎲 Editar tipo',
+    'EditPrizeValue_Button' => '💲 Editar valor',
+    'EditPrizeCurrency_Button' => '💱 Editar moeda',
+    'DeletePrize_Button' => '❌ Deletar',
+    'Prizes_Button' => '🎁 Todos os prêmios',
+    'Type1_Button' => '🎮 Chave de Video Games',
+    'Type2_Button' => '📃 Coupon',
+    'Type3_Button' => '📄 Gift Card',
+    'Type4_Button' => '🔑 Outros',
+    'Join_Button' => '#⃣ Participar',
+    'Cancel_Button' => '🚫 Cancelar',
+    'Help_Button' => '*⃣ Ajudar',
+    'About_Button' => 'ℹ️ Sobre',
+    'Source_Button' => '📖 Fonte',
+    'Updates_Button' => '❕ Atualizações',
+    'ClosedGiveaway_Msg' => '<b>O sorteio desejado está fechado.</b>',
+    'standard_AnswerCallback' => 'JoinIn',
+    'cumulative_AnswerCallback' => 'ShareIt',
+    'HashtagSkipped_AnswerCallback' => 'Hashtag pulada',
+    'DescriptionSkippet_AnswerCallback' => 'Sem descrição',
+    'MaxparticipantsInfinite_AnswerCallback' => 'Sem limite',
+    'Language_AnswerCallback' => 'Escolha linguagem:',
+    '€_AnswerCallback' => 'Euro',
+    '$_AnswerCallback' => 'Dollar',
+    'Register_InlineQuery' => 'Registrar',
+    'SwitchPM_InlineQuery' => 'Criar ou navegar',
+    'it' => 'Italiano',
+    'es' => 'Espanhol',
+    'fr' => 'Francês',
+    'de' => 'Alemão',
+    'pt' => 'Português',
+    'pt-br' => 'Português (Brasil)',
+    'ru' => 'Russo',
+    'fa' => 'Persa',
+    'hi' => 'Hindu',
+    'fi' => 'Finlandês',
+    'nl' => 'Holandês',
+    'zh' => 'Chinês',
+];

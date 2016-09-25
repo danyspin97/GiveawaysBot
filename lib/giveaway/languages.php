@@ -1134,24 +1134,22 @@ Escolha uma linguagem para iniciar:",
     'Menu_Msg' => 'GiveawayBot permite a você criar, participar e gerenciar sorteios no Telegram.
 Selecionar uma opção:',
     'Join_Msg' => 'Insira a hashtag do sorteio que deseja participar:',
-/*
-    'Help_Msg' => 'These instructions will <b>guide you to use me.</b>
+    'Help_Msg' => 'Essas instruções irão lhe <b>guiar para me usar.</b>
 
-A giveaway is a promotion or contest in which prizes are given away.
-This bot provides <b>two types</b> of giveaways:
-<code>JoinIn</code>: Each member has the same chance of winning.
-<code>ShareIt</code>: Each member increases chance of winning inviting other people to the giveaway.
+Um sorteio é uma promoção ou competição onde prêmios são dados.
+Esse bot fornece <b>dois tipos</b> de sorteios:
+<code>JoinIn</code>: Cada membro tem a mesma chance de ganhar.
+<code>ShareIt</code>: Cada membro aumenta as chances de ganhar convidando outras pessoas ao sorteio.
 
-You only have to join one of them for a chance to win great prizes: click on an invite link or press Join button and follow the instructions.
-If you joined it, look the details by pressing <code>Browse</code> button on the menu. Anyway if you won you\'ll receive a notification with your prize.
-If you want to create a giveaway, press <code>Create</code> button in the menu and follow the instructions; at the end you\'ll receive the link to share it. The winners will be chosen randomly and the bot will send them a notification containing the key.
-Click /start to return to the menu.
-If you experience problems click /start to reset the bot or contact @danyspin97.
+Você só precisa participar de um sorteio para ter sua chance de ganhar grandes prêmios: Clique em um link de convite ou aperte o botão Participar e siga as intruções.
+Se você estiver participando de um sorteio, é possível visualizar os detalhes apertando o botão <code>Navegar</code> no menu. De qualquer maneira será enviada uma notificação com seu prêmio se você ganhar o sorteio.
+Se você desejar criar um sorteio, aperte o botão <code>Criar</code> no menu e siga as instruções; No fim você irá receber um link de compartilhamento. Os vencedores serão escolhidos aleatoriamente e o bot irá enviar uma notificação contendo a chave.
+Clique /start para retornar ao menu.
+Se você tiver problemas, clique /start para reiniciar o bot ou contate @danyspin97.
 
-<b>WE DO NOT PROVIDE WARRANTY FOR THE GIVEAWAYS. ONLY THE OWNER ADDS THE KEYS OF THE PRIZES AND WE DO NOT PROVIDE RELIABILITY FOR WHO USE THIS BOT.</b>
-<i>Thank you for your attention and good luck.</i>
+<b>NÓS NÃO PROVEMOS GARANTIA PARA OS SORTEIOS. SOMENTE O DONO ADICIONA AS CHAVES DO PRODUTO E NÓS NÃO PROVEMOS CONFIABILIDADE PARA AQUELES QUE USAREM O BOT.</b>
+<i>Agradecemos pela sua atenção e desejamos boa sorte.</i>
 <code>WiseDragonStd</code>🐉',
-*/
     'About_Msg' => 'Este bot foi escrito em php e ruby. Ele foi desenvolvido pela equipe <code>WiseDragonStd</code>🐉 e usa HadesWrapper.
 O código será lançado como open source no começo de 2017.
 Para atualização siga o canal @WiseDragonStd.',

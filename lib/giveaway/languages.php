@@ -16,8 +16,9 @@ $localization = [];
 
 $localization['languages'] = [
     'en' => 'English',
-    'it' => 'Italian'
-    ];
+    'it' => 'Italian',
+    'pt-br' => 'Portuguese (Brazil)'
+];
 
 $localization['en'] = [
     'Welcome_Msg' => "Welcome to GiveawayBot 🎰.
@@ -185,6 +186,7 @@ It cannot be undone and all data inserted will be lost.',
     'fr' => 'French',
     'de' => 'German',
     'pt' => 'Portugues',
+    'pt-br' => 'Português (Brasil)',
     'ru' => 'Russian',
     'fa' => 'Farsi(Persian)',
     'hi' => 'Hindi',

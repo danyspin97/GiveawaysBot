@@ -2,6 +2,8 @@
 
 require 'curb'
 require 'logger'
+require 'erb'
+require 'yaml'
 
 require_relative 'contestjudge/configuration'
 require_relative 'contestjudge/database'

@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'pg'
-require 'erb'
-require 'yaml'
 require_relative '../lib/contestjudge'
 
 config = ContestJudge::Configuration.new('./contestjudge.yml')

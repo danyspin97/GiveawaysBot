@@ -1,16 +1,22 @@
 #!/usr/bin/env ruby
 
 require 'pg'
+require 'erb'
 require 'yaml'
 require_relative '../lib/contestjudge'
 
-@db = PG.connect(dbname: 'DATABASE', user: 'USER', password: 'PASSWORD')
+config = ContestJudge::Configuration.new('./contestjudge.yml')
+config.load
+@options = config.options
+
+@db = PG.connect(dbname: @options['dbname'], user: @options['user'],
+                 password: @options['password'])
 @database = Database.new(@db)
 
 @giveaways = ContestJudge::Contest.new(database: @database)
 @giveaways = @giveaways.fetch
 
-@endpoint = "https://api.telegram.org/botTOKEN/sendMessage"
+@endpoint = "https://api.telegram.org/bot#{@options['token']}/sendMessage"
 @localization = YAML.load_file(File.dirname($PROGRAM_NAME) + '/languages.yml')
 
 @giveaways.each do |giveaway|

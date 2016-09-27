@@ -17,6 +17,8 @@ config.load
 @endpoint = "https://api.telegram.org/bot#{@options['token']}/sendMessage"
 @localization = YAML.load_file(File.dirname($PROGRAM_NAME) + '/languages.yml')
 
+@losers = []
+
 @giveaways.each do |giveaway|
   judge = Judge.new(giveaway[1])
   judge.run
@@ -24,12 +26,13 @@ config.load
     user = winner[:identity]
     prize = winner[:prize]
     giveaway = prize['giveaway']
+
     message = @localization[user[:lang]]
 
     message = format(message, winner[:name], prize['name'], prize['value'],
                                              prize['currency'], prize['key'])
 
     @db.exec("INSERT INTO won VALUES(#{user[:id]}, #{giveaway}, #{prize['id']})")
-    puts Curl.post(@endpoint, chat_id: user[:id], parse_mode: 'Markdown', text: message).body_str
+    Curl.post(@endpoint, chat_id: user[:id], parse_mode: 'Markdown', text: message).body_str
   end
 end

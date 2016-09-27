@@ -1351,9 +1351,10 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         $this->database->from("giveaway")->where('id='.$giveaway_id)->select(["max_participants"],
         function($row){ $this->max_joined = $row['max_participants']; });
 
+        $this->inline_keyboard->clearKeyboard();
         $this->inline_keyboard->addLevelButtons([
-            'text' => $this->localization[$this->language]['Menu_Button'],
-            'callback_data' => 'menu'
+            'text' => $this->localization[$this->language]['Show_Button'],
+            'callback_data' => 'show'
         ]);
 
         if ($this->max_joined > 0 && ($this->joined == $this->max_joined)) {

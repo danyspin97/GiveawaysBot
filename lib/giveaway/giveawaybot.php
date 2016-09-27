@@ -1126,6 +1126,8 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
           $id = $row['id'] ?? $row['giveaway_id'];
 
           $this->database->from("Giveaway")->where("id=$id")->select(["*"], function($row){
+            $this->sanitizeGiveawayDetails($row);
+
             $partial .= "<b>".$row['name']."</b>".NEWLINE.$row['hashtag'].NEWLINE.NEWLINE.$row['description'].NEWLINE.NEWLINE;
 
             if ($row['owner_id'] == $this->message["from"]["id"])
@@ -1243,24 +1245,23 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         }
     }
 
-    // Respond to `/show <hashtag>` command which returns information about
-    // a specific giveaway and permits user to join it if possible.
+    // This method implements the mechanism behind show giveaways through
+    // `/show` command or `/browse`.
+    //
+    // When $callback_query_origin is true, we expect it's a call from `/browse`.
     private function showGiveaway($target, $callback_query_origin = false) {
         $this->callback_query_origin = $callback_query_origin;
         $this->response = "";
         $this->giveaway_id;
         $this->owner_id;
+        $condition = "hashtag='$target' OR name='$target'";
 
-        if ($target[0] == '#') {
-            $condition = "hashtag='$target' or name='$target'";
-        } else {
+        if ($target[0] != '#') {
             $condition = "name='$target'";
         }
 
-        $this->database->from('giveaway')->where($condition)->select(["*"], function($row){
-          if ($row['description'] == 'NULL') {
-            $row['description'] = $this->localization[$this->language]['Undefined_Msg'];
-          }
+        $this->database->from('giveaway')->where($condition)->select(["*"], function($row) {
+          $this->sanitizeGiveawayDetails($row);
 
           $response = "";
           $response .= '<b>'.$row['name'].'</b>'.NEWLINE.$row['hashtag'].NEWLINE.NEWLINE;
@@ -1340,16 +1341,43 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         }
     }
 
-    // Add participants to a cumulative giveaway.
-    private function addByReferral($giveaway_id, $referral_id, $chat_id) {
-        // Check for joined' number
-        $this->joined = 0;
-        $this->max_joined = 0;
+    // Users are allowed to skip some details about the giveaway and replace it with
+    // an useless NULL.
+    //
+    // This method replace this NULLs with more human-readable sentences.
+    private function sanitizeGiveawayDetails(&$giveaway) {
+        $localization = $this->localization[$this->language];
+        $SANITIZERS = [
+            'description' => $localization['Undefined_Msg'],
+            'hashtag' => $localization['UndefinedHashtag_Msg']
+        ];
 
-        $this->database->from("joined")->where('giveaway_id='.$giveaway_id)->select(["count(*)"],
-        function($row){ $this->joined = intval($row['count']); });
-        $this->database->from("giveaway")->where('id='.$giveaway_id)->select(["max_participants"],
-        function($row){ $this->max_joined = $row['max_participants']; });
+        foreach ($SANITIZERS as $field => $replacement) {
+            if ($giveaway[$field] == 'NULL') {
+                $giveaway[$field] = $replacement;
+            }
+        }
+
+        return;
+    }
+
+    // Users are allowed to join giveaways through invite links when the giveaway
+    // is a cumulative one or when they use inline bot's features.
+    //
+    // This method implements the logic behind the invite links' mechanism.
+    private function addByReferral($giveaway_id, $referral_id, $chat_id) {
+        $this->usersJoined = 0;
+        $this->limit = 0;
+
+        $this->database->from("joined")->where('giveaway_id='.$giveaway_id)
+                                       ->select(["count(*)"], function($row) {
+            $this->usersJoined = intval($row['count']);
+        });
+
+        $this->database->from("giveaway")->where('id='.$giveaway_id)
+                                         ->select(["max_participants"], function($row) {
+            $this->limit = $row['max_participants'];
+        });
 
         $this->inline_keyboard->clearKeyboard();
         $this->inline_keyboard->addLevelButtons([
@@ -1357,7 +1385,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             'callback_data' => 'show'
         ]);
 
-        if ($this->max_joined > 0 && ($this->joined == $this->max_joined)) {
+        if ($this->limit > 0 && ($this->usersJoined == $this->limit)) {
              $this->sendMessage($this->localization[$this->language]['MaxParticipants_Msg'],
                                 $this->inline_keyboard->getKeyboard());
         } else {

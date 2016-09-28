@@ -1,12 +1,13 @@
 ##
 # Take a contest and choose the winners.
 class Judge
-  attr_reader :contest, :winners
+  attr_reader :contest, :winners, :losers
 
   def initialize(contest)
     @contest = contest
     @logger = open_logger
     @winners = []
+    @losers = []
   end
 
   def run
@@ -22,9 +23,13 @@ class Judge
   def assign_cumulative
     prizes_amount = contest[:prizes].size
 
-    participants.each_with_index do |winner, index|
-      add_to_winners(contest[:details]['name'], winner, prizes[index])
+    prizes_amount.times do |index|
+
+      add_to_winners(contest[:details]['name'], participants[index], prizes[index])
+      participants.reject! { |dict| dict == participants[index] }
     end
+
+    @losers = participants
   end
 
   def assign_prize_per_participant
@@ -42,6 +47,8 @@ class Judge
 
       add_to_winners(contest[:details]['name'], winner, prize)
       participants.reject! { |dict| dict == winner }
+
+      @losers = participants
     end
   end
 
@@ -71,6 +78,5 @@ class Judge
 
   def add_to_winners(contest_name, winner, prize)
     @winners << { name: contest_name, identity: winner, prize: prize }
-    @logger.info "  #{winner[:id]} won #{prize['name']}"
   end
 end

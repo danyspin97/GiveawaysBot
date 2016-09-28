@@ -62,7 +62,7 @@ module ContestJudge
       condition = "giveaway_id=#{@active_id}"
 
       if @cumulative
-        condition += " order by invites desc limit #{prizes_amount}"
+        condition += " order by invites desc"
       end
 
       fetch_from_db(select_all('joined', condition)) do |user|

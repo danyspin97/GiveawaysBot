@@ -1218,7 +1218,17 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                                    $this->inline_keyboard->getKeyboard());
             }
         } else {
-            $this->sendMessage($this->localization[$this->language]["StatsEmpty_Msg"]);
+            if ($browse_button) {
+                $this->inline_keyboard->addLevelButtons([
+                    'text' => $this->localization[$this->language]['Menu_Button'],
+                    'callback_data' => 'menu'
+                ]);
+
+                return [$this->localization[$this->language]['StatsEmpty_Msg'],
+                        $this->inline_keyboard->getKeyboard()];
+            } else {
+                $this->sendMessage($this->localization[$this->language]['StatsEmpty_Msg']);
+            }
         }
     }
 

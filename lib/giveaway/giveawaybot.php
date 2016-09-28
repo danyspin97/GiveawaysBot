@@ -339,27 +339,16 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         break;
                     case ENTERING_PRIZE_VALUE:
                         $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes');
-                        $text = str_replace(',', '.', $text);
-                        $money = preg_split('/(?<=\d)(?=[' . CURRENCY . '])/', $text);
-                        if ((is_numeric((float)$money[0]) && (float)$money[0] != 0) || (is_numeric((float)$money[1]) && (float)$money[1] != '0')) {
-                            if ((float)$money[0] != 0 && is_numeric($money[0])) {
-                                $i = 0;
-                                $j = 1;
-                            } else {
-                                $i = 1;
-                                $j = 0;
-                            }
-                            $value = $money[$i];
-                            $this->redis->hSet($this->chat_id . ':prize:' . $prizes_count, 'value', $value);
-                            preg_match('/[' . CURRENCY . '=*]+/', $money[$j], $currency);
-                            $currency = $currency[0];
-                            if (isset($currency) && strpos(CURRENCY, $currency) !== false) {
+                        $this->checkPrizeValue($text, $money, $currency, $money_inserted, $currency_inserted);
+                        if ($money_inserted) {
+                            $this->redis->hSet($this->chat_id . ':prize:' . $prizes_count, 'value', $money);
+                            if ($currency_inserted) {
                                 $this->redis->hSet($this->chat_id . ':prize:' . $prizes_count, 'currency', $currency);
-                                $this->editMessageText($this->localization[$this->language]['PrizeValue_Msg'] . $currency . $value, $this->redis->get($this->chat_id . ':message_id'));
+                                $this->editMessageText($this->localization[$this->language]['PrizeValue_Msg'] . $currency . $money, $this->redis->get($this->chat_id . ':message_id'));
                                 $this->sendReplyMessageKeyboard($this->localization[$this->language]['EnteringPrizeType_Msg'], $this->getPrizeTypeKeyboard(), $message_id);
                                 $this->redis->set($this->chat_id . ':status', ENTERING_PRIZE_TYPE);
                             } else {
-                                $this->editMessageText($this->localization[$this->language]['ValueNoCurrency_Msg'] . $value . '?', $this->redis->get($this->chat_id . ':message_id'));
+                                $this->editMessageText($this->localization[$this->language]['ValueNoCurrency_Msg'] . $money . '?', $this->redis->get($this->chat_id . ':message_id'));
                                 $this->sendReplyMessageKeyboard($this->localization[$this->language]['EnteringPrizeCurrency_Msg'], $this->getCurrencyKeyboard(), $message_id);
                                 $this->redis->set($this->chat_id . ':status', ENTERING_PRIZE_CURRENCY);
                             }
@@ -389,29 +378,18 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         break;
                     case PRIZE_DETAIL_EDIT_VALUE:
                         $prize = $this->redis->hGet($this->chat_id . ':create', 'prizes_selected');
-                        $text = str_replace(',', '.', $text);
-                        $money = preg_split('/(?<=\d)(?=[' . CURRENCY . '])/', $text);
-                        if ((is_numeric((float)$money[0]) && (float)$money[0] != 0) || (is_numeric((float)$money[1]) && (float)$money[1] != '0')) {
-                            if ((float)$money[0] != 0 && is_numeric($money[0])) {
-                                $i = 0;
-                                $j = 1;
-                            } else {
-                                $i = 1;
-                                $j = 0;
-                            }
-                            $value = $money[$i];
-                            $this->redis->hSet($this->chat_id . ':prize:' . $prize, 'value', $value);
-                            preg_match('/[' . CURRENCY . '=*]+/', $money[$j], $currency);
-                            $currency = $currency[0];
-                            if (isset($currency) && strpos(CURRENCY, $currency) !== false) {
+                        $this->checkPrizeValue($text, $money, $currency, $money_inserted, $currency_inserted);
+                        if ($money_inserted) {
+                            $this->redis->hSet($this->chat_id . ':prize:' . $prize, 'value', $money);
+                            if ($currency_inserted) {
                                 $this->redis->hSet($this->chat_id . ':prize:' . $prize, 'currency', $currency);
-                                $this->editMessageText($this->localization[$this->language]['NewValue_Msg'] . $currency . $value, $this->redis->get($this->chat_id . ':message_id'));
+                                $this->editMessageText($this->localization[$this->language]['NewValue_Msg'] . $currency . $money, $this->redis->get($this->chat_id . ':message_id'));
                                 $string = '';
                                 $this->getPrizeInfo($string);
                                 $this->sendReplyMessageKeyboard($string, $this->getPrizeEditKeyboard(), $message_id);
                                 $this->redis->set($this->chat_id . ':status', PRIZE_SUMMARY);
                             } else {
-                                $this->editMessageText($this->localization[$this->langauge]['NewValueNoCurrency_Msg'] . $value . '?', $this->redis->get($this->chat_id . ':message_id'));
+                                $this->editMessageText($this->localization[$this->langauge]['NewValueNoCurrency_Msg'] . '?' . $money, $this->redis->get($this->chat_id . ':message_id'));
                                 $this->sendReplyMessageKeyboard($this->localization[$this->language]['EditPrizeCurrency_Msg'], $this->getCurrencyKeyboard(true), $message_id);
                                 $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL_EDIT_CURRENCY);
                             }
@@ -632,7 +610,11 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $sth->bindParam(':owner_id', $this->chat_id);
                     $sth->bindParam(':created', date('Y-m-d', time()));
                     $sth->bindParam(':date', date('Y-m-d', $giveaway['date']));
-                    $sth->execute();
+                    try {
+                        $sth->execute();
+                    } catch (PDOException $e) {
+                        echo $e->getMessage();
+                    }
                     $giveaway_id = $this->getMostRecent()['id'];
                     $sth = null;
                     $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes') + 1;
@@ -645,15 +627,17 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $sth->bindParam(':giveaway', $giveaway_id);
                         $sth->bindParam(':type', $prize['type']);
                         $sth->bindParam(':key', mb_substr($prize['key'], 0, 31));
-
-                        $sth->execute();
+                        try {
+                            $sth->execute();
+                        } catch (PDOException $e) {
+                            echo $e->getMessage();
+                        }
                         $this->redis->delete($this->chat_id . ':prize:' . $i);
                     }
                     $sth = null;
                     $this->redis->delete($this->chat_id . ':create');
                     $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Menu_Button'], 'callback_data' => 'menu']);
                     $this->editMessageTextKeyboard($this->showCreatedGiveaway($giveaway_id), $this->inline_keyboard->getKeyboard(), $message_id);
-
                     $this->updateStats();
                     break;
                 case 'delete_hashtag':
@@ -932,11 +916,17 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                              $this->updateStats();
                         }
                     } elseif (strpos('cls', $info[0]) !== false) {
-                        $sth = $this->pdo->prepare('INSERT INTO "User" (chat_id, language) VALUES(:chat_id, :language)');
-                        $sth->bindParam(':chat_id', $this->chat_id);
-                        $sth->bindParam(':language', $info[1]);
-                        $sth->execute();
-                        $sth = null;
+                        if(!$this->database->exist("User", ["chat_id" => $this->chat_id])) {
+                            $sth = $this->pdo->prepare('INSERT INTO "User" (chat_id, language) VALUES(:chat_id, :language)');
+                            $sth->bindParam(':chat_id', $this->chat_id);
+                            $sth->bindParam(':language', $info[1]);
+                            try {
+                                $sth->execute();
+                                $sth = null;
+                            } catch (PDOException $e) {
+                                echo $e->getMessage();
+                            }
+                        }
                         $this->language = $info[1];
                         $this->editMessageTextKeyboard($this->localization[$this->language]['Menu_Msg'], $this->getStartKeyboard(), $message_id);
                         $this->answerCallbackQueryRef($this->localization[$this->language]['UserRegistred_AnswerCallbackQuery']);
@@ -1464,7 +1454,11 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
     private function getStartKeyboard() {
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Register_Button'], 'callback_data' => 'register'], ['text' => &$this->localization[$this->language]['Join_Button'], 'callback_data' => 'join']);
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Show_Button'], 'callback_data' => 'show']);
-        $this->inline_keyboard->addLevelButtons(['text' => $this->localization[$this->language]['Language_Button'] . '/Language', 'callback_data' => 'options']);
+        if ($this->language == 'en') {
+            $this->inline_keyboard->addLevelButtons(['text' => $this->localization[$this->language]['Language_Button'], 'callback_data' => 'options']);
+        } else {
+            $this->inline_keyboard->addLevelButtons(['text' => $this->localization[$this->language]['Language_Button'] . '/Language', 'callback_data' => 'options']);
+        }
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Help_Button'], 'callback_data' => 'help'], ['text' => &$this->localization[$this->language]['About_Button'], 'callback_data' => 'about']);
         return $this->inline_keyboard->getKeyboard();
     }
@@ -1473,5 +1467,31 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization['languages']['en'], 'callback_data' => 'cls_en']);
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization['languages']['it'], 'callback_data' => 'cls_it']);
         return $this->inline_keyboard->getKeyboard(); 
+    }
+
+    private function checkPrizeValue(&$text, &$money, &$currency, &$money_inserted, &$currency_inserted) {
+        $money_inserted = false;
+        $currency_inserted = false;
+        $text = str_replace(',', '.', $text);
+        $preg_value = preg_split('/(?<=\d)(?=[' . CURRENCY . '])/', $text);
+        $money = floatval($preg_value[0]);
+        if ($money != 0) {
+            $money_inserted = true;
+            preg_match('/[' . CURRENCY . '=*]+/', $preg_value[1], $currency);
+            $currency = $currency[0];
+            if (strpos(CURRENCY, $currency) !== false) {
+                $currency_inserted = true;
+            }
+        } else {
+            $money = mb_substr($preg_value[0], 1);
+            $money = floatval($money);
+            if ($money != 0) {
+                $money_inserted = true;
+                $currency = mb_substr($preg_value[0], 0, 1);
+                if (strpos(CURRENCY, $currency) !== false) {
+                    $currency_inserted = true;
+                }
+            }
+        }
     }
 }

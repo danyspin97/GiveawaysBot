@@ -3,7 +3,7 @@
 require 'pg'
 require_relative '../lib/contestjudge'
 
-config = ContestJudge::Configuration.new('./contestjudge.yml')
+config = ContestJudge::Configuration.new('./data.yml')
 config.load
 @options = config.options
 

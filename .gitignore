@@ -3,4 +3,4 @@ composer.lock
 vendor/
 autoload.php
 data.php
-contestjudge.yml
+bin/data.yml

@@ -1171,6 +1171,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         $limit = OBJECT_PER_LIST;
 
         // Avoids users to remember to press `/start` before use browsing.
+        $this->userGiveaway = array();
         $this->updateStats();
 
         // Show other giveaway if there are any

@@ -88,6 +88,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 $this->results->newArticleKeyboard($row['name'], $message, $description,
                                                $this->inline_keyboard->getNoJSONKeyboard());
                 unset($description);
+                unset($message);
             }
             $this->answerInlineQuerySwitchPMRef($this->results->getResults(), $this->localization[$this->language]['SwitchPM_InlineQuery'], 'start');
             $sth = null;
@@ -220,7 +221,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                                 $this->redis->set($this->chat_id . ':status', ENTERING_MAX);
                                 $this->redis->hSet($this->chat_id . ':create', 'hashtag', $hashtag);
                             } else {
-                                $new_message = $this->sendReplyMessageKeyboard($this->localization[$this->language]['DuplicatedHashtag'], $this->inline_keyboard->getBackSkipKeyboard(), $message_id);
+                                $new_message = $this->sendReplyMessageKeyboard($this->localization[$this->language]['DuplicatedHashtag_Msg'], $this->inline_keyboard->getBackSkipKeyboard(), $message_id);
                                 $this->redis->set($this->chat_id . ':message_id', $new_message['message_id']);
                             }
                         } else {
@@ -1049,13 +1050,13 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
     private function &getGiveawaySummary() {
         $giveaway = $this->redis->hGetAll($this->chat_id . ':create');
-        $string = '<b>' . $giveaway['title'] . '</b>' . NEWLINE .
+        $string = '<b>' . $this->removeUsernameFormattation($giveaway['title'], 'b') . '</b>' . NEWLINE .
                 '<code>' . $this->localization[$this->language][$giveaway['type'] . '_Button'] . '</code>' . NEWLINE;
         if ($giveaway['hashtag'] !== 'NULL') {
             $string .= $giveaway['hashtag'] . NEWLINE;
         }
         if ($giveaway['description'] !== 'NULL') {
-            $string .= '<i>' . $giveaway['description'] . '</i>' . NEWLINE;
+            $string .= '<i>' . $this->removeUsernameFormattation($giveaway['description'], 'i') . '</i>' . NEWLINE;
         }
         $string .= NEWLINE . $this->localization[$this->language]['Maxparticipants_Msg']; 
         if ($giveaway['max_participants'] != 0) {
@@ -1286,8 +1287,8 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
           $this->sanitizeGiveawayDetails($row);
 
           $response = "";
-          $response .= '<b>'.$row['name'].'</b>'.NEWLINE.$row['hashtag'].NEWLINE.NEWLINE;
-          $response .= $row['description'].NEWLINE.NEWLINE;
+          $response .= '<b>' . $this->removeUsernameFormattation($row['name'], 'b') . '</b>' . NEWLINE . $row['hashtag'] . NEWLINE . NEWLINE;
+          $response .= '<i>' . $this->removeUsernameFormattation($row['description'], 'i') . '</i>' . NEWLINE . NEWLINE;
 
           $this->already_joined = false;
           $this->owner_id = $row['owner_id'];
@@ -1311,8 +1312,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                       $response .= $this->localization[$this->language]['Owned_Msg'].'  |  ';
                   }
               } else {
-                  $response .= $this->localization[$this->language]['Joined_Msg'].'  |  ';
-              }
+                  $response .= $this->localization[$this->language]['Joined_Msg'].'  |  '; }
           } else {
               if ($this->owner_id == $this->chat_id) {
                   $response .= $this->localization[$this->language]['Owned_Msg'].'  |  ';
@@ -1562,5 +1562,21 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 }
             }
         }
+    }
+
+    public function &removeUsernameFormattation(&$string, $modificator) {
+        $usernames = FALSE;
+        preg_match_all('/(@\w+)/u', $string, $matches);
+        if ($matches) {
+            $usernamesArray = array_count_values($matches[0]);
+            $usernames = array_keys($usernamesArray);
+        }
+        $count = count($usernames);
+        $delimitator_start = '<' . $modificator . '>';
+        $delimitator_end = '</' . $modificator . '>';
+        for($i = 0; $i < $count; $i++) {
+            $string = str_replace($usernames[$i], $delimitator_end . $usernames[$i] . $delimitator_start, $string);
+        }
+        return $string;
     }
 }

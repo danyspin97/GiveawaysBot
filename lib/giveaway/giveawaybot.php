@@ -876,7 +876,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                                 $giveaway = explode("\n", $this->userGiveaway[$pos]);
 
                                 // Choose if search for name or hashtag
-                                if ($giveaway[1] == 'NULL') {
+                                if ($giveaway[1] == $this->localization[$this->language]['UndefinedHashtag_Msg']) {
                                     $target = $this->adjustName($giveaway[0]);
                                 } else {
                                     $target = $giveaway[1];
@@ -1121,7 +1121,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         }
 
         $query = "SELECT giveaway_id FROM joined WHERE chat_id='".$this->message['from']['id']."' UNION ALL "
-                ."SELECT id FROM giveaway WHERE owner_id=".$this->message['from']['id']."";
+                ."SELECT id FROM giveaway WHERE owner_id=".$this->message['from']['id'];
 
         $this->database->execute($query, function($row){
           $this->found = true;
@@ -1156,22 +1156,13 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
           });
         });
 
-        if ($this->found) {
+        if ($this->found == true) {
+            $this->userGiveawayFull = true;
             return [$this->records, $this->counter];
         }
 
+        $this->userGiveawayFull = false;
         return false;
-    }
-
-    private function getUserGiveaway() {
-        if ($this->userGiveawayFull == false) {
-            $this->sendMessage($this->localization[$this->language]['StatsEmpty_Msg']);
-            return false;
-        } else {
-            return array($this->userGiveaway, $this->userGiveawaySize);
-        }
-
-        return true;
     }
 
     private function getStatsList($browse_button = false) {
@@ -1196,7 +1187,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $name = $giveaway[0];
 
                     // Choose if search for name or hashtag
-                    if ($giveaway[1] == 'NULL') {
+                    if ($giveaway[1] == $this->localization[$this->language]['UndefinedHashtag_Msg']) {
                         $target = $this->adjustName($name);
                     } else {
                         $target = $giveaway[1];
@@ -1252,6 +1243,8 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             $this->userGiveawaySize = $response[1];
             $this->listLength = ($this->userGiveawaySize - ($this->userGiveawaySize % OBJECT_PER_LIST)) / OBJECT_PER_LIST;
             $this->userGiveawayFull = true;
+        } else {
+            $this->userGiveawayFull = false;
         }
     }
 
@@ -1327,8 +1320,12 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         });
         if ($callback_query_origin == false) {
             if ($this->response == null) {
-                $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'menu']);
-                $this->sendMessageKeyboard($this->localization[$this->language]['NoGiveawayWarn_Msg'], $this->inline_keyboard->getKeyboard());
+                $this->inline_keyboard->addLevelButtons([
+                    'text' => &$this->localization[$this->language]['Back_Button'],
+                    'callback_data' => 'menu'
+                ]);
+                $this->sendMessageKeyboard($this->localization[$this->language]['NoGiveawayWarn_Msg'],
+                                           $this->inline_keyboard->getKeyboard());
             } else {
                 $this->sendMessage($this->response, $this->inline_keyboard->getKeyboard());
             }

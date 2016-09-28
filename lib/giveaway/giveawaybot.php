@@ -50,6 +50,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
     private $userGiveawaySize = 0;
     private $userGiveawayFull = false;
 
+
     public function processInlineQuery() {
         $inline_query = &$this->update['inline_query'];
         $this->chat_id = &$inline_query['from']['id'];
@@ -644,7 +645,9 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $sth->bindParam(':currency', $prize['currency']);
                         $sth->bindParam(':giveaway', $giveaway_id);
                         $sth->bindParam(':type', $prize['type']);
-                        $sth->bindParam(':key', mb_substr($prize['key'], 0, 31));
+
+                        $key = mb_substr($prize['key'], 0, 31);
+                        $sth->bindParam(':key', $this->encryptKey($key));
 
                         $sth->execute();
                         $this->redis->delete($this->chat_id . ':prize:' . $i);
@@ -1231,6 +1234,11 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         }
 
         return $name;
+    }
+
+    // Use OpenSSL features in order to encrypt prizes' keys.
+    private function encryptKey($key) {
+        return openssl_encrypt($key, 'AES-128-ECB', $this->token);
     }
 
     private function updateStats() {

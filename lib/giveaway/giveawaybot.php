@@ -656,7 +656,6 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                                                    $message_id);
 
                     // Update giveaways' list readable using `/browse`
->>>>>>> dc47e44f33047f359a33539db623821cd120307b
                     $this->updateStats();
                     break;
                 case 'delete_hashtag':

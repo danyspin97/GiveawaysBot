@@ -180,6 +180,7 @@ It cannot be undone and all data inserted will be lost.',
     '$_AnswerCallback' => 'Dollar',
     'Register_InlineQuery' => 'Register',
     'SwitchPM_InlineQuery' => 'Create or browse',
+    'ShareLink_Button' => 'Share via link',
     'UndefinedHashtag_Msg' => '<i>Undefined hashtag</i>',
     'it' => 'Italian',
     'es' => 'Spanish',
@@ -250,7 +251,8 @@ Per iniziare premi uno dei seguenti pulsanti oppure /help per ricevere aiuto.',
     'EditPrizeType_Button' => 'Modifica tipo',
     'EditPrizeValue_Button' => 'Modifica valore',
     'EditPrizeCurrency_Button' => 'Modifica moneta',
-    'DeletePrize_Button' => 'Cancella'
+    'DeletePrize_Button' => 'Cancella',
+    'ShareLink_Button' => 'Condividi link'
 ];
 /*
 

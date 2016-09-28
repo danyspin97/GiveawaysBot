@@ -654,9 +654,24 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     }
                     $sth = null;
                     $this->redis->delete($this->chat_id . ':create');
-                    $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Menu_Button'], 'callback_data' => 'menu']);
-                    $this->editMessageTextKeyboard($this->showCreatedGiveaway($giveaway_id), $this->inline_keyboard->getKeyboard(), $message_id);
+                    $response = $this->showCreatedGiveaway($giveaway_id);
 
+                    if ($response[1] == 'cumulative') {
+                        $this->inline_keyboard->addLevelButtons([
+                            'text' => &$this->localization[$this->language]['ShareLink_Button'],
+                            'callback_data' => 'invite_'.$giveaway_id.'_'.$giveaway['title']
+                        ]);
+                    }
+
+                    $this->inline_keyboard->addLevelButtons([
+                        'text' => &$this->localization[$this->language]['Menu_Button'],
+                        'callback_data' => 'menu'
+                    ]);
+
+                    $this->editMessageTextKeyboard($response[0], $this->inline_keyboard->getKeyboard(),
+                                                   $message_id);
+
+                    // Update giveaways' list readable using `/browse`
                     $this->updateStats();
                     break;
                 case 'delete_hashtag':
@@ -845,6 +860,9 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                                 $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL);
                                 break;
                          }
+                    } elseif (strpos($data, 'invite_') === 0) {
+                        $data = explode('_', $data);
+                        $this->generateReferralLink($data[1], $data[2], true);
                     } elseif (strpos($data, 'awards_') === 0) {
                         $data = explode('_', $data);
                         $this->currentPage = $data[2];
@@ -1421,13 +1439,21 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
     }
 
     // Generate the referral link for the given giveaway (ID)
-    private function generateReferralLink($giveaway, $title) {
+    private function generateReferralLink($giveaway, $title, $callback_query) {
         $link = "telegram.me/giveaways_bot?start=".base64_encode($this->chat_id)."_"
                                                   .base64_encode($giveaway);
 
         $message = $this->localization[$this->language]['JoinLabel_Msg'] . '<b>'.$title.'</b>'.':'
                   .NEWLINE.NEWLINE.$link;
-        $this->sendMessage($message);
+        
+        if ($callback_query) {
+            $message_id = $this->update['callback_query']['message']['message_id'];
+
+            $this->editMessageReplyMarkup($message_id, $this->inline_keyboard->getKeyboard());
+            $this->editMessageText($message, $message_id);
+        } else {
+            $this->sendMessage($message);
+        }
     }
 
     // Returns the most recent giveaway from the Giveaway table.
@@ -1485,11 +1511,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
         $this->answerCallbackQuery($this->localization[$this->language]['AfterCreation_Msg']);
 
-        if ($this->type == 'cumulative') {
-            $this->generateReferralLink($id, $this->title);
-        }
-
-        return $this->result;
+        return [$this->result, $this->type];
     }
 
     private function startAction() {

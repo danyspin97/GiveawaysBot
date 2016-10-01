@@ -16,7 +16,7 @@ $localization = [];
 
 $localization['languages'] = [
     'en' => 'English',
-    'it' => 'Italian'
+    'it' => 'Italiano'
     ];
 
 $localization['en'] = [

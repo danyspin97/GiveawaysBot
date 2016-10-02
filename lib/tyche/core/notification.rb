@@ -7,6 +7,7 @@ module Tyche
         @locale = defaults[:locale]
         @participant = participant
         @messages = []
+        @secret_key = defaults[:secret_key][0...16]
 
         @current_giveaway = nil
         parse_won_giveaway
@@ -38,7 +39,17 @@ module Tyche
       end
 
       def decrypt_key(key)
-        key
+        key = Base64.decode64(key)
+        decipher = OpenSSL::Cipher::AES128.new(:ECB)
+        decipher.decrypt
+        
+        decipher.key = @secret_key
+        decipher.iv = ""
+
+        plain = decipher.update(key)
+        plain = decipher.update(key)
+
+        plain.force_encoding('utf-8').encode
       end
     end
   end

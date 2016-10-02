@@ -644,6 +644,9 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     if ($response[1] == 'cumulative') {
                         $this->inline_keyboard->addLevelButtons([
                             'text' => &$this->localization[$this->language]['ShareLink_Button'],
+                            'callback_data' => ''
+                        ], [
+                            'text' => &$this->localization[$this->language]['ShowLink_Button'],
                             'callback_data' => 'invite_'.$giveaway_id.'_'.$giveaway['title']
                         ]);
                     }
@@ -1264,7 +1267,7 @@ echo 'tete';
 
     // Use OpenSSL features in order to encrypt prizes' keys.
     private function encryptKey($key) {
-        return openssl_encrypt($key, 'AES-128-ECB', $this->token);
+        return openssl_encrypt($key, 'AES-128-CBC', $this->token);
     }
 
     private function updateStats() {

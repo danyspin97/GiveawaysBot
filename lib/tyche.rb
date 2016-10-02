@@ -5,6 +5,7 @@ require 'pg'
 require 'curb'
 require 'yaml'
 require 'openssl'
+require 'base64'
 
 # tyche entities
 require_relative './tyche/entities/giveaway'

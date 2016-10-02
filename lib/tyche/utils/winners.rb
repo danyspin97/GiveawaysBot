@@ -47,7 +47,9 @@ module Tyche
 
         @participants[participant[0]][:losed] += participant[1][:losed]
         @participants[participant[0]][:won] +=
-          Tyche::Core::Notification.new(participant, locale: @language.options).result
+          Tyche::Core::Notification.new(participant,
+                                        locale: @language.options,
+                                        secret_key: @options.options['token']).result
       end
     end
   end

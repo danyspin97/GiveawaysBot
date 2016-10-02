@@ -618,6 +618,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         echo $e->getMessage();
                     }
                     $giveaway_id = $this->getMostRecent()['id'];
+                    $title = $giveaway['title'];
                     $sth = null;
                     $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes') + 1;
                     $sth = $this->pdo->prepare('INSERT INTO Prize (name, value, currency, giveaway, type, key) VALUES (:name, :value, :currency, :giveaway, :type, :key)');

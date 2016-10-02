@@ -63,14 +63,14 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 $sth = $this->pdo->prepare('SELECT T.id, T.name, T.owner_id, T.description, T.hashtag FROM (
                                                 SELECT DISTINCT giveaway.id, giveaway.name, giveaway.owner_id, giveaway.description, giveaway.type, giveaway.hashtag, giveaway.last
                                                    FROM giveaway INNER JOIN joined
-                                                   ON giveaway.id = joined.giveaway_id AND joined.chat_id = :chat_id AND giveaway.type = \'cumulative\' OR giveaway.owner_id = :chat_id
+                                                   ON giveaway.id = joined.giveaway_id AND giveaway.last > NOW() AND joined.chat_id = :chat_id AND giveaway.type = \'cumulative\' OR giveaway.owner_id = :chat_id
                                             ) AS T WHERE T.name ~* :query OR T.hashtag ~* :query ORDER BY T.last LIMIT 50');
                 $sth->bindParam(':query', $text);
             } else {
                 // Show all giveaways that the user joined or created
                 $sth = $this->pdo->prepare('SELECT DISTINCT giveaway.id, giveaway.name, giveaway.owner_id, giveaway.description, giveaway.type, giveaway.hashtag, giveaway.last
                                                FROM giveaway INNER JOIN joined
-                                               ON giveaway.id = joined.giveaway_id AND joined.chat_id = :chat_id AND giveaway.type = \'cumulative\' OR giveaway.owner_id = :chat_id ORDER BY last LIMIT 50');
+                                               ON giveaway.id = joined.giveaway_id AND giveaway.last > NOW() AND joined.chat_id = :chat_id AND giveaway.type = \'cumulative\' OR giveaway.owner_id = :chat_id ORDER BY last LIMIT 50');
             }
             $sth->bindParam(':chat_id', $this->chat_id);
             $sth->execute();
@@ -725,6 +725,8 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $this->redis->set($this->chat_id . ':status', LANGUAGE);
                     $this->answerCallbackQueryRef($this->localization[$this->language]['Language_AnswerCallback']);
                     break;
+                case 'same/language':
+                    $this->answerCallbackQueryRef($this->localization[$this->language]['SameLanguage_AnswerCallback']);
                 case 'null':
                     $this->answerEmptyCallbackQuery();
                     break;
@@ -933,11 +935,13 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                              ]);
 
                              $this->editMessageReplyMarkup($message_id, []);
+echo 'tete';
                              $this->answerCallbackQuery($this->localization[$this->language]['JoinedSuccess_Msg']);
 
                              $this->updateStats();
                         }
-                    } elseif (strpos('cls', $info[0]) !== false) {
+                    } elseif (mb_strpos($data, 'cls') !== false) {
+                        $info = explode('/', $data);
                         if(!$this->database->exist("User", ["chat_id" => $this->chat_id])) {
                             $sth = $this->pdo->prepare('INSERT INTO "User" (chat_id, language) VALUES(:chat_id, :language)');
                             $sth->bindParam(':chat_id', $this->chat_id);
@@ -953,10 +957,11 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $this->editMessageTextKeyboard($this->localization[$this->language]['Menu_Msg'], $this->getStartKeyboard(), $message_id);
                         $this->answerCallbackQueryRef($this->localization[$this->language]['UserRegistred_AnswerCallbackQuery']);
                         $this->redis->set($this->chat_id . ':status', MENU);
-                    } elseif (strpos('cl', $info[0]) !== false) {
+                    } elseif (mb_strpos($data, 'cl') !== false) {
+                        $info = explode('/', $data);
                         $this->setLanguage($info[1]);
-                        $this->editMesssageTextKeyboard($this->localization[$this->language]['Options_Msg'], $this->getOptionsKeyboard(), $message_id);
-                        $this->anwerCallbackQueryRef($this->localization[$this->language]['LanguageChanged_AnswerCallback']);
+                        $this->editMessageTextKeyboard($this->localization[$this->language]['Menu_Msg'], $this->getStartKeyboard(), $message_id);
+                        $this->answerCallbackQueryRef($this->localization[$this->language]['LanguageChanged_AnswerCallback']);
                     }
                     break;
              }

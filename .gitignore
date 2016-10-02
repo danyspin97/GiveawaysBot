@@ -3,4 +3,4 @@ composer.lock
 vendor/
 autoload.php
 data.php
-bin/data.yml
+bin/secrets.yml

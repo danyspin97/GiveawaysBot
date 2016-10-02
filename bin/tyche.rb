@@ -14,7 +14,9 @@ include Tyche::Utils::Losers
 
 ActiveRecord::Base.establish_connection(database: @config.options['database'],
                                         host: @config.options['host'],
-                                        adapter: @config.options['adapter'])
+                                        adapter: @config.options['adapter'],
+                                        password: @config.options['password'],
+                                        user: @config.options['user'])
 
 @endpoint = "https://api.telegram.org/bot#{@config.options['token']}/sendMessage"
 

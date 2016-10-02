@@ -645,9 +645,6 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $this->inline_keyboard->addLevelButtons([
                             'text' => &$this->localization[$this->language]['ShareLink_Button'],
                             'callback_data' => ''
-                        ], [
-                            'text' => &$this->localization[$this->language]['ShowLink_Button'],
-                            'callback_data' => 'invite_'.$giveaway_id.'_'.$giveaway['title']
                         ]);
                     }
 

@@ -1155,7 +1155,6 @@ echo 'tete';
                 $partial .= $this->localization[$this->language]['Owned_Msg']."  |  ";
             } else {
                 $partial .= $this->localization[$this->language]['Joined_Msg']."  |  ";
-                $joined = true;
             }
 
             // Show giveaway's status
@@ -1170,7 +1169,7 @@ echo 'tete';
                 $partial .= $left.' '.$this->localization[$this->language]['Days_Msg'].NEWLINE;
             }
 
-            if (!($joined == true && $closed == true)) {
+            if (!$closed == true) {
               array_push($this->records, $partial);
               $this->counter++;
             }
@@ -1234,10 +1233,10 @@ echo 'tete';
             ]);
 
             if ($browse_button) {
-                return [join("\n=======================\n\n", $response),
+                return [join("=======================\n\n", $response),
                         $this->inline_keyboard->getKeyboard()];
             } else {
-                $this->sendMessage(join("\n=======================\n\n", $response),
+                $this->sendMessage(join("=======================\n\n", $response),
                                    $this->inline_keyboard->getKeyboard());
             }
         } else {

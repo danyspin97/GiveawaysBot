@@ -879,12 +879,13 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                             if ($this->userGiveaway[$pos] != null) {
                                 array_push($response, $this->userGiveaway[$pos]);
                                 $giveaway = explode("\n", $this->userGiveaway[$pos]);
+                                $hashtag = explode(" | ", $giveaway[1])[1];
 
                                 // Choose if search for name or hashtag
-                                if ($giveaway[1] == $this->localization[$this->language]['UndefinedHashtag_Msg']) {
+                                if ($hashtag == $this->localization[$this->language]['UndefinedHashtag_Msg']) {
                                     $target = $this->adjustName($giveaway[0]);
                                 } else {
-                                    $target = $giveaway[1];
+                                    $target = $hashtag;
                                 }
 
                                 array_push($details, [
@@ -1145,19 +1146,23 @@ echo 'tete';
           $this->database->from("Giveaway")->where("id=$id")->select(["*"], function($row){
             $this->sanitizeGiveawayDetails($row);
 
-            $partial .= "<b>".$row['name']."</b>".NEWLINE.$row['hashtag'].NEWLINE.NEWLINE.$row['description'].NEWLINE.NEWLINE;
+            $partial .= "<b>" . $row['name'] ."</b>" . NEWLINE . "<i>"
+                        . $this->printType($row['type']) . '</i> | ' . $row['hashtag']
+                        . NEWLINE.NEWLINE.$row['description'].NEWLINE.NEWLINE;
 
             if ($row['owner_id'] == $this->message["from"]["id"])
             {
                 $partial .= $this->localization[$this->language]['Owned_Msg']."  |  ";
             } else {
                 $partial .= $this->localization[$this->language]['Joined_Msg']."  |  ";
+                $joined = true;
             }
 
             // Show giveaway's status
             if (date("Y-m-d") > $row['last'])
             {
                 $partial .= $this->localization[$this->language]['Closed_Msg'].NEWLINE;
+                $closed = true;
             } else if (date("Y-m-d") == $row['last']) {
                 $partial .= $this->localization[$this->language]['LastDay_Msg'].NEWLINE;
             } else {
@@ -1165,8 +1170,10 @@ echo 'tete';
                 $partial .= $left.' '.$this->localization[$this->language]['Days_Msg'].NEWLINE;
             }
 
-            array_push($this->records, $partial);
-            $this->counter++;
+            if (!($joined == true && $closed == true)) {
+              array_push($this->records, $partial);
+              $this->counter++;
+            }
           });
         });
 
@@ -1195,17 +1202,19 @@ echo 'tete';
 
         // Fill user's giveaways
         if (!empty($this->userGiveaway)) {
+
             for($pos = 0; $pos < $limit; $pos++) {
                 if ($this->userGiveaway[$pos] != null) {
                     array_push($response, $this->userGiveaway[$pos]);
                     $giveaway = explode("\n", $this->userGiveaway[$pos]);
                     $name = $giveaway[0];
+                    $hashtag = explode(" | ", $giveaway[1])[1];
 
                     // Choose if search for name or hashtag
-                    if ($giveaway[1] == $this->localization[$this->language]['UndefinedHashtag_Msg']) {
+                    if ($hashtag == $this->localization[$this->language]['UndefinedHashtag_Msg']) {
                         $target = $this->adjustName($name);
                     } else {
-                        $target = $giveaway[1];
+                        $target = $hashtag;
                     }
 
                     array_push($details, [
@@ -1291,9 +1300,9 @@ echo 'tete';
         $this->database->from('giveaway')->where($condition)->select(["*"], function($row) {
           $this->sanitizeGiveawayDetails($row);
 
-          $response = "";
-          $response .= '<b>' . $this->removeUsernameFormattation($row['name'], 'b') . '</b>' . NEWLINE . $row['hashtag'] . NEWLINE . NEWLINE;
-          $response .= '<i>' . $this->removeUsernameFormattation($row['description'], 'i') . '</i>' . NEWLINE . NEWLINE;
+          $response .=  '<b>'. $this->removeUsernameFormattation($row['name'], 'b') . '</b>' . NEWLINE
+                       .'<i>' . $this->printType($row['type']) . '</i> | '. $row['hashtag'] . NEWLINE . NEWLINE;
+          $response .=  $this->removeUsernameFormattation($row['description'], 'i') . NEWLINE . NEWLINE;
 
           $this->already_joined = false;
           $this->owner_id = $row['owner_id'];
@@ -1370,6 +1379,14 @@ echo 'tete';
             ]);
             $this->editMessageTextKeyboard($this->response, $this->inline_keyboard->getKeyboard(), $this->update['callback_query']['message']['message_id']);
         }
+    }
+
+    private function printType($type) {
+        if ($type == 'cumulative') {
+            return 'ShareIt';
+        }
+
+        return 'JoinIt';
     }
 
     // Users are allowed to skip some details about the giveaway and replace it with

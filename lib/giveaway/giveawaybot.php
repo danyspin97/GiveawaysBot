@@ -81,12 +81,11 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             while($row = $sth->fetch()) {
                 $message = $this->localization[$this->language]['JoinLabel_Msg'].' <b>'.$row['name'].'</b>'
                           .$this->localization[$this->language]['NowLabel_Msg'];
-
-                echo $this->chat_id;
                 $this->inline_keyboard->addLevelButtons([
                         'text' => $this->localization[$this->language]['Join_Button'],
                         'callback_data' => 'start_and_join/'. $this->chat_id . '_'
-                                                            . $row['id']
+                                                            . $row['id'] . '_'
+                                                            . $row['owner_id']
                 ]);
 
                 $description = $row['description'] === 'NULL' ? '' : $row['description'];
@@ -118,7 +117,46 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             $this->getStatus();
 
             if (strpos($text, '/start') !== false) {
-                $this->startAction();
+                $parameter = explode(' ', $text)[1];
+                
+                if ($parameter == null) {
+                    $this->startAction();
+                } else {
+                    $data = explode('_', $parameter);
+                    $ref_id = base64_decode($data[0]);
+                    $chat_id = $this->chat_id;
+                    $giveaway_id = base64_decode($data[1]);
+                    
+                    $this->inline_keyboard->addLevelButtons([
+                        'text' => $this->localization[$this->language]['Show_Button'],
+                        'callback_data' => 'browse'
+                    ]);
+                    
+                    if ($this->update["message"]["chat"]["id"] == intval($ref_id)) {
+                        $this->sendMessage($this->localization[$this->language]['Inception_Msg']);
+                    } else {
+                        if(!$this->database->exist("User", ["chat_id" => $this->chat_id])) {
+                            $this->database->into('"User"')->insert([
+                                "chat_id" => $this->chat_id,
+                                "language" => 'en'
+                            ]);
+                        }
+                        
+                        if($this->database->exist('joined', ["giveaway_id" => $giveaway_id, "chat_id" => $ref_id]) ||
+                            $this->database->exist('giveaway', ["id" => $giveaway_id])) {
+                            if(!$this->database->exist('joined', ["giveaway_id" => $giveaway_id,
+                                                           "chat_id" => $this->update["message"]["chat"]["id"]])) {
+                                $this->addByReferral($giveaway_id, $ref_id, $this->update["message"]["chat"]["id"]);
+                            } else {
+                                $this->sendMessage($this->localization[$this->language]['AlreadyIn_Msg'],
+                                                   $this->inline_keyboard->getKeyboard());
+                            }
+                        } else {
+                            $this->sendMessage($this->localization[$this->language]['UserError_Msg'],
+                                               $this->inline_keyboard->getKeyboard());
+                        }
+                    }
+                }
                 $this->updateStats();
             } elseif (strpos($text, '/create') === 0) {
                 if ($this->redis->exists($this->chat_id . ':create')) {
@@ -820,13 +858,14 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $data = explode('_', explode('/', $data)[1]);
                         $ref_id = intval($data[0]);
                         $giveaway_id = $data[1];
+                        $owner_id = intval($data[2]);
 
                         $this->inline_keyboard->addLevelButtons([
                             'text' => $this->localization[$this->language]['Show_Button'],
                             'callback_data' => 'show'
                         ]);
 
-                        if ($this->chat_id == $ref_id) {
+                        if ($this->chat_id == $owner_id) {
                             $message = $this->localization[$this->language]['Inception_Msg'];
                             $this->sendMessage($message);
                         } else {

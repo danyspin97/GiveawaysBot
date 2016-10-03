@@ -59,6 +59,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
         if ($this->database->exist("User", ["chat_id" => $this->chat_id])) {
             $this->results = new \WiseDragonStd\HadesWrapper\InlineQueryResults();
+
             if (isset($text) && $text !== '') {
                 $sth = $this->pdo->prepare('SELECT T.id, T.name, T.owner_id, T.description, T.hashtag FROM (
                                                 SELECT DISTINCT giveaway.id, giveaway.name, giveaway.owner_id, giveaway.description, giveaway.type, giveaway.hashtag, giveaway.last
@@ -74,9 +75,10 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             }
             $sth->bindParam(':chat_id', $this->chat_id);
             $sth->execute();
+
             while($row = $sth->fetch()) {
                 $message = $this->localization[$this->language]['JoinLabel_Msg'].' <b>'.$row['name'].'</b>'
-                    . $this->localization[$this->language]['NowLabel_Msg'];
+                          .$this->localization[$this->language]['NowLabel_Msg'];
 
                 $this->inline_keyboard->addLevelButtons([
                         'text' => $this->localization[$this->language]['Join_Button'],
@@ -850,7 +852,10 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                          }
                     } elseif (strpos($data, 'invite_') === 0) {
                         $data = explode('_', $data);
+
                         $this->generateReferralLink($data[1], $data[2], true);
+                    } elseif (strpos($data, 'start_and_join/') === 0) {
+                        echo "Ok, ci sono!\n";
                     } elseif (strpos($data, 'awards_') === 0) {
                         $data = explode('_', $data);
                         $this->currentPage = $data[2];

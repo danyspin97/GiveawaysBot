@@ -1265,7 +1265,7 @@ echo 'tete';
 
     // Use OpenSSL features in order to encrypt prizes' keys.
     private function encryptKey($key) {
-        return openssl_encrypt($key, 'AES-128-CBC', $this->token);
+        return openssl_encrypt($key, 'AES-128-ECB', $this->token);
     }
 
     private function updateStats() {

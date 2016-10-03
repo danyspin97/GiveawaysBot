@@ -1150,10 +1150,11 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
           $this->database->from("Giveaway")->where("id=$id")->select(["*"], function($row){
             $this->sanitizeGiveawayDetails($row);
+            $row['description'] == 'NULL' ? $row['description'] = '' : $row['description'] .= NEWLINE.NEWLINE;
 
             $partial .= "<b>" . $row['name'] ."</b>" . NEWLINE . "<i>"
                         . $this->printType($row['type']) . '</i> | ' . $row['hashtag']
-                        . NEWLINE.NEWLINE.$row['description'].NEWLINE.NEWLINE;
+                        . NEWLINE.NEWLINE . $row['description'];
 
             if ($row['owner_id'] == $this->message["from"]["id"])
             {
@@ -1308,10 +1309,12 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
         $this->database->from('giveaway')->where($condition)->select(["*"], function($row) {
           $this->sanitizeGiveawayDetails($row);
+          $row['description'] = $this->removeUsernameFormattation($row['description'], 'i');
+          $row['description'] == 'NULL' ? $row['description'] = '' : $row['description'] .= NEWLINE.NEWLINE;
 
           $response .=  '<b>'. $this->removeUsernameFormattation($row['name'], 'b') . '</b>' . NEWLINE
                        .'<i>' . $this->printType($row['type']) . '</i> | '. $row['hashtag'] . NEWLINE . NEWLINE;
-          $response .=  $this->removeUsernameFormattation($row['description'], 'i') . NEWLINE . NEWLINE;
+          $response .=   $row['description'];
 
           $this->already_joined = false;
           $this->owner_id = $row['owner_id'];
@@ -1405,7 +1408,6 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
     private function sanitizeGiveawayDetails(&$giveaway) {
         $localization = $this->localization[$this->language];
         $SANITIZERS = [
-            'description' => $localization['Undefined_Msg'],
             'hashtag' => $localization['UndefinedHashtag_Msg']
         ];
 

@@ -645,7 +645,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     if ($response[1] == 'cumulative') {
                         $this->inline_keyboard->addLevelButtons([
                             'text' => &$this->localization[$this->language]['ShareLink_Button'],
-                            'callback_data' => ''
+                            'callback_data' => 'invite_'.$giveaway_id.'_'.$giveaway['title']
                         ]);
                     }
 

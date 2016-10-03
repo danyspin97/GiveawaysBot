@@ -64,8 +64,10 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 $sth = $this->pdo->prepare('SELECT T.id, T.name, T.owner_id, T.description, T.hashtag FROM (
                                                 SELECT DISTINCT giveaway.id, giveaway.name, giveaway.owner_id, giveaway.description, giveaway.type, giveaway.hashtag, giveaway.last
                                                    FROM giveaway INNER JOIN joined
-                                                   ON giveaway.id = joined.giveaway_id AND giveaway.last > NOW() AND joined.chat_id = :chat_id AND giveaway.type = \'cumulative\' OR giveaway.owner_id = :chat_id
-                                            ) AS T WHERE T.name ~* :query OR T.hashtag ~* :query ORDER BY T.last LIMIT 50');
+                                                   ON giveaway.id = joined.giveaway_id AND giveaway.last > NOW() AND joined.chat_id = :chat_id AND giveaway.type = \'cumulative\' OR giveaway.owner_id = :chat_id ORDER BY giveaway.last
+                                            ) AS T WHERE T.name ~* :query OR T.hashtag ~* :query
+                                            UNION
+                                                SELECT id, name, owner_id, description, hashtag FROM giveaway WHERE name ~* :query or hashtag ~* :query LIMIT 50');
                 $sth->bindParam(':query', $text);
             } else {
                 // Show all giveaways that the user joined or created

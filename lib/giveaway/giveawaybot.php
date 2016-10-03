@@ -77,11 +77,11 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             while($row = $sth->fetch()) {
                 $message = $this->localization[$this->language]['JoinLabel_Msg'].' <b>'.$row['name'].'</b>'
                     . $this->localization[$this->language]['NowLabel_Msg'];
-                $link = 'telegram.me/giveaways_bot?start='.base64_encode($row['owner_id']).'_'
-                                                   .base64_encode($row['id']);
+
                 $this->inline_keyboard->addLevelButtons([
                         'text' => $this->localization[$this->language]['Join_Button'],
-                        'url' => $link
+                        'callback_data' => 'start_and_join/'. $row['owner_id'] . '_'
+                                                            . $row['id']
                 ]);
 
                 $description = $row['description'] === 'NULL' ? '' : $row['description'];
@@ -1197,7 +1197,7 @@ echo 'tete';
 
         // Show other giveaway if there are any
         if ($this->listLength == 1 && $this->userGiveawaySize % OBJECT_PER_LIST > 0) {
-          $limit += $this->userGiveawaySize % OBJECT_PER_LIST;
+          $this->userGiveawaySize += OBJECT_PER_LIST - ($this->userGiveawaySize % OBJECT_PER_LIST);
         }
 
         // Fill user's giveaways
@@ -1275,6 +1275,11 @@ echo 'tete';
         if ($response != false) {
             $this->userGiveaway = $response[0];
             $this->userGiveawaySize = $response[1];
+
+            if ($this->userGiveawaySize % OBJECT_PER_LIST > 0) {
+                $this->userGiveawaySize += 3 - $this->userGiveawaySize % OBJECT_PER_LIST;
+            }
+
             $this->listLength = ($this->userGiveawaySize - ($this->userGiveawaySize % OBJECT_PER_LIST)) / OBJECT_PER_LIST;
             $this->userGiveawayFull = true;
         } else {

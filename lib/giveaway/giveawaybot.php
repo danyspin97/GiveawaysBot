@@ -855,6 +855,11 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                                 $this->redis->set($this->chat_id . ':status', PRIZE_DETAIL);
                                 break;
                          }
+                    } elseif (strpos($data, 'see_') === 0) {
+                        $this->showGiveaway(explode('_', $data)[1], false, true);
+                    } elseif (strpos($data, 'invite_awards_') === 0) {
+                        $data = explode('_', $data);
+                        $this->showGiveawayPrizes($data[2], true);
                     } elseif (strpos($data, 'invite_') === 0) {
                         $data = explode('_', $data);
 
@@ -1138,18 +1143,24 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         return $this->inline_keyboard->getKeyboard();
     }
 
-    private function showGiveawayPrizes($giveaway_id) {
+    private function showGiveawayPrizes($giveaway_id, $after_invite = false) {
         $this->response = "";
         $this->database->from("prize")->where("giveaway=$giveaway_id")->select(['*'], function($row){
             $this->counter++;
             $this->response .= NEWLINE.'<b>'.$row['name'].'</b>'.NEWLINE.'<i>'.$this->localization[$this->language]['Value_Msg'].$row['value'].' '.$row['currency'].'</i>'.NEWLINE.NEWLINE;
         });
 
-        $this->inline_keyboard->getCompositeListKeyboard($this->currentPage,
-                                                         intval($this->listLength), "list");
+        if ($after_invite) {
+            $data = 'see_'.$this->giveaway_id;
+        } else {
+            $this->inline_keyboard->getCompositeListKeyboard($this->currentPage,
+                                                             intval($this->listLength), "list");
+            $data = 'list/'.$this->currentPage;
+        }
+
         $this->inline_keyboard->addLevelButtons([
             'text' => $this->localization[$this->language]['Back_Button'],
-            'callback_data' => 'list/'.$this->currentPage
+            'callback_data' => $data
         ]);
 
         $this->inline_keyboard->addLevelButtons([
@@ -1331,12 +1342,18 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
     // `/show` command or `/browse`.
     //
     // When $callback_query_origin is true, we expect it's a call from `/browse`.
-    private function showGiveaway($target, $callback_query_origin = false, $expanded = false) {
+    private function showGiveaway($target, $callback_query_origin = false,
+                                           $expanded = false) {
+
         $this->callback_query_origin = $callback_query_origin;
         $this->response = "";
+        $this->expanded = $expanded;
+
         $this->giveaway_id;
         $this->owner_id;
 
+        // This method accepts various kinds of information in order
+        // to search for the right giveaway so we need check it.
         if (is_numeric($target) == 1) {
             $condition = "id=$target";
         } elseif ($target[0] != '#') {
@@ -1346,75 +1363,104 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         }
 
         $this->database->from('giveaway')->where($condition)->select(["*"], function($row) {
-          $this->sanitizeGiveawayDetails($row);
-          $row['description'] = $this->removeUsernameFormattation($row['description'], 'i');
-          $row['description'] == 'NULL' ? $row['description'] = '' : $row['description'] .= NEWLINE.NEWLINE;
+            $this->sanitizeGiveawayDetails($row);
+            $row['description'] = $this->removeUsernameFormattation($row['description'], 'i');
 
-          $response .=  '<b>'. $this->removeUsernameFormattation($row['name'], 'b') . '</b>' . NEWLINE
-                       .'<i>' . $this->printType($row['type']) . '</i> | '. $row['hashtag'] . NEWLINE . NEWLINE;
-          $response .=   $row['description'];
+            $row['description'] == 'NULL' ? $row['description'] = '' : $row['description'] .= NEWLINE.NEWLINE;
 
-          $this->already_joined = false;
-          $this->owner_id = $row['owner_id'];
-          $this->giveaway_id = $row['id'];
+            // Generate the header for the given giveaway, something like:
+            // ```
+            // TestGiveaway
+            // ShareIt | #testgiveaway
+            //
+            // A wonderful giveaway created using Telegram.
+            // ```
+            $response .=  '<b>'. $this->removeUsernameFormattation($row['name'], 'b')
+                               . '</b>' . NEWLINE .'<i>' . $this->printType($row['type'])
+                               . '</i> | '. $row['hashtag'] . NEWLINE . NEWLINE;
+            $response .=   $row['description'];
 
-          if ($this->callback_query_origin == false) {
-              // Check if the user is already a participant
-              $this->database->from("joined")->where("chat_id='".$this->chat_id."' and giveaway_id=".$row['id'])
-                   ->select(["*"], function($row) { $this->already_joined = true; });
+            $this->already_joined = false;
+            $this->owner_id = $row['owner_id'];
+            $this->giveaway_id = $row['id'];
 
-              if ($this->already_joined == false) {
-                  if ($this->owner_id != $this->chat_id) {
-                      $this->inline_keyboard->addLevelButtons([
-                          'text' => $this->localization[$this->language]['Join_Button'],
-                          'callback_data' => 'join_'.$row['id']
-                      ], [
-                          'text' => $this->localization[$this->language]['Cancel_Button'],
-                          'callback_data' => 'hide_join_button'
-                      ]);
-                  } else {
-                      $response .= $this->localization[$this->language]['Owned_Msg'].'  |  ';
-                  }
-              } else {
-                  $response .= $this->localization[$this->language]['Joined_Msg'].'  |  '; }
-          } else {
-              if ($this->owner_id == $this->chat_id) {
-                  $response .= $this->localization[$this->language]['Owned_Msg'].'  |  ';
-              } else {
-                  $response .= $this->localization[$this->language]['Joined_Msg'].'  |  ';
-              }
+            if ($this->callback_query_origin == false) {
+                // Check if the user is already a participant
+                $this->database->from("joined")
+                               ->where("chat_id='$this->chat_id' and giveaway_id=".$row['id'])
+                               ->select(["*"], function($row) {
 
-          }
+                    $this->already_joined = true;
+                });
 
-          // Show giveaway's status
-          if (date("Y-m-d") > $row['last'])
-          {
-              $response .= $this->localization[$this->language]['Closed_Msg'].NEWLINE;
-              $this->inline_keyboard->getKeyboard();
-              $response = $this->localization[$this->language]['ClosedGiveaway_Msg'];
-          } else if (date("Y-m-d") == $row['last']) {
-              $response .= $this->localization[$this->language]['LastDay_Msg'].NEWLINE;
-          } else {
-              $left = (strtotime(date("Y-m-d")) - strtotime($row['last'])) / 3600 / 24;
-              $response .= $left.' '.$this->localization[$this->language]['Days_Msg'].NEWLINE;
-          }
+                if ($this->already_joined == false) {
+                    if ($this->owner_id != $this->chat_id) {
+                        $this->inline_keyboard->addLevelButtons([
+                            'text' => $this->localization[$this->language]['Join_Button'],
+                            'callback_data' => 'join_'.$row['id']
+                        ], [
+                            'text' => $this->localization[$this->language]['Cancel_Button'],
+                            'callback_data' => 'hide_join_button'
+                        ]);
+                    } else {
+                        $response .= $this->localization[$this->language]['Owned_Msg'].'  |  ';
+                    }
+                } else {
+                    $response .= $this->localization[$this->language]['Joined_Msg'].'  |  '; }
+            } else {
+                if ($this->owner_id == $this->chat_id) {
+                    $response .= $this->localization[$this->language]['Owned_Msg'].'  |  ';
+                } else {
+                    $response .= $this->localization[$this->language]['Joined_Msg'].'  |  ';
+                }
 
-          $this->response = $response;
+            }
+
+            // Show giveaway's status
+            if (date("Y-m-d") > $row['last'])
+            {
+                $this->inline_keyboard->getKeyboard();  
+                $response = $this->localization[$this->language]['ClosedGiveaway_Msg'];
+            } else if (date("Y-m-d") == $row['last']) {
+                $response .= $this->localization[$this->language]['LastDay_Msg'].NEWLINE;
+            } else {
+                $left = (strtotime(date("Y-m-d")) - strtotime($row['last'])) / 3600 / 24;
+                $response .= $left.' '.$this->localization[$this->language]['Days_Msg'].NEWLINE;
+            }
+
+            $this->response = $response;
         });
+
         if ($callback_query_origin == false) {
             if ($this->response == null) {
                 $this->inline_keyboard->addLevelButtons([
                     'text' => &$this->localization[$this->language]['Back_Button'],
                     'callback_data' => 'menu'
                 ]);
+
                 $this->sendMessageKeyboard($this->localization[$this->language]['NoGiveawayWarn_Msg'],
                                            $this->inline_keyboard->getKeyboard());
             } else {
+                if ($this->expanded == true) {
+                    $this->inline_keyboard->clearKeyboard();
+
+                    $this->inline_keyboard->addLevelButtons([
+                        'text' => $this->localization[$this->language]['BrowsePrize_Button'],
+                        'callback_data' => 'invite_awards_'.$this->giveaway_id
+                    ]);
+
+                    $this->inline_keyboard->addLevelButtons([
+                        'text' => $this->localization[$this->language]['Menu_Button'],
+                        'callback_data' => 'menu'
+                    ]);
+                }
+
                 $this->sendMessage($this->response, $this->inline_keyboard->getKeyboard());
             }
         } else {
             $this->inline_keyboard->getCompositeListKeyboard($this->currentPage,
                                                              intval($this->listLength), "list");
+
             $this->inline_keyboard->addLevelButtons([
                 'text' => $this->localization[$this->language]['Back_Button'],
                 'callback_data' => 'list/'.$this->currentPage
@@ -1427,8 +1473,13 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 'text' => $this->localization[$this->language]['Menu_Button'],
                 'callback_data' => 'menu'
             ]);
-            $this->editMessageTextKeyboard($this->response, $this->inline_keyboard->getKeyboard(), $this->update['callback_query']['message']['message_id']);
+
+            $this->editMessageTextKeyboard($this->response,
+                                           $this->inline_keyboard->getKeyboard(),
+                                           $this->update['callback_query']['message']['message_id']);
         }
+
+        return;
     }
 
     private function printType($type) {
@@ -1539,8 +1590,12 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         $link = "telegram.me/giveaways_bot?start=".base64_encode($this->chat_id)."_"
                                                   .base64_encode($giveaway);
 
-        $message = $this->localization[$this->language]['JoinLabel_Msg'] . '<b>'.$title.'</b>'.':'
-                  .NEWLINE.NEWLINE.$link;
+        // Generate a message such as the following:
+        //
+        // Join TestGiveaway:
+        // telegram.me/giveaways_bot?start=XNN31NKQKMNE==_AQ21n==
+        $message = $this->localization[$this->language]['JoinLabel_Msg']
+                   . '<b>' . $title . '</b>' . ':' . NEWLINE . NEWLINE . $link;
         
         if ($callback_query) {
             $message_id = $this->update['callback_query']['message']['message_id'];
@@ -1556,7 +1611,9 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
     private function getMostRecent() {
         $this->giveaway = null;
 
-        $this->database->execute('SELECT * FROM Giveaway ORDER BY id DESC LIMIT 1', function($row){
+        $this->database->execute("SELECT * FROM Giveaway ORDER BY id
+                                  DESC LIMIT 1", function($row) {
+
             $this->giveaway = $row;
         });
 
@@ -1611,19 +1668,25 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
     }
 
     private function startAction() {
-        if(!$this->database->exist("User", ["chat_id" => $this->chat_id])) {
-            $this->sendMessageKeyboard($this->localization['en']['Welcome_Msg'], $this->getStartLanguageKeyboard());
+        if(!$this->database->exist('User', ['chat_id' => $this->chat_id])) {
+            $this->sendMessageKeyboard($this->localization['en']['Welcome_Msg'],
+                                       $this->getStartLanguageKeyboard());
         } else {
             if ($this->redis->exists($this->chat_id . ':create')) {
                 $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes') + 1;
+
                 for ($i = 0; $i < $prizes_count; $i++) {
                     $this->redis->delete($this->chat_id . ':prize:' . $i);
                 }
                 $this->redis->delete($this->chat_id . ':create');
             }
-                $this->sendMessageKeyboard($this->localization[$this->language]['Menu_Msg'], $this->getStartKeyboard());
-                $this->redis->set($this->chat_id . ':status', MENU);
+            
+            $this->sendMessageKeyboard($this->localization[$this->language]['Menu_Msg'],
+                                       $this->getStartKeyboard());
+            $this->redis->set($this->chat_id . ':status', MENU);
         }
+
+        return;
     }
 
     private function getStartKeyboard() {
@@ -1635,6 +1698,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
             $this->inline_keyboard->addLevelButtons(['text' => $this->localization[$this->language]['Language_Button'] . '/Language', 'callback_data' => 'options']);
         }
         $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Help_Button'], 'callback_data' => 'help'], ['text' => &$this->localization[$this->language]['About_Button'], 'callback_data' => 'about']);
+
         return $this->inline_keyboard->getKeyboard();
     }
 

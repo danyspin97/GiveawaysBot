@@ -1466,48 +1466,67 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         $this->usersJoined = 0;
         $this->limit = 0;
 
-        $this->database->from("joined")->where('giveaway_id='.$giveaway_id)
-                                       ->select(["count(*)"], function($row) {
+        $this->database->from("joined")->where('giveaway_id=' . $giveaway_id)
+                                       ->select(['count(*)'], function($row) {
+
             $this->usersJoined = intval($row['count']);
         });
 
-        $this->database->from("giveaway")->where('id='.$giveaway_id)
-                                         ->select(["max_participants"], function($row) {
-            $this->limit = $row['max_participants'];
+        $this->database->from("giveaway")->where('id=' . $giveaway_id)
+                                         ->select(['max_participants'], function($row) {
+
+            $this->limit = intval($row['max_participants']);
         });
 
+        // There is a little percentage that `$this->inline_keyboard` can contain
+        // some gargabe so we preventively clear the inline keyboard.
         $this->inline_keyboard->clearKeyboard();
-        $this->inline_keyboard->addLevelButtons([
-            'text' => $this->localization[$this->language]['Show_Button'],
-            'callback_data' => 'show'
-        ]);
 
+        // Check if there are free space to join or the giveaway is full.
+        // Into the database, unlimited giveaways have a `max_participants`
+        // column equal to 0 so first we check for this condition.
         if ($this->limit > 0 && ($this->usersJoined == $this->limit)) {
-             $message = $this->localization[$this->language]['MaxParticipants_Msg'];
-             $this->sendMessage($this->localization[$this->language]['MaxParticipants_Msg'],
-                                $this->inline_keyboard->getKeyboard());
+            $message = $this->localization[$this->language]['MaxParticipants_Msg'];
+
+            $this->inline_keyboard->addLevelButtons([
+                'text' => $this->localization[$this->language]['Menu_Button'],
+                'callback_data' => 'menu'
+            ]);
+
+            $message = $this->localization[$this->language]['MaxParticipants_Msg'];
         } else {
-             $this->database->into('joined')->insert([
-                 'chat_id' => $chat_id,
-                 'giveaway_id' => $giveaway_id
-             ]);
+            $this->inline_keyboard->addLevelButtons([
+                'text' => $this->localization[$this->language]['Show_Button'],
+                'callback_data' => 'show'
+            ]);
 
-             $this->database->execute("UPDATE joined SET invites = invites + 1 WHERE chat_id = '$referral_id'"
-                                     ." AND giveaway_id = '$giveaway_id'");
-             $message = $this->localization[$this->language]['JoinedSuccess_Msg'];
+            $this->database->into('joined')->insert([
+                'chat_id' => $chat_id,
+                'giveaway_id' => $giveaway_id
+            ]);
 
-             if ($via_inline == false) {
-                 $this->sendMessage($this->localization[$this->language]['JoinedSuccess_Msg'],
-                                    $this->inline_keyboard->getKeyboard());
-             }
+            $this->database->execute("UPDATE joined SET invites = invites + 1
+                                      WHERE chat_id = $referral_id
+                                      AND giveaway_id = $giveaway_id");
 
-             $this->updateStats();
+            $message = $this->localization[$this->language]['JoinedSuccess_Msg'];
         }
 
-        if ($via_inline == true) {
+        // Provide a different response depending if the method respond to
+        // a join via inline query or raw URL.
+        if ($via_inline == false) {
+            $this->sendMessage($message, $this->inline_keyboard->getKeyboard());
+        } else {
             $this->answerCallbackQuery($message);
-            $this->showGiveaway($giveaway_id);
+
+            if ($message == $this->localization[$this->language]['JoinedSuccess_Msg'])
+            {
+                $this->showGiveaway($giveaway_id, false, true);
+            }
         }
+
+        $this->updateStats();
+        return;
     }
 
     private function skipTags($sentence) {

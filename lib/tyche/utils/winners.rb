@@ -49,7 +49,7 @@ module Tyche
         @participants[participant[0]][:won] +=
           Tyche::Core::Notification.new(participant,
                                         locale: @language.options,
-                                        secret_key: @options.options['token']).result
+                                        secret_key: @config.options['token']).result
       end
     end
   end

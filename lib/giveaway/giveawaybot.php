@@ -644,17 +644,17 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $this->redis->delete($this->chat_id . ':create');
                     $response = $this->showCreatedGiveaway($giveaway_id);
 
-                    if ($response[1] == 'cumulative') {
-                        $target = $giveaway['hashtag'] ?? $giveaway['title'];
+                    // Add share buttons
 
-                        $this->inline_keyboard->addLevelButtons([
-                            'text' => &$this->localization[$this->language]['ShareLink_Button'],
-                            'switch_inline_query' => $target
-                        ], [
-                            'text' => &$this->localization[$this->language]['ShowLink_Button'],
-                            'callback_data' => 'invite_'.$giveaway_id.'_'.$giveaway['title']
-                        ]);
-                    }
+                    $target = $giveaway['hashtag'] ?? $giveaway['title'];
+
+                    $this->inline_keyboard->addLevelButtons([
+                        'text' => &$this->localization[$this->language]['ShareLink_Button'],
+                        'switch_inline_query' => $target
+                    ], [
+                        'text' => &$this->localization[$this->language]['ShowLink_Button'],
+                        'callback_data' => 'invite_'.$giveaway_id.'_'.$giveaway['title']
+                    ]);
 
                     $this->inline_keyboard->addLevelButtons([
                         'text' => &$this->localization[$this->language]['Menu_Button'],

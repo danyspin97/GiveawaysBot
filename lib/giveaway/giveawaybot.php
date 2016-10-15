@@ -64,23 +64,26 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 $sth = $this->pdo->prepare('SELECT T.id, T.name, T.owner_id, T.description, T.hashtag FROM (
                                                 SELECT DISTINCT giveaway.id, giveaway.name, giveaway.owner_id, giveaway.description, giveaway.type, giveaway.hashtag, giveaway.last
                                                    FROM giveaway INNER JOIN joined
-                                                   ON giveaway.id = joined.giveaway_id AND giveaway.last > NOW() AND joined.chat_id = :chat_id AND giveaway.type = \'cumulative\' OR giveaway.owner_id = :chat_id ORDER BY giveaway.last
+                                                   ON giveaway.id = joined.giveaway_id AND giveaway.last > NOW() AND (joined.chat_id = :chat_id AND giveaway.type = \'cumulative\' OR giveaway.owner_id = :chat_id) ORDER BY giveaway.last
                                             ) AS T WHERE T.name ~* :query OR T.hashtag ~* :query
                                             UNION
-                                                SELECT id, name, owner_id, description, hashtag FROM giveaway WHERE name ~* :query or hashtag ~* :query LIMIT 50');
+                                                SELECT id, name, owner_id, description, hashtag FROM giveaway WHERE giveaway.last > NOW() AND (name ~* :query OR hashtag ~* :query) LIMIT 50');
                 $sth->bindParam(':query', $text);
             } else {
                 // Show all giveaways that the user joined or created
                 $sth = $this->pdo->prepare('SELECT DISTINCT giveaway.id, giveaway.name, giveaway.owner_id, giveaway.description, giveaway.type, giveaway.hashtag, giveaway.last
                                                FROM giveaway INNER JOIN joined
-                                               ON giveaway.id = joined.giveaway_id AND giveaway.last > NOW() AND joined.chat_id = :chat_id AND giveaway.type = \'cumulative\' OR giveaway.owner_id = :chat_id ORDER BY last LIMIT 50');
+                                               ON giveaway.id = joined.giveaway_id AND giveaway.last > NOW() AND (joined.chat_id = :chat_id AND giveaway.type = \'cumulative\' OR giveaway.owner_id = :chat_id) ORDER BY last LIMIT 50');
             }
             $sth->bindParam(':chat_id', $this->chat_id);
             $sth->execute();
 
             while($row = $sth->fetch()) {
-                $message = $this->localization[$this->language]['JoinLabel_Msg'].' <b>'.$row['name'].'</b>'
+                $name = $row['name'];
+                $message = $this->localization[$this->language]['JoinLabel_Msg'] . ' <b>'. $this->removeUsernameFormattation($name, 'b') . '</b>'
                           .$this->localization[$this->language]['NowLabel_Msg'];
+                $description = $row['description'] === 'NULL' ? '' : $row['description'];
+                $message .= NEWLINE . $description;
                 $this->inline_keyboard->addLevelButtons([
                         'text' => $this->localization[$this->language]['Join_Button'],
                         'callback_data' => 'start_and_join/'. $this->chat_id . '_'
@@ -88,7 +91,6 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                                                             . $row['owner_id']
                 ]);
 
-                $description = $row['description'] === 'NULL' ? '' : $row['description'];
                 $this->results->newArticleKeyboard($row['name'], $message, $description,
                                                $this->inline_keyboard->getNoJSONKeyboard());
                 unset($description);
@@ -124,6 +126,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 } else {
                     $data = explode('_', $parameter);
                     $ref_id = base64_decode($data[0]);
+                    iconv(mb_detect_encoding($ref_id, mb_detect_order(), true), "UTF-8", $ref_id);
                     $chat_id = $this->chat_id;
                     $giveaway_id = base64_decode($data[1]);
                     
@@ -1595,7 +1598,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         // Join TestGiveaway:
         // telegram.me/giveaways_bot?start=XNN31NKQKMNE==_AQ21n==
         $message = $this->localization[$this->language]['JoinLabel_Msg']
-                   . '<b>' . $title . '</b>' . ':' . NEWLINE . NEWLINE . $link;
+                   . '<b>' . $this->removeUsernameFormattation($title, 'b') . '</b>' . ':' . NEWLINE . NEWLINE . $link;
         
         if ($callback_query) {
             $message_id = $this->update['callback_query']['message']['message_id'];

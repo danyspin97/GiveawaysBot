@@ -648,8 +648,11 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $response = $this->showCreatedGiveaway($giveaway_id);
 
                     // Add share buttons
-
-                    $target = $giveaway['hashtag'] ?? $giveaway['title'];
+                    if ($giveaway['hashtag'] !== 'NULL') {
+                        $target = $giveaway['hashtag'];
+                    } else {
+                        $target = $giveaway['title'];
+                    }
 
                     $this->inline_keyboard->addLevelButtons([
                         'text' => &$this->localization[$this->language]['ShareLink_Button'],

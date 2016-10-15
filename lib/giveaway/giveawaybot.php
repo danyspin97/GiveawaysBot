@@ -1703,8 +1703,9 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
     }
 
     private function getStartLanguageKeyboard() {
-        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization['languages']['en'], 'callback_data' => 'cls_en']);
-        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization['languages']['it'], 'callback_data' => 'cls_it']);
+        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization['languages']['en'], 'callback_data' => 'cls/en']);
+        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization['languages']['it'], 'callback_data' => 'cls/it']);
+        $this->inline_keyboard->addLevelButtons(['text' => &$this->localization['languages']['fi'], 'callback_data' => 'cls/it']);
         return $this->inline_keyboard->getKeyboard(); 
     }
 

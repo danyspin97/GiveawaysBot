@@ -47,7 +47,7 @@ CREATE TABLE Prize (
 CREATE TABLE Joined (
     chat_id int,
     giveaway_id int,
-    invites smallint DEFAULT 0,
+    invites int DEFAULT 0,
 
     PRIMARY KEY (chat_id, giveaway_id),
     FOREIGN KEY (chat_id) REFERENCES "User" (chat_id),

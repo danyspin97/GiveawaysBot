@@ -234,6 +234,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $this->sendMessageKeyboard($this->localization[$this->language]['GiveawayNotExists_Msg'], $this->inline_keyboard->getKeyboard());
                     }
                 }
+            // Received create command
             } elseif (strpos($text, '/create') === 0) {
                 if ($this->redis->exists($this->chat_id . ':create')) {
                     $prizes_count = $this->redis->hGet($this->chat_id . ':create', 'prizes') + 1;
@@ -253,23 +254,29 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 $this->sendMessageKeyboard($this->localization[$this->language]['Register_Msg'],
                                            $this->inline_keyboard->getKeyboard());
                 $this->redis->set($this->chat_id . ':status', SELECTING_TYPE);
+            // Received browse command
             } elseif (preg_match('/^\/browse$/', $text, $matches)) {
                 $this->message = '';
                 $this->sendMessageKeyboard($this->getGiveawayList(1), $this->inline_keyboard->getKeyboard());;
                 unset($this->message);
                 unset($this->giveaway_list);
+            // Received join command followed by an hashtag
             } elseif (preg_match('/^\/join \#(.*)$/', $text, $matches)) {
                 $this->sendMessageKeyboard($this->showGiveaway('#' . $matches[1]), $this->inline_keyboard->getKeyboard());
+            // Received join command without arguments
             } elseif (preg_match('/^\/join$/', $text, $matches)) {
                 $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'menu']);
                 $this->sendMessage($this->localization[$this->language]['MissingHashtagWarn_Msg'].NEWLINE.'<code>/join #giveaway</code>');
+            // Received help command
             } elseif (strpos($text, '/help') !== false) {
                 $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'menu']);
                 $this->sendMessage($this->localization[$this->language]['Help_Msg']);
+            // Received about command
             } elseif (strpos($text, '/about') !== false) {
                 $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Updates_Button'], 'url' => 'https://telegram.me/wisedragonstd'], ['text' => '😈 HadesWrapper', 'url' => 'https://gitlab.com/WiseDragonStd/HadesWrapper']);
                 $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'menu']);
                 $this->sendMessageKeyboard($this->localization[$this->language]['About_Msg'], $this->inline_keyboard->getKeyboard());
+            // The user sent data in a message, processing it depends on bot status for the current user
             } else {
                 switch($this->getStatus()) {
                     case ENTERING_TITLE:
@@ -484,6 +491,8 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     case JOINING:
                         if (preg_match('/\#(.*)$/', $text, $matches)) {
                             $this->sendMessageKeyboard($this->showGiveaway('#'.$matches[1]), $this->inline_keyboard->getKeyboard());;
+                            $this->redis->set($this->chat_id . ':status', SHOW_GIVEAWAY_DETAILS);
+                        // No hashtag given
                         } else {
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Back_Button'], 'callback_data' => 'menu']);
                             $this->sendMessageKeyboard($this->localization[$this->language]['MissingHashtagWarn_Msg'], $this->inline_keyboard->getKeyboard());
@@ -747,8 +756,6 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $this->editMessageTextKeyboard($response[0], $this->inline_keyboard->getKeyboard(),
                                                    $message_id);
 
-                    // Update giveaways' list readable using `/browse`
-                    $this->updateStats();
                     break;
                 case 'delete_hashtag':
                     $this->redis->hSet($this->chat_id . ':create', 'hashtag', 'NULL');

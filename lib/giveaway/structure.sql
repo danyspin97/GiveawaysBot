@@ -1,4 +1,4 @@
-CREATE TYPE language AS ENUM('en', 'it', 'fr', 'de', 'ru', 'fa', 'hi', 'pt', 'fi');
+CREATE TYPE language AS ENUM('en', 'it', 'fr', 'de', 'ru', 'fa', 'hi', 'pt', 'fi', 'br');
 CREATE TYPE giveaway_type AS ENUM('standard', 'cumulative');
 
 CREATE TABLE "User" (

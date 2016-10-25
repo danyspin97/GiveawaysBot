@@ -36,11 +36,11 @@ CREATE TABLE Prize (
     key TEXT,
     value float,
     currency VARCHAR(1) DEFAULT '€',
-    giveaway int,
+    giveaway_id int,
     type int,
 
     PRIMARY KEY (id),
-    FOREIGN KEY (giveaway) REFERENCES Giveaway (id),
+    FOREIGN KEY (giveaway_id) REFERENCES Giveaway (id),
     FOREIGN KEY (type) REFERENCES Type (id)
 );
 

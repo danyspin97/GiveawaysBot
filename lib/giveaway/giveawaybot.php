@@ -103,7 +103,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                 // Create the join button
                 $this->inline_keyboard->addLevelButtons([
                         'text' => $this->localization[$this->language]['Join_Button'],
-                        'callback_data' => 'start_and_join/'. $this->chat_id . '_'
+                        'callback_data' => 'inlinejoin_'. $this->chat_id . '_'
                                                             . $row['id'] . '_'
                                                             . $row['owner_id']
                 ]);
@@ -224,7 +224,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                                         $this->inline_keyboard->clearKeyboard();
                                         // Call addByReferral to handle the adding to the user and send the user the result
                                         $this->sendMessageKeyboard($this->showGiveaway($giveaway_id), $this->inline_keyboard->getKeyboard());
-                                        $this->redid->set($this->chat_id . ':status', SHOW_GIVEAWAY_DETAILS);
+                                        $this->redis->set($this->chat_id . ':status', SHOW_GIVEAWAY_DETAILS);
                                     // There was an error with the joining
                                     } else {
                                         // Remove the Menu button we created before if/else
@@ -539,6 +539,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     break;
                 case 'null':
                     $this->answerCallbackQuery();
+                    break;
                 case 'show':
                     if ($this->getGiveawayList(1, $message) === true) {
                         $this->editMessageTextKeyboard($message, $this->inline_keyboard->getKeyboard(), $message_id);
@@ -943,27 +944,51 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                                 break;
                          }
                     // Get giveaway invite link
-                    } elseif (strpos($data, 'invite_') === 0) {
-                        $data = explode('_', $data);
-                        $this->generateReferralLink($data[1], $data[2], true);
+                    } elseif (strpos($info[0], 'invite') === 0) {
+                        $this->sendMessageRef($this->generateReferralLink($info[1]));
                     // Join from an inline_message
-                    } elseif (strpos($data, 'start_and_join/') === 0) {
-                        $data = explode('_', explode('/', $data)[1]);
-                        $ref_id = intval($data[0]);
-                        $giveaway_id = $data[1];
-                        $owner_id = intval($data[2]);
+                    } elseif (strpos($data, 'inlinejoin_') === 0) {
+                        // Id of the user that shared the giveaway
+                        $ref_id = intval($info[1]);
+                        $giveaway_id = $info[2];
+                        // Id of the user that created the giveaway
+                        $owner_id = intval($info[3]);
 
-                        if ($this->joinGiveaway($giveaway_id, $answer_callback) === true) {
-                        // If the user that shared the giveaway isn't the same that created it
-                            if ($giveaway['owner_id'] !== $referral_id) {
-                                // Increment the referral value of the user that shared the giveaway
-                                $this->database->execute("UPDATE joined SET invites = invites + 1
+                        try {
+                            // Add the user if he isn't in the db yet
+                            if(!$this->database->exist("User", ["chat_id" => $this->chat_id])) {
+                                $this->database->into('"User"')->insert([
+                                        "chat_id" => $this->chat_id,
+                                        "language" => 'en'
+                                ]);
+                            }
+                        } catch (PDOException $e) {
+                            echo $e->getMessage();
+                        }
+
+                        $sth = $this->pdo->prepare('SELECT COUNT(chat_id) FROM joined WHERE chat_id = :chat_id AND giveaway_id = :giveaway_id');
+                        $sth->bindParam(':chat_id', $this->chat_id);
+                        $sth->bindParam(':giveaway_id', $giveaway_id);
+                        try {
+                            $sth->execute();
+                        } catch (PDOException $e) {
+                            echo $e->getMessage();
+                        }
+                        $count = $sth->fetch()['count'];
+
+                        if ($count == 0) {
+                            if ($this->joinGiveaway($giveaway_id, $answer_callback) === true) {
+                            // If the user that shared the giveaway isn't the same that created it
+                                if ($giveaway['owner_id'] !== $referral_id) {
+                                    // Increment the referral value of the user that shared the giveaway
+                                    $this->database->execute("UPDATE joined SET invites = invites + 1
                                                             WHERE chat_id = $referral_id
                                                             AND giveaway_id = $giveaway_id");
 
+                                }
                             }
-
-                            $this->sendMessageKeyboard($this->showGiveaway($giveaway_id), $this->inline_keyboard->getKeyboard());
+                        } else {
+                            $this->answerCallbackQuery($this->localization[$this->language]['NoRoom_AnswerCallback']);
                         }
                         $this->answerCallbackQueryRef($answer_callback);
                     // Browsing giveaway's prizes
@@ -1158,23 +1183,30 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
         $giveaway = $sth->fetch();
         $sth = null;
 
-        // Get how many users joined the giveaway
-        $sth = $this->pdo->prepare('SELECT COUNT(*) FROM joined WHERE giveaway_id = :giveaway_id');
-        $sth->bindParam(':giveaway_id', $giveaway_id);
-        try {
-            $sth->execute();
-        } catch (PDOException $e) {
-            echo $e->getMessage();
-        }
-        $user_joined = $sth->fetch();
-        $sth = null;
+        if ($giveaway['max_participants'] !== 0) {
+            // Get how many users joined the giveaway
+            $sth = $this->pdo->prepare('SELECT COUNT(*) FROM joined WHERE giveaway_id = :giveaway_id');
+            $sth->bindParam(':giveaway_id', $giveaway_id);
+            try {
+                $sth->execute();
+            } catch (PDOException $e) {
+                echo $e->getMessage();
+            }
+            $user_joined = $sth->fetch();
+            $sth = null;
+            // If the query was successful and there is room for this user
+            $can_join = $user_joined !== false && ($giveaway['max_participants'] - $user_joined) > 0;
+         } else {
+            // There is no limit for participants
+            $can_join = true;
+         }
 
         // Check if the giveaway has ended
         if ($giveaway['last'] > date('Y-m-d')) {
             // If the user that wants to join hasn't created it
             if ($giveaway['owner_id'] != $this->chat_id) {
                 // If there is enough room for the user
-                if ($result !== false && ($giveaway['max_participants'] - $result) > 0) {
+                if ($can_join) {
                     // Add the user to the table "joined"
                     try {
                         $sth = $this->pdo->prepare('INSERT INTO joined (giveaway_id, chat_id) VALUES (:giveaway_id, :chat_id)');
@@ -1302,15 +1334,15 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     $cont++;
                 }
             }
-            $buttons_number = count($giveaways_button);
+            $buttons_number = count($giveaway_buttons);
             switch ($buttons_number) {
-                case 0:
+                case 1:
                     $this->inline_keyboard->addLevelButtons($giveaway_buttons[0]);
                     break;
-                case 1:
+                case 2:
                     $this->inline_keyboard->addLevelButtons($giveaway_buttons[0], $giveaway_buttons[1]);
                     break;
-                case 2:
+                case 3:
                     $this->inline_keyboard->addLevelButtons($giveaway_buttons[0], $giveaway_buttons[1], $giveaway_buttons[2]);
                     break;
             }
@@ -1510,25 +1542,27 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
     }
 
     // Generate the referral link for the given giveaway (ID)
-    private function generateReferralLink($giveaway, $title, $callback_query) {
+    private function generateReferralLink($giveaway_id) {
         $link = "telegram.me/giveaways_bot?start=".base64_encode($this->chat_id)."_"
-                                                  .base64_encode($giveaway);
+                                                  .base64_encode($giveaway_id);
+
+        $sth = $this->pdo->prepare('SELECT name FROM giveaway WHERE id = :giveaway_id');
+        $sth->bindParam(':giveaway_id', $giveaway_id);
+        try {
+            $sth->execute();
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+        $giveaway = $sth->fetch();
+        $sth = null;
 
         // Generate a message such as the following:
         //
         // Join TestGiveaway:
         // telegram.me/giveaways_bot?start=XNN31NKQKMNE==_AQ21n==
         $message = $this->localization[$this->language]['JoinLabel_Msg']
-                   . '<b>' . $this->removeUsernameFormattation($title, 'b') . '</b>' . ':' . NEWLINE . NEWLINE . $link;
-
-        if ($callback_query) {
-            $message_id = $this->update['callback_query']['message']['message_id'];
-
-            $this->editMessageReplyMarkup($message_id, $this->inline_keyboard->getKeyboard());
-            $this->editMessageText($message, $message_id);
-        } else {
-            $this->sendMessage($message);
-        }
+                   . '<b>' . $this->removeUsernameFormattation($giveaway['name'], 'b') . '</b>' . ':' . NEWLINE . $link;
+        return $message;
     }
 
     private function getStartKeyboard() {

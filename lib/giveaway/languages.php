@@ -198,11 +198,8 @@ It cannot be undone and all data inserted will be lost.',
     'JoinInsertNewHashtag_Msg' => 'Please insert a new hashtag.',
     'NoGiveawayToShow_AnswerCallback' => 'No giveaway to browse',
     'NoRoom_AnswerCallback' => 'This giveaways has reached the max',
-<<<<<<< HEAD
     'AlreadyJoined_AnswerCallback' => 'You already joined this giveaway',
     'StartBot_AnswerCallback' => 'Start the bot first',
-=======
->>>>>>> ba84961ae7ba1ac09ca68a2426f4cdc223af0be7
     'it' => 'Italian',
     'es' => 'Spanish',
     'fr' => 'French',

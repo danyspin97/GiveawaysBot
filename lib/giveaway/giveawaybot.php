@@ -893,7 +893,6 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         // Id of the user that created the giveaway
                         $owner_id = intval($info[3]);
 
-<<<<<<< HEAD
                         $this->joinGiveaway($giveaway_id, $answer_callback, false, $ref_id);
                         $this->answerCallbackQueryRef($answer_callback);
 

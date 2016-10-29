@@ -19,8 +19,14 @@ error_reporting(E_ALL & ~E_NOTICE);
 $bot = new GiveawayBot($token);
 $bot->setLocalization($localization);
 $bot->setDatabase(new \WiseDragonStd\HadesWrapper\Database($driver, $dbname, $user, $password, $bot));
-$bot->connectToRedis();
-$bot->redis->setOption(Redis::OPT_PREFIX, 'Giveaway:');
+try {
+    $redis = new \Redis();
+    $redis->connect('127.0.0.1', 6385);
+} catch (RedisException $e) {
+   echo $e->getMessage();
+}
+$bot->redis = $redis;
+//$bot->redis->setOption(Redis::OPT_PREFIX, 'Giveaway:');
 $bot->inline_keyboard = new \WiseDragonStd\HadesWrapper\InlineKeyboard($bot);
 $bot->getUpdatesLocal();
 $bot = null;

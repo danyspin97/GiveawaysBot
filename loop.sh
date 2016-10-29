@@ -1,12 +1,12 @@
-#!/usr/bin/env fish
+#!/usr/bin/bash
 
 redis-cli set Giveaway:error 0
-while true
+while true; do 
   php adjustOffset.php
-  set error (redis-cli get Giveaway:error)
-  if math "$error==1" > /dev/null
+  ERROR=$(redis-cli get Giveaway:error)
+  while [ $ERROR -eq 1 ]; do
     redis-cli incr Giveaway:offset
     php adjustOffset.php
-  end
+  done
   php getUpdates.php
-end
+done

@@ -484,7 +484,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                     if ($this->getGiveawayList(1, $message) === true) {
                         $this->editMessageTextKeyboard($message, $this->inline_keyboard->getKeyboard(), $message_id);
                     } else {
-                        $this->answerCallbackQuery($this->localization[$this->language]['NoGiveawayToShow_AnswerCallbackQuery']);
+                        $this->answerCallbackQuery($this->localization[$this->language]['NoGiveawayToShow_AnswerCallback']);
                     }
                     break;
                 case 'join':

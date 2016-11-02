@@ -917,7 +917,7 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
                         $giveaway_id = explode('_', $data)[1];
 
                         if ($this->joinGiveaway($giveaway_id, $answer_callback, false) === true) {
-                            $this->editMessageKeyboard($this->showGiveaway($giveaway_id), $this->inline_keyboard->getKeyboard(), $message_id);
+                            $this->editMessageTextKeyboard($this->showGiveaway($giveaway_id), $this->inline_keyboard->getKeyboard(), $message_id);
                         } else {
                             $this->inline_keyboard->addLevelButtons(['text' => &$this->localization[$this->language]['Menu_Button'], 'callback_data' => 'menu']);
                             $this->editMessageReplyMarkup($message_id, $this->inline_keyboard->getKeyboard());
@@ -1452,22 +1452,26 @@ class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
 
         if ($giveaway !== false) {
             // Check if the user has joined already the giveaway
-            $sth = $this->pdo->prepare('SELECT COUNT(*) FROM joined WHERE chat_id = :chat_id AND giveaway_id = :giveaway_id');
+            $sth = $this->pdo->prepare('SELECT COUNT(chat_id) FROM joined WHERE chat_id = :chat_id AND giveaway_id = :giveaway_id');
             $sth->bindParam(':chat_id', $this->chat_id);
-            $sth->bindParam(':giveaway_id', $this->chat_id);
-            $sth->execute();
+            $sth->bindParam(':giveaway_id', $giveaway['id']);
+            try {
+                $sth->execute();
+            } catch (PDOException $e) {
+                echo $e->getMessage();
+            }
             $result = $sth->fetch();
             $sth = null;
 
             $message = '';
 
             // The user hasn't joined it and he isn't the creator
-            if ($result == false && $giveaway['owner_id'] !== $this->chat_id) {
+            if ($result !== false && $result['count'] === 0 && $giveaway['owner_id'] !== $this->chat_id) {
                 // Get a string with all the info of the giveaway
                 $this->getGiveawayBrief($giveaway, $message, false);
 
                 //Show the first 3 giveaway prizes
-                $sth = $this->pod->prepare('SELECT name FROM prize WHERE giveaway = :giveaway_id LIMIT 4');
+                $sth = $this->pdo->prepare('SELECT name FROM prize WHERE giveaway_id = :giveaway_id LIMIT 4');
                 $sth->bindParam(':giveaway_id', $giveaway['id']);
                 $sth->execute();
 

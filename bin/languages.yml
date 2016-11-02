@@ -6,3 +6,15 @@ en:
   won_message: "Congratulations, you're one of the winners of %s!\nYou got *%s* for a value of _%s%s_.\nSo, here's your prize:\n\n```%s```"
 
   lose_message: "Here it's a list of giveaway which ended today and you didn't win:\n\n"
+fi:
+  won_message: "Congratulations, you're one of the winners of %s!\nYou got *%s* for a value of _%s%s_.\nSo, here's your prize:\n\n```%s```"
+
+  lose_message: "Here it's a list of giveaway which ended today and you didn't win:\n\n"
+br:
+  won_message: "Congratulations, you're one of the winners of %s!\nYou got *%s* for a value of _%s%s_.\nSo, here's your prize:\n\n```%s```"
+
+  lose_message: "Here it's a list of giveaway which ended today and you didn't win:\n\n"
+ru:
+  won_message: "Congratulations, you're one of the winners of %s!\nYou got *%s* for a value of _%s%s_.\nSo, here's your prize:\n\n```%s```"
+
+  lose_message: "Here it's a list of giveaway which ended today and you didn't win:\n\n"

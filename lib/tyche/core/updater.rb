@@ -1,64 +1,59 @@
 module Tyche
   module Core
     class Updater
-      attr_reader :result
+      attr_reader :giveaways
 
-      def initialize
-        @result = []
-        @current_id = nil
-        @prizes_amount = nil
+      def initialize(database)
+        @db = database
+        @today_date = Time.now.strftime('%Y-%m-%d')
+        @giveaways = {}
+
+        @logger = Logger.new($stdout)
       end
 
-      def load
-        today_date = Time.now.strftime('%Y-%m-%d')
+      def fetch
+        @logger.info "** Retrieving giveaways which ends today.."
+        query = "SELECT id, name, type FROM Giveaway WHERE last = '#{@today_date}'"
+        execute(query) { |giveaway| add_giveaway(giveaway) }
 
-        Tyche::Entities::Giveaway.where(last: today_date).all.each do |giveaway|
-          @result << { details: giveaway }
-          @current_id = giveaway[:id]
+        @logger.info "** Deleting giveaways which not have participants.."
+        clear_giveaways
 
-          retrieve_giveaway_details
-        end
+        @giveaways
       end
 
       private
 
-      def retrieve_giveaway_details
-        prizes = Tyche::Entities::Prize.where(giveaway: @current_id)
-        @prizes_amount = prizes.size
-
-        participants = retrieve_giveaway_participants
-        return @result.pop if participants.empty?
-
-        @result[-1][:participants] = participants
-        @result[-1][:prizes] = prizes
-      end
-
-      def retrieve_giveaway_participants
-        participants = retrieve_participants_by_type
-        found = []
-
-        participants.each do |participant|
-          found << Tyche::Entities::User.where(chat_id: participant[:chat_id]).first
-        end
-
-        found
-      end
-
-      def retrieve_participants_by_type
-        case @result[-1][:details][:type]
-        when'cumulative'
-          retrieve_participants_by_points
-        else
-          retrieve_all_participants
+      def execute(query, &block)
+        @db.exec(query) do |result|
+          result.each { |record| yield record }
         end
       end
 
-      def retrieve_participants_by_points
-        Tyche::Entities::Participant.order(invites: :desc)
+      # In order to simplify things, we retrieve just the essential
+      # data about the giveaway and its participants, nor its prize.
+      def add_giveaway(giveaway)
+        id = giveaway['id']
+        @giveaways[id] = giveaway
+
+        @giveaways[id]['participants'] = []
+        add_giveaway_participants(id)
       end
 
-      def retrieve_all_participants
-        Tyche::Entities::Participant.where(giveaway_id: @current_id)
+      def add_giveaway_participants(giveaway_id)
+        query = "SELECT chat_id FROM Joined WHERE giveaway_id = #{giveaway_id}"
+        
+        execute(query) do |participant|
+          @giveaways[giveaway_id]['participants'] << participant['chat_id']
+        end
+      end
+
+      # In order to save time, we remove giveaways which not have
+      # participants before pass the hash to other classes.
+      def clear_giveaways
+        @giveaways.select! do |giveaway|
+          @giveaways[giveaway]['participants'].size > 0
+        end
       end
     end
   end

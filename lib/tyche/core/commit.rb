@@ -1,84 +1,103 @@
 module Tyche
   module Core
-    class Commit
-      attr_reader :participants
+    ##
+    # Calculate winners for the given giveaway and register it
+    # into the database.
+    class Committer
+      attr_reader :winners, :losers
 
-      def initialize(giveaway)
+      def initialize(giveaway, database)
         @giveaway = giveaway
-        @participants = {}
-        @current_winners = []
+        @db = database
+        @prizes = []
+
+        @winners = {}
+        @logger = Logger.new($stdout)
       end
 
-      def run
-        initialize_participants
+      def commit
+        @logger.info "** Getting prizes for #{@giveaway['name']}"
+        retrieve_prizes
+
+        @logger.info "** Assigning prizes for #{@giveaway['name']}"
         assign_prizes
-        mark_losers
+
+        @logger.info "** Done! Assigned #{@winners.size} prizes\n"
+      end
+
+      def losers
+        @giveaway['participants']
       end
 
       private
 
-      def initialize_participants
-        @giveaway[:participants].each do |participant|
-          @participants[participant[:chat_id]] = { lang: participant[:language],
-                                                   won:   [],
-                                                   losed: [] }
+      def retrieve_prizes
+        query = %Q{
+          SELECT id, name, key, value, currency FROM prize
+          WHERE giveaway_id = #{@giveaway['id']}
+        }.strip
+
+        @db.exec(query) do |result|
+          result.each { |prize| @prizes << prize }
         end
       end
 
+      # This method acts as dispatch looking for giveaway's type
+      # and calling the right sub-method.
       def assign_prizes
-        case @giveaway[:details][:type]
+        case @giveaway['type']
         when 'cumulative'
-          assign_for_points
-        else
+          assign_prizes_per_points
+        when 'standard'
           assign_prizes_randomly
         end
       end
 
-      def mark_losers
-        @participants.each_key do |participant|
-          next if @current_winners.include?(participant)
-          @participants[participant][:losed] << @giveaway[:details][:name]
-        end
-
-        @current_winners = []
-      end
-
-      def assign_for_points
-        @giveaway[:prizes].each_with_index do |prize, index|
-          participant = @participants.keys[index]
-          winner = @participants[participant]
-          break unless winner
-
-          @current_winners << participant
-          register_prize(prize)
-        end
-      end
-
-      ##
-      # In this case we use the participants' hash by @giveaway
-      # in order to delete the winner and avoid that the winner is
-      # choosen another time.
+      # Assign prizes in randomly mode for standard giveaways.
       def assign_prizes_randomly
-        @giveaway[:prizes].each do |prize|
-          break if @giveaway[:participants].empty?
+        @participants_amount = @giveaway['participants'].size
 
-          winner = rand(@giveaway[:participants].size)
-          @current_winners << @giveaway[:participants][winner][:chat_id]
-          register_prize(prize)
+        @prizes.each do |prize|
+          # A control that stop the prizes assignment if the prizes
+          # are more than the participants.
+          break if @giveaway['participants'].empty?
+          winner_index = rand(@participants_amount)
 
-          @giveaway[:participants].delete_if do |hash|
-            hash[:chat_id] == @current_winners.last
+          winner = @giveaway['participants'][winner_index]
+          @winners[winner] = prize
+          register_winner(winner, prize['id'])
+
+          @giveaway['participants'].delete_at(winner_index)
+          @participants_amount -= 1
+        end
+      end
+
+      # Assign prizes looking at participants' points.
+      def assign_prizes_per_points
+        query = %Q{
+          SELECT chat_id FROM Joined
+          WHERE  giveaway_id = #{@giveaway['id']} ORDER BY invites DESC
+          LIMIT #{@prizes.size}
+        }.strip
+
+        @db.exec(query) do |result|
+          result.each_with_index do |participant, index|
+            break unless @prizes[index]
+            @winners[participant['chat_id']] = @prizes[index]
+
+            register_winner(participant['chat_id'], @prizes[index]['id'])
+            @giveaway['participants'].delete(participant['chat_id'])
           end
         end
       end
 
-      def register_prize(prize)
-        winner_id = @current_winners.last
+      # Add winner to the winners' table.
+      def register_winner(winner_id, prize_id)
+        query = %Q{
+          INSERT INTO Won VALUES(#{winner_id}, #{@giveaway['id']}, #{prize_id})
+        }.strip
 
-        @participants[winner_id][:won] << [@giveaway[:details][:name], prize]
-
-        Tyche::Entities::Winner.create(chat_id: winner_id, id_prize: prize[:id],
-                                       giveaway_id: @giveaway[:details][:id])
+        @db.exec(query)
       end
     end
   end

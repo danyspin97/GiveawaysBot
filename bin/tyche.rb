@@ -2,13 +2,13 @@ require_relative '../lib/tyche'
 include Tyche::Entities
 include Tyche::Core
 
-@db = PG.connect(dbname: 'giveawaybot_16',
-                 host: 'localhost',
-                 password: 'pr4kas&U',
-                 user: 'dom')
-
 @language = Tyche::Core::Configuration.new('languages.yml').load
 @config = Tyche::Core::Configuration.new('secrets.yml').load
+
+@db = PG.connect(dbname: @config['dbname'],
+                 host: @config['host'],
+                 password: @config['password'],
+                 user: @config['user'])
 
 @endpoint = "https://api.telegram.org/bot#{@config['token']}/sendMessage"
 @participants = {}

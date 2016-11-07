@@ -6,9 +6,9 @@ include Tyche::Core
 @config = Tyche::Core::Configuration.new('secrets.yml').load
 
 @db = PG.connect(dbname: @config['dbname'],
-                 host: @config['host'],
-                 password: @config['password'],
-                 user: @config['user'])
+                 host: @config['dbhost'],
+                 password: @config['dbpasswd'],
+                 user: @config['dbuser'])
 
 @endpoint = "https://api.telegram.org/bot#{@config['token']}/sendMessage"
 @participants = {}

@@ -32,8 +32,9 @@ module Tyche
         end
 
         messages.each do |message|
-          #Curl.post(@options[:endpoint], chat_id: @participant[0], parse_mode: 'Markdown',
-          #                                               text: message)
+          Curl.post(@options[:endpoint], chat_id: @participant[0],
+                                         parse_mode: 'Markdown',
+                                         text: message)
         end
       end
 
@@ -52,9 +53,9 @@ module Tyche
         end
 
         messages.each do |message|
-          puts "\033[32m#{message}\033[0m"
-          #Curl.post(@options[:endpoint], chat_id: @participant[0], parse_mode: 'Markdown',
-          #                                               text: message)
+          Curl.post(@options[:endpoint], chat_id: @participant[0],
+                                         parse_mode: 'Markdown',
+                                         text: message)
         end
       end
 

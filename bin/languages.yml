@@ -1,9 +1,9 @@
 it:
-  won_message: "Congratulazioni, sei uno dei vincitori di %s!\nCome premio hai ricevuto *%s* per un valore di _%s%s_.\nBeh, ecco a te il tuo premio:\n\n```%s```"
+  won_message: "Congratulazioni, sei uno dei vincitori di %s!\nCome premio hai ricevuto *%s* per un valore di _%s%s_.\nBeh, ecco a te il tuo premio:"
 
   lose_message: "Ecco a te una lista di giveaway conclusisi oggi dove non sei tra i vincitori:\n\n"
 en:
-  won_message: "Congratulations, you're one of the winners of %s!\nYou got *%s* for a value of _%s%s_.\nSo, here's your prize:\n\n```%s```"
+  won_message: "Congratulations, you're one of the winners of %s!\nYou got *%s* for a value of _%s%s_.\nSo, here's your prize:"
 
   lose_message: "Here it's a list of giveaway which ended today and you didn't win:\n\n"
 fi:

@@ -30,7 +30,7 @@ module Tyche
 
       def generate_won_message
         giveaway = @current_giveaway
-        lang = @participant[1][:lang]
+        lang = @participant[1].key?(":lang") ? @participant[1][:lang] : "en"
 
         format(@locale[lang]['won_message'], giveaway[0], giveaway[1][:name],
                                              giveaway[1][:value],

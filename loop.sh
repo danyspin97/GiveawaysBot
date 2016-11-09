@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 redis-cli set Giveaway:error 0
 while true; do 

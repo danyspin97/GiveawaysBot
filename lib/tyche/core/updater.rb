@@ -23,7 +23,7 @@ module Tyche
       private
 
       def retrieve_giveaway_details
-        prizes = Tyche::Entities::Prize.where(giveaway: @current_id)
+        prizes = Tyche::Entities::Prize.where(giveaway_id: @current_id)
         @prizes_amount = prizes.size
 
         participants = retrieve_giveaway_participants

@@ -12,7 +12,9 @@ module Tyche
         @prizes = []
 
         @winners = {}
-        @logger = Logger.new($stdout)
+
+        filename = "TYCHE_#{Time.now.strftime('%Y-%m-%d')}.log"
+        @logger = @logger = Logger.new("/var/log/#{filename}")
       end
 
       def commit

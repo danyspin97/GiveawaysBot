@@ -25,4 +25,4 @@ before_script:
 before_install: phpenv config-add phpconfig.ini
 
 script:
-  - phpunit --configuration phpunit.xm
+  - phpunit --configuration phpunit.xml

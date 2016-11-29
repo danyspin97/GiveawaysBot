@@ -1,4 +1,4 @@
-require_relative '../lib/tyche'
+require_relative '../src/tyche'
 include Tyche::Entities
 include Tyche::Core
 

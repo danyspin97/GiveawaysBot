@@ -1,15 +1,19 @@
 {
-  "name": "wisedragonstd/giveaway-bot",
+  "name": "danyspin97/giveaway-bot",
     "version": "0.0.1",
     "type": "project",
     "license": "AGPL-3.0+",
     "keywords": ["telegram", "bot", "telegram-bot", "giveaway"],
-    "homepage": "https://gitlab.com/WiseDragonStd/GiveawayBot",
+    "homepage": "https://github.com/danyspin97/GiveawayBot",
     "minimum-stability": "dev",
     "authors": [
         {
-            "name": "Dany Spin",
+            "name": "Danilo Spinella",
             "homepage": "https://gitlab.com/u/danyspin97",
+            "role": "Developer"
+        },
+        {
+            "name": "Dom Corvasce",
             "role": "Developer"
         }
     ],

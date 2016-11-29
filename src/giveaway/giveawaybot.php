@@ -44,7 +44,7 @@ define('OBJECT_PER_LIST', 3);
 define('CURRENCY', '€$₽');
 
 
-class GiveAwayBot extends \WiseDragonStd\HadesWrapper\Bot {
+class GiveawaysBot extends \WiseDragonStd\HadesWrapper\Bot {
 
     // Process inline queries
     public function processInlineQuery() {

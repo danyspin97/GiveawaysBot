@@ -16,7 +16,7 @@ use \WiseDragonStd\HadesWrapper;
 // Set error reporting to skip PHP_NOTICE: http://php.net/manual/en/function.error-reporting.php
 error_reporting(E_ALL & ~E_NOTICE);
 
-$bot = new GiveawayBot($token);
+$bot = new GiveawaysBot($token);
 $bot->setLocalization($localization);
 $bot->setDatabase(new \WiseDragonStd\HadesWrapper\Database($driver, $dbname, $user, $password, $bot));
 try {

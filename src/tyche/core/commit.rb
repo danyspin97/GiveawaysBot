@@ -14,7 +14,7 @@ module Tyche
         @winners = {}
 
         filename = "TYCHE_#{Time.now.strftime('%Y-%m-%d')}.log"
-        @logger = Logger.new("/var/log/#{filename}")
+        @logger = Logger.new("/tmp/#{filename}")
       end
 
       def commit

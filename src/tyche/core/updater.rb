@@ -9,7 +9,7 @@ module Tyche
         @giveaways = {}
 
         filename = "TYCHE_#{Time.now.strftime('%Y-%m-%d')}.log"
-        @logger = @logger = Logger.new("/var/log/#{filename}")
+        @logger = Logger.new("/tmp/#{filename}")
       end
 
       def fetch

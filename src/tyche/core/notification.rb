@@ -7,7 +7,7 @@ module Tyche
         @options = options
 
         filename = "TYCHE_#{Time.now.strftime('%Y-%m-%d')}.log"
-        @logger = @logger = Logger.new("/var/log/#{filename}")
+        @logger = Logger.new("/tmp/#{filename}")
       end
 
       def send
@@ -27,7 +27,7 @@ module Tyche
 
         @participant[1][:losed].each do |giveaway|
           message = "- *#{giveaway}*\n"
-          messages.append("") if (messages[-1] + message).size >= 4096
+          messages.append('') if (messages[-1] + message).size >= 4096
 
           messages[-1] += message
         end
@@ -41,16 +41,15 @@ module Tyche
 
       # Send notifications about won giveaways
       def send_winner_notification
-        messages = [""]
+        messages = ['']
 
         @participant[1][:won].each do |giveaway, prize|
-          message = format(@language['won_message'], giveaway,
-                                                     prize['name'],
-                                                     prize['value'],
-                                                     prize['currency'])
+          clear_key = decrypt(prize['key'])
 
-          messages << message
-          messages << "```#{decrypt(prize['key'])}```"
+          message = format(@language['won_message'], giveaway,
+                           prize['name'], prize['value'], prize['currency'])
+
+          messages << message << clear_key
         end
 
         messages.each do |message|
@@ -62,16 +61,18 @@ module Tyche
 
       def decrypt(key)
         key = Base64.decode64(key)
-        
+
         decipher = OpenSSL::Cipher::AES128.new(:ECB)
         decipher.decrypt
-          
+
+        decipher.padding = 1
         decipher.key = sanitize_token
-        decipher.iv = ""
+        decipher.iv = ''
 
         plain = decipher.update(key)
-        plain.force_encoding('utf-8').encode
+        plain << decipher.final
 
+        plain.force_encoding('utf-8').encode
         plain
       end
 

@@ -72,7 +72,7 @@ module Tyche
           @giveaway['participants'].delete_at(winner_index)
           @participants_amount -= 1
 
-          @logger.info "  ** Assigned '#{prize['name']} to #{winner}"
+          @logger.info "  ** Assigned '#{prize['name']}' to #{winner}"
         end
       end
 

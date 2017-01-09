@@ -6,7 +6,7 @@ module Tyche
         @language = options[:language][@participant[1]['language']]
         @options = options
 
-        filename = "TYCHE_#{Time.now.strftime('%Y-%m-%d')}.log"
+        filename = 'TYCHE_LOG.log'
         @logger = Logger.new("/tmp/#{filename}")
       end
 

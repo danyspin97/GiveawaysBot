@@ -13,7 +13,7 @@ module Tyche
 
         @winners = {}
 
-        filename = "TYCHE_#{Time.now.strftime('%Y-%m-%d')}.log"
+        filename = 'TYCHE_LOG.log'
         @logger = Logger.new("/tmp/#{filename}")
       end
 
@@ -34,10 +34,10 @@ module Tyche
       private
 
       def retrieve_prizes
-        query = %Q{
+        query = %(
           SELECT id, name, key, value, currency FROM prize
           WHERE giveaway_id = #{@giveaway['id']}
-        }.strip
+        ).strip
 
         @db.exec(query) do |result|
           result.each { |prize| @prizes << prize }
@@ -76,11 +76,11 @@ module Tyche
 
       # Assign prizes looking at participants' points.
       def assign_prizes_per_points
-        query = %Q{
+        query = %(
           SELECT chat_id FROM Joined
           WHERE  giveaway_id = #{@giveaway['id']} ORDER BY invites DESC
           LIMIT #{@prizes.size}
-        }.strip
+        ).strip
 
         @db.exec(query) do |result|
           result.each_with_index do |participant, index|
@@ -95,7 +95,7 @@ module Tyche
 
       # Add winner to the winners' table.
       def register_winner(winner_id, prize_id)
-        query = %Q{
+        query = %{
           INSERT INTO Won VALUES(#{winner_id}, #{@giveaway['id']}, #{prize_id})
         }.strip
 

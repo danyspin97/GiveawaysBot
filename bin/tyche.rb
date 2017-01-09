@@ -40,7 +40,7 @@ giveaways.each do |_, giveaway|
   end
 
   committer.winners.each do |winner, prize|
-    @participants[winner][:won][giveaway['name']] = prize  
+    @participants[winner][:won][giveaway['name']] = prize
   end
 end
 

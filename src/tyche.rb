@@ -15,4 +15,3 @@ require_relative './tyche/core/configuration'
 require_relative './tyche/core/updater'
 require_relative './tyche/core/commit'
 require_relative './tyche/core/notification'
-

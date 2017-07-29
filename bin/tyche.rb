@@ -5,10 +5,15 @@ include Tyche::Core
 @language = Tyche::Core::Configuration.new('languages.yml').load
 @config = Tyche::Core::Configuration.new('secrets.yml').load
 
-@db = PG.connect(dbname: @config['dbname'],
-                 host: @config['dbhost'],
-                 password: @config['dbpasswd'],
-                 user: @config['dbuser'])
+begin
+  @db = PG.connect(dbname: @config['dbname'],
+                   host: @config['dbhost'],
+                   password: @config['dbpasswd'],
+                   user: @config['dbuser'])
+rescue PG::ConnectionBad
+  $stderr.puts 'Unable to connect to the DB: check your credentials in "secrets.yml"'
+  exit(1)
+end
 
 @endpoint = "https://api.telegram.org/bot#{@config['token']}/sendMessage"
 @participants = {}

@@ -1,5 +1,5 @@
 # GiveawaysBot
-[![Bot](https://img.shields.io/badge/Telegram-@Giveaways_Bot-0088cc.svg?style=flat)
+[![Bot](https://img.shields.io/badge/Telegram-@Giveaways_Bot-0088cc.svg?style=flat)](https://telegram.me/Giveaways_Bot)
 [![Build Status](https://travis-ci.org/DanySpin97/GiveawaysBot.svg?branch=master)](https://travis-ci.org/DanySpin97/GiveawaysBot)
 [![License](https://img.shields.io/badge/license-GNU_AGPLv3-blue.svg?style=plastic)]()
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/530a9bc5044343378976e847687bf33c)](https://www.codacy.com/app/danyspin97/GiveawaysBot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=DanySpin97/GiveawaysBot&amp;utm_campaign=Badge_Grade)

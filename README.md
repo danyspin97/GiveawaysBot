@@ -7,6 +7,20 @@
 [GiveawaysBot](https://telegram.me/Giveaways_Bot) is a Telegram bot which handles giveaways creation and management,
 allowing users to easily create, join and share giveaways.
 
+## Installation
+
+Clone this repository:
+
+```shell
+git clone https://github.com/DanySpin97/GiveawaysBot
+```
+
+Then go into the downloaded folder and install the dependencies using **Composer**:
+
+```shell
+composer install
+```
+
 ## Features
 
 - Create & manage giveaways:

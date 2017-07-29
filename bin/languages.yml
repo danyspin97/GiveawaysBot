@@ -1,20 +1,33 @@
 it:
-  won_message: "Congratulazioni, sei uno dei vincitori di %s!\nCome premio hai ricevuto *%s* per un valore di _%s%s_.\nBeh, ecco a te il tuo premio:"
+  victory_message: >
+    Congratulazioni, sei uno dei vincitori di %s!
 
-  lose_message: "Ecco a te una lista di giveaway conclusisi oggi dove non sei tra i vincitori:\n\n"
+    Come premio hai ricevuto *%s* per un valore di _%s%s_.
+
+    Beh, ecco a te il tuo premio:
+
+  lost_message: >
+    Ecco a te una lista di giveaway conclusisi oggi dove non sei tra i vincitori:
+
 en:
-  won_message: "Congratulations, you're one of the winners of %s!\nYou got *%s* for a value of _%s%s_.\nSo, here's your prize:"
+  victory_message: >
+    Congratulations, you're one of the winners of %s!
 
-  lose_message: "Here it's a list of giveaway which ended today and you didn't win:\n\n"
+    You got *%s* for a value of _%s%s_.
+
+    Well, here's your award:
+
+  lost_message: >
+    Here it's a list of giveaway which ended today and you didn't win:
+
 fi:
-  won_message: "Congratulations, you're one of the winners of %s!\nYou got *%s* for a value of _%s%s_.\nSo, here's your prize:\n\n```%s```"
+  victory_message: >
+    Onneksi olkoon, olet yksi voittajista %s!
 
-  lose_message: "Here it's a list of giveaway which ended today and you didn't win:\n\n"
-br:
-  won_message: "Congratulations, you're one of the winners of %s!\nYou got *%s* for a value of _%s%s_.\nSo, here's your prize:\n\n```%s```"
+    Palkkiona sait *%s* arvoinen _%s%s_.
 
-  lose_message: "Here it's a list of giveaway which ended today and you didn't win:\n\n"
-ru:
-  won_message: "Congratulations, you're one of the winners of %s!\nYou got *%s* for a value of _%s%s_.\nSo, here's your prize:\n\n```%s```"
+    No, tässä on sinulle palkinnon:
 
-  lose_message: "Here it's a list of giveaway which ended today and you didn't win:\n\n"
+  lost_message: >
+    Tässä on luettelo lahjoituksista, joka päättyi tänään ja et voittanut:
+

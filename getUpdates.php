@@ -1,9 +1,9 @@
 <?php
 
-require './vendor/autoload.php';
-require './lib/giveaway/giveawaybot.php';
-require './lib/giveaway/languages.php';
-require './lib/giveaway/data.php';
+require_once './vendor/autoload.php';
+require_once './src/giveaway/giveawaybot.php';
+require_once './src/giveaway/languages.php';
+require_once './src/giveaway/data.php';
 
 /*
  * Main script of the Bot using long polling

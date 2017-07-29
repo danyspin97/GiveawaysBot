@@ -13,6 +13,9 @@ module Tyche
 
       def load
         @options = @loader.load_file(expand_path)
+      rescue Errno::ENOENT
+        $stderr.puts "Unable to find '#{expand_path}': missing configuration file"
+        exit(1)
       end
 
       private

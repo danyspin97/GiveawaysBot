@@ -23,7 +23,7 @@ module Tyche
         return if @participant[1][:losed].empty?
 
         @participant[1][:losed] = @participant[1][:losed].uniq
-        messages = [@language['lose_message']]
+        messages = [@language['lost_message']]
 
         @participant[1][:losed].each do |giveaway|
           message = "- *#{giveaway}*\n"
@@ -46,7 +46,7 @@ module Tyche
         @participant[1][:won].each do |giveaway, prize|
           clear_key = decrypt(prize['key'])
 
-          message = format(@language['won_message'], giveaway,
+          message = format(@language['victory_message'], giveaway,
                            prize['name'], prize['value'], prize['currency'])
 
           messages << message << clear_key
